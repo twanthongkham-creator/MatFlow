@@ -6,123 +6,122 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MatFlow — Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f0f4f8;--surface:#fff;--border:#d9e2ec;
-  --txt:#0f2744;--txt2:#4a6380;--txt3:#8fa3b8;
-  --navy:#1e3a5f;--blue:#2563eb;--blue-mid:#3b82f6;--blue-lt:#eff6ff;--blue-br:#bfdbfe;
-  --green:#059669;--green-lt:#ecfdf5;--green-br:#6ee7b7;
-  --red:#dc2626;--red-lt:#fef2f2;--red-br:#fca5a5;
-  --amber:#d97706;--amber-lt:#fffbeb;--amber-br:#fde68a;
-  --shadow-s:0 2px 8px rgba(15,39,68,.08);--shadow-m:0 4px 20px rgba(15,39,68,.10);
-  --r:10px;--r-lg:16px;--r-xl:20px;
+  --ocean-deep:#0a1628;--sky:#2171e5;--sky-bright:#3b8ef8;--sky-lt:#5ba4ff;
+  --glass-white:rgba(255,255,255,0.72);--glass-border:rgba(255,255,255,0.55);
+  --glass-shadow:0 8px 32px rgba(10,22,40,0.12),0 2px 8px rgba(10,22,40,0.08);
+  --glass-shadow-lg:0 20px 60px rgba(10,22,40,0.18),0 4px 16px rgba(10,22,40,0.10);
+  --glass-inset:inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -1px 0 rgba(255,255,255,0.2);
+  --txt:#0d2548;--txt2:#2d5a8e;--txt3:#7aa3cc;
+  --green:#05a06a;--green-lt:rgba(5,160,106,0.12);--green-br:rgba(5,160,106,0.3);
+  --red:#e0334c;--red-lt:rgba(224,51,76,0.10);--red-br:rgba(224,51,76,0.28);
+  --amber:#e09305;--amber-lt:rgba(224,147,5,0.10);--amber-br:rgba(224,147,5,0.28);
+  --r:12px;--r-lg:18px;--r-xl:24px;--r-2xl:32px;
 }
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.6;min-height:100vh}
-/* topbar */
-.topbar{position:sticky;top:0;z-index:200;height:60px;background:var(--navy);display:flex;align-items:center;padding:0 28px;gap:20px;box-shadow:0 2px 12px rgba(0,0,0,.22)}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.brand-ico{width:32px;height:32px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:8px;display:flex;align-items:center;justify-content:center}
+body{font-family:'Outfit',sans-serif;background:var(--ocean-deep);color:var(--txt);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 10% 10%,rgba(33,113,229,0.55) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 20%,rgba(59,142,248,0.35) 0%,transparent 55%),radial-gradient(ellipse 70% 50% at 50% 90%,rgba(91,164,255,0.28) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(26,74,140,0.45) 0%,transparent 50%);background-color:var(--ocean-deep);animation:meshFloat 18s ease-in-out infinite alternate}
+@keyframes meshFloat{0%{opacity:1}50%{opacity:.85}100%{opacity:1}}
+body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
+.topbar{position:sticky;top:0;z-index:200;height:64px;background:rgba(10,22,40,0.55);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;padding:0 24px;gap:16px;box-shadow:0 1px 0 rgba(255,255,255,0.06),0 4px 24px rgba(0,0,0,0.22)}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+.brand-ico{width:34px;height:34px;background:linear-gradient(135deg,rgba(59,142,248,0.9),rgba(33,113,229,0.9));border:1px solid rgba(255,255,255,0.30);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(59,142,248,0.40),inset 0 1px 0 rgba(255,255,255,0.4)}
 .brand-ico svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:1.8}
-.brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.2px}
-.brand-sep{width:1px;height:18px;background:rgba(255,255,255,.18);margin:0 2px}
-.brand-sub{font-size:11px;color:rgba(255,255,255,.45)}
+.brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.brand-sep{width:1px;height:16px;background:rgba(255,255,255,0.18);margin:0 4px}
+.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.40);font-weight:400}
 .topnav{display:flex;align-items:center;gap:2px;margin-left:auto}
-.nav-a{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;text-decoration:none;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.55);transition:background .15s,color .15s;white-space:nowrap}
+.nav-a{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:500;color:rgba(255,255,255,0.50);transition:all .2s;white-space:nowrap}
 .nav-a svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
-.nav-a:hover{background:rgba(255,255,255,.10);color:#fff}
-.nav-a.active{background:rgba(255,255,255,.16);color:#fff;font-weight:600}
-.shell{max-width:1300px;margin:0 auto;padding:28px 28px 56px}
-.ph{margin-bottom:20px}
-.ph h1{font-size:21px;font-weight:700;color:var(--txt);letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
-.ph-ico{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--navy));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(37,99,235,.28)}
-.ph-ico svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8}
-.ph p{font-size:13px;color:var(--txt3);margin-top:4px;margin-left:48px}
-/* update strip */
-.update-strip{display:flex;align-items:center;gap:8px;background:var(--blue-lt);border:1px solid var(--blue-br);border-radius:var(--r);padding:8px 14px;font-size:13px;color:var(--txt2);font-weight:500;margin-bottom:20px}
+.nav-a:hover{background:rgba(255,255,255,0.10);color:rgba(255,255,255,0.85)}
+.nav-a.active{background:rgba(255,255,255,0.16);color:#fff;font-weight:600;border:1px solid rgba(255,255,255,0.18);box-shadow:inset 0 1px 0 rgba(255,255,255,0.20)}
+.shell{position:relative;z-index:10;max-width:1340px;margin:0 auto;padding:24px 24px 64px}
+.ph{margin-bottom:18px}
+.ph h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px;display:flex;align-items:center;gap:12px;text-shadow:0 2px 16px rgba(59,142,248,0.35)}
+.ph-ico{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,rgba(59,142,248,0.85),rgba(33,113,229,0.85));border:1px solid rgba(255,255,255,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(59,142,248,0.35),inset 0 1px 0 rgba(255,255,255,0.5)}
+.ph-ico svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
+.ph p{font-size:13px;color:rgba(255,255,255,0.48);margin-top:4px;margin-left:54px;font-weight:400}
+/* Update strip */
+.update-strip{display:flex;align-items:center;gap:8px;background:rgba(5,160,106,0.12);backdrop-filter:blur(16px);border:1px solid rgba(5,160,106,0.28);border-radius:var(--r);padding:9px 14px;font-size:12.5px;color:var(--txt2);font-weight:500;margin-bottom:18px}
 .update-strip svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2;flex-shrink:0}
-.dot-live{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+.dot-live{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;flex-shrink:0;box-shadow:0 0 6px rgba(5,160,106,0.60)}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-/* card */
-.card-mf{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-s);padding:22px;transition:box-shadow .2s}
-.card-mf:hover{box-shadow:var(--shadow-m)}
-.card-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.1px;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.card-ttl::before{content:'';display:block;width:3px;height:14px;background:linear-gradient(var(--blue-mid),var(--blue));border-radius:2px;flex-shrink:0}
-.card-ttl.amber{color:var(--amber)}.card-ttl.amber::before{background:linear-gradient(var(--amber),#b45309)}
+/* Card */
+.card-mf{background:var(--glass-white);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--glass-border);border-radius:var(--r-xl);box-shadow:var(--glass-shadow),var(--glass-inset);padding:22px;transition:all .25s;position:relative;overflow:hidden}
+.card-mf::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,0.30) 0%,rgba(255,255,255,0.05) 100%);pointer-events:none}
+.card-mf:hover{box-shadow:var(--glass-shadow-lg),var(--glass-inset);border-color:rgba(255,255,255,0.72)}
+.card-ttl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.3px;color:var(--sky);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-ttl::before{content:'';display:block;width:3px;height:14px;background:linear-gradient(var(--sky-bright),var(--sky));border-radius:2px;flex-shrink:0}
+.card-ttl.amber{color:var(--amber)}.card-ttl.amber::before{background:linear-gradient(#f5b942,var(--amber))}
 .card-ttl.red{color:var(--red)}.card-ttl.red::before{background:linear-gradient(#f87171,var(--red))}
 .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.bcode{display:inline-block;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace}
-/* oos */
+.bcode{display:inline-block;background:rgba(255,255,255,0.55);color:var(--txt2);border:1px solid rgba(255,255,255,0.50);border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:600;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(6px)}
+/* OOS */
 .oos-scroll{max-height:380px;overflow-y:auto;padding-right:2px}
-.oos-item{display:flex;align-items:center;justify-content:space-between;background:var(--red-lt);border:1px solid var(--red-br);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;transition:transform .12s}
-.oos-item:hover{transform:translateX(2px)}
+.oos-item{display:flex;align-items:center;justify-content:space-between;background:rgba(224,51,76,0.08);backdrop-filter:blur(12px);border:1px solid rgba(224,51,76,0.25);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;transition:all .15s;position:relative;overflow:hidden}
+.oos-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);border-radius:2px 0 0 2px}
+.oos-item:hover{background:rgba(224,51,76,0.12);transform:translateX(2px)}
 .oos-name{font-size:13.5px;font-weight:700;color:#991b1b}
-.oos-sub{font-size:12px;color:#f87171;margin-top:2px}
-.oos-badge{background:var(--red);color:#fff;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700}
-/* table */
-.tw{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border)}
+.oos-sub{font-size:12px;color:var(--red);margin-top:2px;opacity:.75}
+.oos-badge{background:var(--red);color:#fff;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(224,51,76,0.35)}
+/* Table */
+.tw{border-radius:var(--r-lg);overflow:hidden;border:1px solid rgba(255,255,255,0.40)}
 .mt{width:100%;border-collapse:collapse}
-.mt thead tr{background:var(--navy)}
-.mt thead th{padding:10px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.65);text-align:left;white-space:nowrap}
-.mt tbody tr{border-bottom:1px solid var(--bg);transition:background .12s}
-.mt tbody tr:hover{background:var(--blue-lt)}
+.mt thead tr{background:linear-gradient(135deg,rgba(10,22,40,0.80),rgba(26,74,140,0.70));backdrop-filter:blur(20px)}
+.mt thead th{padding:11px 14px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(255,255,255,0.60);text-align:left;white-space:nowrap}
+.mt tbody tr{border-bottom:1px solid rgba(255,255,255,0.22);transition:background .14s;background:rgba(255,255,255,0.55)}
+.mt tbody tr:hover{background:rgba(255,255,255,0.80)}
 .mt tbody tr:last-child{border-bottom:none}
-.mt tbody td{padding:11px 14px;font-size:14px;color:var(--txt)}
-.bbatch{display:inline-block;background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-br);border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace}
-/* expiry scale */
-.scale-wrap{position:relative;width:100%;max-width:180px;height:9px;background:#f1f5f9;border-radius:999px;display:inline-flex;overflow:hidden;vertical-align:middle}
-.seg-d{width:22.5%;background:#fee2e2}.seg-w{width:25.8%;background:#fef3c7}.seg-s{width:51.7%;background:#dcfce7}
-.ind{position:absolute;top:0;height:100%;width:5px;z-index:5;border-radius:999px;box-shadow:0 0 4px rgba(0,0,0,.25)}
-/* legend dots */
+.mt tbody td{padding:12px 14px;font-size:14px;color:var(--txt)}
+.bbatch{display:inline-block;background:rgba(59,142,248,0.12);color:var(--sky);border:1px solid rgba(59,142,248,0.28);border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:600;font-family:'JetBrains Mono',monospace}
+/* Expiry scale */
+.scale-wrap{position:relative;width:100%;max-width:190px;height:9px;background:rgba(255,255,255,0.30);border-radius:999px;display:inline-flex;overflow:hidden;vertical-align:middle;border:1px solid rgba(255,255,255,0.40)}
+.seg-d{width:22.5%;background:rgba(224,51,76,0.55)}.seg-w{width:25.8%;background:rgba(224,147,5,0.55)}.seg-s{width:51.7%;background:rgba(5,160,106,0.40)}
+.ind{position:absolute;top:0;height:100%;width:5px;z-index:5;border-radius:999px;box-shadow:0 0 6px rgba(0,0,0,0.35)}
+/* Legend */
 .leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--txt3)}
 .leg-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
-/* loader */
-.loader{position:fixed;inset:0;z-index:9999;background:rgba(10,20,40,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
-.loader-box{background:#fff;border-radius:var(--r-xl);padding:30px 44px;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.20);min-width:220px;text-align:center}
-.spinner{width:38px;height:38px;border:3px solid var(--blue-br);border-top-color:var(--blue);border-radius:50%;animation:spin .65s linear infinite}
+/* Loader */
+.loader{position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.65);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);display:flex;align-items:center;justify-content:center}
+.loader-box{background:rgba(255,255,255,0.84);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.72);border-radius:var(--r-2xl);padding:32px 48px;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:var(--glass-shadow-lg),var(--glass-inset);min-width:220px;text-align:center}
+.spinner{width:38px;height:38px;border:3px solid rgba(59,142,248,0.25);border-top-color:var(--sky-bright);border-radius:50%;animation:spin .65s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loader-txt{font-size:13.5px;font-weight:600;color:var(--txt2)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.a1{animation:fadeUp .4s .04s both}.a2{animation:fadeUp .4s .10s both}.a3{animation:fadeUp .4s .17s both}.a4{animation:fadeUp .4s .24s both}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--blue-br);border-radius:99px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.a1{animation:fadeUp .45s .04s both}.a2{animation:fadeUp .45s .12s both}.a3{animation:fadeUp .45s .21s both}.a4{animation:fadeUp .45s .30s both}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:rgba(255,255,255,0.15)}::-webkit-scrollbar-thumb{background:rgba(59,142,248,0.40);border-radius:99px}
+@media(max-width:768px){.topbar{padding:0 16px;gap:10px}.brand-sub,.brand-sep{display:none}.nav-a{padding:7px 9px;font-size:12px;gap:4px}.shell{padding:16px 14px 64px}.ph h1{font-size:18px}.ph p{margin-left:0;margin-top:6px}.card-mf{padding:16px}}
 </style>
 </head>
 <body>
-
 <div id="loader" class="loader">
   <div class="loader-box"><div class="spinner"></div><div class="loader-txt">กำลังโหลดข้อมูล Dashboard...</div></div>
 </div>
-
 <header class="topbar">
   <a href="index.html" class="brand">
     <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
     <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
   </a>
   <nav class="topnav">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Planning</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
-    <a href="dashboard.html" class="nav-a active"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg><span>Planning</span></a>
+    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg><span>Receiving</span></a>
+    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Management</span></a>
+    <a href="dashboard.html" class="nav-a active"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg><span>Dashboard</span></a>
   </nav>
 </header>
-
 <div class="shell">
   <div class="ph a1">
-    <h1>
-      <span class="ph-ico"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></span>
-      Dashboard Overview
-    </h1>
+    <h1><span class="ph-ico"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></span>Dashboard Overview</h1>
     <p>ภาพรวมสถานะคลังวัตถุดิบ</p>
   </div>
-
   <div class="update-strip a1">
     <div class="dot-live"></div>
     <span id="lastUpdate">กำลังรอข้อมูลจาก Google Sheets...</span>
   </div>
-
   <div class="row g-4">
     <!-- Chart -->
     <div class="col-lg-8 a2">
@@ -139,68 +138,52 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--txt);font
         </div>
       </div>
     </div>
-
-```
-<!-- OOS -->
-<div class="col-lg-4 a3">
-  <div class="card-mf h-100">
-    <div class="sec-head">
-      <div class="card-ttl red" style="margin-bottom:0">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Out of Stock
-      </div>
-      <span class="bcode" id="oosBadge">0</span>
-    </div>
-    <div class="oos-scroll" id="outOfStockBody">
-      <div style="text-align:center;padding:40px;color:var(--txt3)">
-        <svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--border);fill:none;stroke-width:1;margin-bottom:10px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <div style="font-size:13.5px">กำลังโหลด...</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Expiry Table -->
-<div class="col-12 a4">
-  <div class="card-mf">
-    <div class="sec-head">
-      <div class="card-ttl amber" style="margin-bottom:0">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Expiry Timeline (31-Day Monitor)
-      </div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="leg"><div class="leg-dot" style="background:#fee2e2"></div>1–7 วัน</div>
-        <div class="leg"><div class="leg-dot" style="background:#fef3c7"></div>8–15 วัน</div>
-        <div class="leg"><div class="leg-dot" style="background:#dcfce7"></div>16–31 วัน</div>
+    <!-- OOS -->
+    <div class="col-lg-4 a3">
+      <div class="card-mf h-100">
+        <div class="sec-head">
+          <div class="card-ttl red" style="margin-bottom:0">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Out of Stock
+          </div>
+          <span class="bcode" id="oosBadge">0</span>
+        </div>
+        <div class="oos-scroll" id="outOfStockBody">
+          <div style="text-align:center;padding:40px;color:var(--txt3)">
+            <svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:rgba(255,255,255,0.18);fill:none;stroke-width:1;margin-bottom:10px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div style="font-size:13.5px">กำลังโหลด...</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div style="overflow-y:auto;max-height:360px">
-      <div class="tw">
-        <table class="mt">
-          <thead><tr>
-            <th>RM Name</th><th>Batch</th>
-            <th style="text-align:center">คงเหลือ (วัน)</th>
-            <th style="text-align:center;min-width:200px">31-Day Scale</th>
-          </tr></thead>
-          <tbody id="expiryTableBody">
-            <tr><td colspan="4" style="padding:40px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr>
-          </tbody>
-        </table>
+    <!-- Expiry Table -->
+    <div class="col-12 a4">
+      <div class="card-mf">
+        <div class="sec-head">
+          <div class="card-ttl amber" style="margin-bottom:0">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Expiry Timeline (31-Day Monitor)
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="leg"><div class="leg-dot" style="background:rgba(224,51,76,0.55)"></div>1–7 วัน</div>
+            <div class="leg"><div class="leg-dot" style="background:rgba(224,147,5,0.55)"></div>8–15 วัน</div>
+            <div class="leg"><div class="leg-dot" style="background:rgba(5,160,106,0.50)"></div>16–31 วัน</div>
+          </div>
+        </div>
+        <div style="overflow-y:auto;max-height:360px">
+          <div class="tw"><table class="mt">
+            <thead><tr><th>RM Name</th><th>Batch</th><th style="text-align:center">คงเหลือ (วัน)</th><th style="text-align:center;min-width:200px">31-Day Scale</th></tr></thead>
+            <tbody id="expiryTableBody"><tr><td colspan="4" style="padding:40px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
   </div>
 </div>
-```
-
-  </div>
-</div>
-
 <script>
 Chart.register(ChartDataLabels);
 const URL_API='https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
-
 window.onload=loadDash;
-
 async function loadDash(){
   try{
     const r=await fetch(`${URL_API}?action=getDashboardData`);const j=await r.json();
@@ -217,7 +200,6 @@ async function loadDash(){
     setTimeout(()=>l.style.display='none',360);
   }
 }
-
 function renderChart(data){
   const items=Object.keys(data).map(k=>({name:k,val:data[k]})).filter(i=>i.val>0).sort((a,b)=>b.val-a.val);
   document.getElementById('productCount').textContent=`${items.length} สินค้า`;
@@ -231,34 +213,34 @@ function renderChart(data){
       labels:items.map(i=>i.name),
       datasets:[{
         data:items.map(i=>i.val),
-        backgroundColor:items.map(i=>i.val>500?'rgba(5,150,105,.75)':i.val>100?'rgba(217,119,6,.75)':'rgba(220,38,38,.75)'),
-        barPercentage:.12,borderRadius:999
+        backgroundColor:items.map(i=>i.val>500?'rgba(5,160,106,0.70)':i.val>100?'rgba(224,147,5,0.70)':'rgba(224,51,76,0.70)'),
+        barPercentage:.55,borderRadius:8,
+        borderColor:items.map(i=>i.val>500?'rgba(5,160,106,0.90)':i.val>100?'rgba(224,147,5,0.90)':'rgba(224,51,76,0.90)'),
+        borderWidth:1
       }]
     },
     options:{
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
-        datalabels:{anchor:'end',align:'right',color:'#4a6380',font:{weight:'bold',size:11,family:'IBM Plex Mono'},formatter:v=>v.toLocaleString()+' U'}
+        datalabels:{anchor:'end',align:'right',color:'#2d5a8e',font:{weight:'bold',size:11,family:'JetBrains Mono'},formatter:v=>v.toLocaleString()+' U'}
       },
       scales:{
-        x:{display:true,grid:{color:'rgba(209,213,219,.4)',drawBorder:false},ticks:{font:{size:11,family:'Sarabun'},color:'#94a3b8'}},
-        y:{grid:{display:false},ticks:{font:{size:12,weight:'600',family:'Sarabun'},color:'#334155'}}
+        x:{display:true,grid:{color:'rgba(255,255,255,0.12)',drawBorder:false},ticks:{font:{size:11,family:'Outfit'},color:'rgba(10,22,40,0.55)'}},
+        y:{grid:{display:false},ticks:{font:{size:12,weight:'600',family:'Outfit'},color:'#2d5a8e'}}
       }
     }
   });
 }
-
 function renderOOS(data){
   const c=document.getElementById('outOfStockBody');
   document.getElementById('oosBadge').textContent=`${(data||[]).length}`;
   if(!data||!data.length){
-    c.innerHTML=`<div style="text-align:center;padding:44px 16px"><div style="width:40px;height:40px;background:var(--green-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--green);fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg></div><div style="font-weight:700;color:var(--green);font-size:13.5px">วัตถุดิบพร้อมใช้งานทุกรายการ</div></div>`;
+    c.innerHTML=`<div style="text-align:center;padding:44px 16px"><div style="width:42px;height:42px;background:rgba(5,160,106,0.14);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:1px solid rgba(5,160,106,0.28)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--green);fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg></div><div style="font-weight:700;color:var(--green);font-size:13.5px">วัตถุดิบพร้อมใช้งานทุกรายการ</div></div>`;
     return;
   }
   c.innerHTML=data.map(i=>`<div class="oos-item"><div><div class="oos-name">${i.rmName}</div><div class="oos-sub">${i.pName}</div></div><span class="oos-badge">OUT</span></div>`).join('');
 }
-
 function renderExpiry(data){
   const tb=document.getElementById('expiryTableBody');
   if(!data||!data.length){
@@ -268,20 +250,17 @@ function renderExpiry(data){
     const exp=i.days<=0;
     const safe=Math.max(0,Math.min(31,i.days));
     const pos=(safe/31)*100;
-    const col=exp?'#7c3aed':i.days<=7?'#dc2626':i.days<=15?'#d97706':'#059669';
-    const rowBg=exp?'#fdf4ff':i.days<=7?'#fff5f5':i.days<=15?'#fffdf0':'';
+    const col=exp?'#7c3aed':i.days<=7?'var(--red)':i.days<=15?'var(--amber)':'var(--green)';
+    const rowBg=exp?'rgba(124,58,237,0.06)':i.days<=7?'rgba(224,51,76,0.05)':i.days<=15?'rgba(224,147,5,0.05)':'';
     const lbl=exp?`<span style="color:#7c3aed;font-weight:700;font-size:13px">หมดอายุแล้ว ${Math.abs(i.days)} วัน</span>`:`<span style="color:${col};font-weight:700;font-size:13px">${i.days} วัน</span>`;
     return`<tr style="background:${rowBg}">
       <td><div style="font-weight:600">${i.name}</div><span style="font-size:11.5px;color:var(--txt3)">${i.rmCode||''}</span></td>
       <td><span class="bbatch">${i.batch}</span></td>
       <td style="text-align:center">${lbl}</td>
-      <td style="text-align:center">
-        <div class="scale-wrap"><div class="seg-d"></div><div class="seg-w"></div><div class="seg-s"></div><div class="ind" style="left:${pos}%;background:${col}"></div></div>
-      </td>
+      <td style="text-align:center"><div class="scale-wrap"><div class="seg-d"></div><div class="seg-w"></div><div class="seg-s"></div><div class="ind" style="left:${pos}%;background:${col}"></div></div></td>
     </tr>`;
   }).join('');
 }
 </script>
-
 </body>
 </html>
