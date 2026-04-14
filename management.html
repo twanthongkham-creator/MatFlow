@@ -12,7 +12,16 @@
         .sticky-header { position: sticky; top: 0; background: #1e293b; color: white; z-index: 100; }
         .btn-edit { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; }
         .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; margin-left: 4px; }
-        .filter-section { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        
+        /* Popup Styling */
+        .modal-content { border-radius: 24px; border: none; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .modal-header { background: #1e293b; color: white; border-radius: 24px 24px 0 0; border: none; padding: 20px 30px; }
+        .qty-hero { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 25px; }
+        .qty-hero label { color: #0369a1; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .qty-hero input { font-size: 3rem; font-weight: 700; color: #0284c7; background: transparent; border: none; text-align: center; width: 100%; outline: none; }
+        .info-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+        .info-value { font-weight: 600; color: #1e293b; margin-bottom: 15px; }
+        .date-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; }
     </style>
 </head>
 <body>
@@ -21,12 +30,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-primary m-0">🛠️ MatFlow Management</h2>
         <div class="d-flex gap-2">
-            <a href="index.html" class="btn btn-outline-secondary">หน้าเบิกจ่าย</a>
-            <a href="receiving.html" class="btn btn-outline-warning">หน้ารับเข้า</a>
+            <a href="index.html" class="btn btn-outline-secondary px-4">เบิกจ่าย</a>
+            <a href="receiving.html" class="btn btn-outline-warning px-4">รับเข้า</a>
         </div>
     </div>
 
-    <div class="filter-section">
+    <div class="bg-white rounded-4 p-4 mb-4 shadow-sm">
         <div class="row g-3">
             <div class="col-md-3">
                 <label class="form-label small fw-bold">กรอง ProductName</label>
@@ -37,29 +46,28 @@
                 <select id="filterName" class="form-select" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
             </div>
             <div class="col-md-6">
-                <label class="form-label small fw-bold">ค้นหา (Batch, Code, Supplier...)</label>
-                <input type="text" id="searchInput" class="form-control" placeholder="พิมพ์เพื่อค้นหา..." oninput="applyFilters()">
+                <label class="form-label small fw-bold">ค้นหาคำสำคัญ</label>
+                <input type="text" id="searchInput" class="form-control" placeholder="พิมพ์ Batch, Code หรือ Supplier..." oninput="applyFilters()">
             </div>
         </div>
     </div>
 
     <div class="table-container">
-        <div class="table-responsive" style="max-height: 75vh;">
+        <div class="table-responsive" style="max-height: 70vh;">
             <table class="table table-hover align-middle">
                 <thead class="sticky-header">
                     <tr>
                         <th>Batch</th>
-                        <th>Code</th>
                         <th>Name (RM)</th>
                         <th class="text-center">Qty</th>
                         <th class="text-center">MFG (ค.ศ.)</th>
                         <th class="text-center">BBF (ค.ศ.)</th>
                         <th>Supplier</th>
-                        <th class="text-center">Action</th>
+                        <th class="text-center">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody id="dataTable">
-                    <tr><td colspan="8" class="text-center py-5">⌛ กำลังโหลดฐานข้อมูล...</td></tr>
+                    <tr><td colspan="7" class="text-center py-5 text-muted">⌛ กำลังโหลดฐานข้อมูล...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -68,22 +76,52 @@
 
 <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header bg-primary text-white" style="border-radius: 20px 20px 0 0;">
-                <h5 class="modal-title fw-bold">แก้ไขข้อมูล Batch: <span id="modalBatchTitle"></span></h5>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Batch: <span id="modalBatchTitle"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="info-label">Name (RM)</div>
+                        <div id="modalRMName" class="info-value text-truncate">-</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-label">Supplier</div>
+                        <div id="modalSupplier" class="info-value text-truncate">-</div>
+                    </div>
+                </div>
+
+                <div class="qty-hero">
+                    <label>จำนวนคงเหลือ (Quantity)</label>
+                    <input type="number" id="editQty">
+                    <div id="modalUnit" class="fw-bold text-muted small">UNIT</div>
+                </div>
+
                 <div class="row g-3">
-                    <div class="col-12"><label class="form-label fw-bold">เลข Batch</label><input type="text" id="editBatch" class="form-control"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold">จำนวนคงเหลือ (Qty)</label><input type="number" id="editQty" class="form-control"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold text-primary">วันผลิต (MFG)</label><input type="date" id="editMfg" class="form-control"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold text-danger">วันหมดอายุ (BBF)</label><input type="date" id="editExp" class="form-control"></div>
+                    <div class="col-6">
+                        <div class="date-card">
+                            <label class="info-label text-primary">วันผลิต (MFG)</label>
+                            <input type="date" id="editMfg" class="form-control form-control-sm border-0 bg-transparent p-0 fw-bold">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="date-card">
+                            <label class="info-label text-danger">วันหมดอายุ (BBF)</label>
+                            <input type="date" id="editExp" class="form-control form-control-sm border-0 bg-transparent p-0 fw-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="info-label">แก้ไขเลข Batch</label>
+                    <input type="text" id="editBatch" class="form-control">
                 </div>
             </div>
-            <div class="modal-footer border-0 p-3">
+            <div class="modal-footer border-0 p-4">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" class="btn btn-primary px-5 fw-bold" onclick="saveEdit()">บันทึกข้อมูล</button>
+                <button type="button" class="btn btn-primary px-5 fw-bold rounded-pill" onclick="saveEdit()">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
@@ -93,6 +131,7 @@
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
     let rawData = [];
+    let currentEditIdx = null;
     const modal = new bootstrap.Modal(document.getElementById('editModal'));
 
     window.onload = loadData;
@@ -127,11 +166,10 @@
         tbody.innerHTML = filtered.map(i => `
             <tr>
                 <td class="fw-bold">${i.batch}</td>
-                <td><small class="text-muted">${i.code}</small></td>
-                <td>${i.name}</td>
+                <td>${i.name} <br><small class="text-muted">${i.code}</small></td>
                 <td class="text-center fw-bold text-primary">${i.qty}</td>
-                <td class="text-center">${formatDisplayDate(i.mfg)}</td>
-                <td class="text-center">${formatDisplayDate(i.exp)}</td>
+                <td class="text-center small">${formatDisplayDate(i.mfg)}</td>
+                <td class="text-center small">${formatDisplayDate(i.exp)}</td>
                 <td><small>${i.supplier}</small></td>
                 <td class="text-center" style="min-width: 160px;">
                     <button class="btn-edit" onclick="openEdit(${i.rowIdx})">แก้ไข</button>
@@ -141,12 +179,10 @@
         `).join('');
     }
 
-    // 📅 ฟังก์ชันแปลงวันที่เป็น dd/mm/yyyy ค.ศ. (ใช้ en-GB เพื่อบังคับ ค.ศ.)
     function formatDisplayDate(dateStr) {
         if (!dateStr || dateStr === "") return "-";
         const date = new Date(dateStr);
-        if (isNaN(date)) return dateStr;
-        return date.toLocaleDateString('en-GB'); 
+        return isNaN(date) ? dateStr : date.toLocaleDateString('en-GB'); 
     }
 
     function formatInputDate(dateStr) {
@@ -157,17 +193,25 @@
 
     function openEdit(rowIdx) {
         let editingRow = rawData.find(i => i.rowIdx === rowIdx);
+        currentEditIdx = rowIdx;
+        
+        // Populate Header & Info
         document.getElementById('modalBatchTitle').innerText = editingRow.batch;
+        document.getElementById('modalRMName').innerText = editingRow.name;
+        document.getElementById('modalSupplier').innerText = editingRow.supplier || '-';
+        document.getElementById('modalUnit').innerText = editingRow.unit || 'UNIT';
+        
+        // Populate Inputs
         document.getElementById('editBatch').value = editingRow.batch;
         document.getElementById('editQty').value = editingRow.qty;
         document.getElementById('editMfg').value = formatInputDate(editingRow.mfg);
         document.getElementById('editExp').value = formatInputDate(editingRow.exp);
-        window.currentEditIdx = rowIdx;
+        
         modal.show();
     }
 
     async function saveEdit() {
-        let editingRow = rawData.find(i => i.rowIdx === window.currentEditIdx);
+        let editingRow = rawData.find(i => i.rowIdx === currentEditIdx);
         const updated = {
             ...editingRow,
             batch: document.getElementById('editBatch').value,
@@ -176,7 +220,7 @@
             exp: document.getElementById('editExp').value
         };
 
-        const btn = document.querySelector('#editModal .btn-primary');
+        const btn = document.querySelector('.modal-footer .btn-primary');
         btn.disabled = true; btn.innerText = "กำลังบันทึก...";
 
         try {
