@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatFlow - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; }
+        .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: 100%; border: none; }
+        .card-title { font-size: 0.9rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 15px; }
+        .nav-link { font-weight: 600; color: #64748b; border-radius: 10px; padding: 10px 20px; transition: 0.3s; }
+        .nav-link.active { background: #1e293b; color: white; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    </style>
+</head>
+<body>
+
+<div id="loading" class="loading-overlay">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-2"></div>
+        <div>กำลังรวบรวมข้อมูล...</div>
+    </div>
+</div>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <div>
+            <h2 class="fw-bold text-primary m-0">MatFlow Dashboard</h2>
+            <p class="text-muted small m-0">Warehouse Analytics & Monitoring</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="index.html" class="nav-link">Planning</a>
+            <a href="receiving.html" class="nav-link">Receiving</a>
+            <a href="management.html" class="nav-link">Management</a>
+            <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="stat-card">
+                <div class="card-title">Production Capacity (Potential Units per Product)</div>
+                <div style="height: 400px;">
+                    <canvas id="capacityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="stat-card">
+                <div class="card-title">Expiry Risks (Days Remaining)</div>
+                <div style="height: 400px;">
+                    <canvas id="expiryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="stat-card text-center border-start border-4 border-primary">
+                <div class="card-title">Total Batch Count</div>
+                <h1 id="totalBatches" class="fw-bold text-primary">-</h1>
+                <small class="text-muted">รายการทั้งหมดในคลัง</small>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="stat-card">
+                <div class="card-title">🚨 วัตถุดิบที่ต้องใช้งานด่วนที่สุด</div>
+                <div id="urgentList" class="row">
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
+
+    window.onload = loadDashboard;
+
+    async function loadDashboard() {
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getDashboardData`);
+            const json = await res.json();
+            const data = json.data;
+
+            document.getElementById('totalBatches').innerText = data.totalItems;
+            
+            renderCapacityChart(data.productionCapacity);
+            renderExpiryChart(data.expiryRisks);
+            renderUrgentList(data.expiryRisks);
+
+            document.getElementById('loading').classList.add('d-none');
+        } catch (e) {
+            alert("ไม่สามารถโหลดข้อมูลแดชบอร์ดได้");
+        }
+    }
+
+    function renderCapacityChart(capacityData) {
+        const ctx = document.getElementById('capacityChart').getContext('2d');
+        const labels = Object.keys(capacityData);
+        const values = Object.values(capacityData);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'จำนวน Unit ที่ผลิตได้',
+                    data: values,
+                    backgroundColor: 'rgba(2, 132, 199, 0.7)',
+                    borderColor: '#0284c7',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function renderExpiryChart(expiryData) {
+        const ctx = document.getElementById('expiryChart').getContext('2d');
+        const labels = expiryData.map(i => `${i.name} (${i.batch})`);
+        const values = expiryData.map(i => i.days);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'จำนวนวันที่เหลือ',
+                    data: values,
+                    backgroundColor: values.map(v => v < 30 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(245, 158, 11, 0.7)'),
+                    borderColor: values.map(v => v < 30 ? '#ef4444' : '#f59e0b'),
+                    borderWidth: 2,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, title: { display: true, text: 'Days' } },
+                    y: { ticks: { font: { size: 10 } } }
+                }
+            }
+        });
+    }
+
+    function renderUrgentList(expiryData) {
+        const container = document.getElementById('urgentList');
+        const urgentItems = expiryData.slice(0, 3);
+        
+        container.innerHTML = urgentItems.map(i => `
+            <div class="col-md-4 mb-2">
+                <div class="p-3 border rounded-3 ${i.days < 30 ? 'bg-danger-subtle border-danger' : 'bg-warning-subtle border-warning'}">
+                    <div class="fw-bold text-dark text-truncate">${i.name}</div>
+                    <div class="small text-muted">Batch: ${i.batch}</div>
+                    <div class="fw-bold ${i.days < 30 ? 'text-danger' : 'text-warning'} mt-1">เหลือ ${i.days} วัน</div>
+                </div>
+            </div>
+        `).join('');
+    }
+</script>
+</body>
+</html>
