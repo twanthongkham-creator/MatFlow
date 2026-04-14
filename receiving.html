@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatFlow - Receiving</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #fffbeb; }
+        .card { border-radius: 16px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .btn-warning { background-color: #f59e0b; color: white; border-radius: 10px; }
+        .queue-item { background: white; border-left: 5px solid #f59e0b; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-warning m-0">📥 รับเข้าวัตถุดิบ (Receiving)</h2>
+        <a href="index.html" class="btn btn-outline-secondary">กลับหน้าเบิกจ่าย</a>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold small text-secondary">1. เลือกวัตถุดิบ (จาก Master)</label>
+                <select id="matSelect" class="form-select form-select-lg">
+                    <option value="">กำลังโหลดรายการ...</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold small text-secondary">2. เลข Batch / Lot No.</label>
+                <input type="text" id="batchInput" class="form-control form-control-lg" placeholder="ระบุเลข Batch">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small text-secondary">3. จำนวนที่รับเข้า</label>
+                <input type="number" id="qtyInput" class="form-control form-control-lg" value="1">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small text-secondary">4. Supplier / แหล่งที่มา</label>
+                <input type="text" id="supplierInput" class="form-control form-control-lg" placeholder="ระบุแหล่งที่มา">
+            </div>
+            <div class="col-md-4 align-self-end">
+                <button class="btn btn-warning btn-lg w-100 fw-bold" onclick="addToQueue()">+ เพิ่มเข้ารายการรับ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="queueSection" class="d-none">
+        <h5 class="fw-bold mb-3 text-secondary">รายการที่พร้อมบันทึกลงคลัง</h5>
+        <div id="queueList"></div>
+        <button class="btn btn-success btn-lg w-100 mt-4 fw-bold shadow" onclick="submitReceive()">ยืนยันการบันทึกรับเข้าทั้งหมด</button>
+    </div>
+</div>
+
+<script>
+    // 🚩 เปลี่ยน URL เป็นตัวล่าสุดของคุณ
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
+    let receiveQueue = [];
+
+    window.onload = async () => {
+        const res = await fetch(`${SCRIPT_URL}?action=getProducts`);
+        const json = await res.json();
+        const select = document.getElementById('matSelect');
+        select.innerHTML = '<option value="">-- เลือกรายการวัตถุดิบ --</option>';
+        json.data.forEach(p => select.innerHTML += `<option value="${p}">${p}</option>`);
+    };
+
+    function addToQueue() {
+        const mat = document.getElementById('matSelect').value;
+        const batch = document.getElementById('batchInput').value;
+        const qty = parseFloat(document.getElementById('qtyInput').value);
+        const supplier = document.getElementById('supplierInput').value;
+
+        if(!mat || !batch || isNaN(qty)) return alert("กรุณากรอกข้อมูลหลักให้ครบ");
+
+        receiveQueue.push({ code: mat, productName: mat, batch, qty, supplier });
+        renderQueue();
+        document.getElementById('batchInput').value = '';
+        document.getElementById('qtyInput').value = '1';
+    }
+
+    function renderQueue() {
+        const list = document.getElementById('queueList');
+        document.getElementById('queueSection').classList.toggle('d-none', receiveQueue.length === 0);
+        list.innerHTML = receiveQueue.map((item, i) => `
+            <div class="queue-item p-3 mb-2 d-flex justify-content-between align-items-center shadow-sm">
+                <div>
+                    <strong>${item.code}</strong> | Batch: <span class="text-primary">${item.batch}</span><br>
+                    <small>จำนวน: ${item.qty} | จาก: ${item.supplier || '-'}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${i})">ลบ</button>
+            </div>
+        `).join('');
+    }
+
+    function removeItem(i) {
+        receiveQueue.splice(i, 1);
+        renderQueue();
+    }
+
+    async function submitReceive() {
+        const op = prompt("ระบุชื่อผู้บันทึกรับเข้า:");
+        if(!op) return;
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=receive&items=${encodeURIComponent(JSON.stringify(receiveQueue))}&operator=${encodeURIComponent(op)}`);
+            const json = await res.json();
+            if(json.status === 'success') {
+                alert("สำเร็จ! บันทึกรับเข้าเรียบร้อย");
+                location.reload();
+            }
+        } catch (e) { alert("เกิดข้อผิดพลาดในการเชื่อมต่อ"); }
+    }
+</script>
+</body>
+</html>
