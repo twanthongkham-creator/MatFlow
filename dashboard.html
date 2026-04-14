@@ -3,28 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow Dashboard</title>
+    <title>MatFlow - Pro Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
-        .stat-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); height: 100%; border: none; }
-        .card-title { font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 20px; border-left: 4px solid #0284c7; padding-left: 12px; }
-        .nav-link { font-weight: 600; color: #64748b; border-radius: 12px; padding: 10px 20px; transition: 0.3s; text-decoration: none; }
-        .nav-link.active { background: #1e293b; color: white; }
-        .badge-status { font-size: 0.75rem; padding: 6px 12px; border-radius: 50px; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f0f2f5; color: #1e293b; }
+        .dashboard-container { padding: 20px; max-width: 1600px; margin: auto; }
+        .stat-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: none; margin-bottom: 25px; }
+        .card-title { font-size: 1rem; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 20px; border-left: 5px solid #0284c7; padding-left: 15px; }
+        
+        /* Nav Styling */
+        .nav-custom { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .nav-link { font-weight: 600; color: #64748b; padding: 10px 20px; border-radius: 10px; transition: 0.3s; text-decoration: none; }
+        .nav-link.active { background: #0f172a; color: white; }
+
+        /* Expiry Scale Styling */
+        .expiry-item { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+        .expiry-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .scale-container { height: 12px; background: #e2e8f0; border-radius: 10px; position: relative; overflow: hidden; display: flex; }
+        .scale-segment { height: 100%; }
+        .seg-danger { width: 22.5%; background: #ef4444; opacity: 0.4; } /* 1-7 days */
+        .seg-warning { width: 25.8%; background: #f59e0b; opacity: 0.4; } /* 8-15 days */
+        .seg-safe { width: 51.7%; background: #10b981; opacity: 0.4; } /* 16-31 days */
+        
+        .indicator { 
+            position: absolute; top: 0; height: 100%; width: 4px; background: #000; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 5; transition: 0.5s;
+        }
+        .day-mark { font-size: 0.65rem; color: #94a3b8; margin-top: 4px; display: flex; justify-content: space-between; }
+        
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+<div id="loader" class="loading-screen">
+    <div class="text-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+        <div class="mt-2 fw-bold">กำลังประมวลผลข้อมูล...</div>
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-primary m-0">MatFlow Dashboard</h2>
-            <p class="text-muted small m-0">วิเคราะห์กำลังการผลิตและวันหมดอายุวัตถุดิบ</p>
+            <h2 class="fw-bold text-dark m-0">MatFlow Industrial Dashboard</h2>
+            <div id="lastUpdate" class="text-muted small">กำลังดึงข้อมูลล่าสุด...</div>
         </div>
-        <div class="d-flex gap-2 bg-white p-2 rounded-4 shadow-sm">
+        <div class="nav-custom d-flex gap-2">
             <a href="index.html" class="nav-link">Planning</a>
             <a href="receiving.html" class="nav-link">Receiving</a>
             <a href="management.html" class="nav-link">Management</a>
@@ -32,31 +59,25 @@
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-7">
+    <div class="row">
+        <div class="col-12">
             <div class="stat-card">
-                <div class="card-title">Production Capability (Potential Units per Product)</div>
-                <div style="height: 450px;">
+                <div class="card-title">Production Capacity (Potential Units - Sorted by Quantity)</div>
+                <div style="height: 500px; width: 100%;">
                     <canvas id="capacityChart"></canvas>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-5">
+    <div class="row">
+        <div class="col-12">
             <div class="stat-card">
-                <div class="card-title text-danger">Expiry Risk Inventory (Within 30 Days)</div>
-                <div class="table-responsive" style="max-height: 450px;">
-                    <table class="table table-hover align-middle">
-                        <thead class="sticky-top bg-white">
-                            <tr class="text-muted small">
-                                <th>Name / Batch</th>
-                                <th class="text-center">Days Remaining</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expiryTableBody">
-                            <tr><td colspan="2" class="text-center py-5">⌛ กำลังประมวลผลข้อมูลคลังสินค้า...</td></tr>
-                        </tbody>
-                    </table>
+                <div class="card-title text-danger">Expiry Risk Inventory (31-Day Monitoring Scale)</div>
+                <div id="expiryList" class="row">
+                    </div>
+                <div id="noExpireMsg" class="text-center py-5 d-none">
+                    <h5 class="text-success fw-bold">✅ ไม่มีรายการที่ใกล้หมดอายุในระยะ 30 วัน</h5>
                 </div>
             </div>
         </div>
@@ -70,61 +91,117 @@
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getDashboardData`);
             const json = await res.json();
+            const data = json.data;
 
             if (json.status === 'success') {
-                renderChart(json.data.productionCapacity);
-                renderTable(json.data.expiryTable);
+                renderCapacityChart(data.productionCapacity);
+                renderExpiryTimeline(data.expiryTable);
+                document.getElementById('lastUpdate').innerText = "อัปเดตเมื่อ: " + new Date().toLocaleString('th-TH');
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+            alert("ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการ Deploy");
+        } finally {
+            document.getElementById('loader').style.display = 'none';
+        }
     }
 
-    function renderChart(data) {
-        const labels = Object.keys(data).filter(k => data[k] > 0);
-        const values = labels.map(k => data[k]);
+    function renderCapacityChart(capacityData) {
+        // 1. แปลง Data เป็น Array เพื่อทำการ Sort
+        let chartData = Object.keys(capacityData).map(key => ({
+            name: key,
+            value: capacityData[key]
+        }));
 
-        new Chart(document.getElementById('capacityChart'), {
+        // 2. SORT: จากมากไปน้อย
+        chartData.sort((a, b) => b.value - a.value);
+
+        const labels = chartData.map(d => d.name);
+        const values = chartData.map(d => d.value);
+
+        const ctx = document.getElementById('capacityChart').getContext('2d');
+        
+        // ลบ Chart เดิมถ้ามี (ป้องกันการซ้อน)
+        if (window.myChart) window.myChart.destroy();
+
+        window.myChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'ผลิตได้สูงสุด (Units)',
+                    label: 'จำนวนที่ผลิตได้สูงสุด (Unit)',
                     data: values,
-                    backgroundColor: 'rgba(2, 132, 199, 0.7)',
-                    borderColor: '#0284c7',
-                    borderWidth: 2,
-                    borderRadius: 10
+                    backgroundColor: 'rgba(2, 132, 199, 0.8)',
+                    hoverBackgroundColor: '#0369a1',
+                    borderRadius: 8,
+                    barThickness: 35
                 }]
             },
             options: {
-                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { padding: 15, bodyFont: { size: 14 } }
+                },
+                scales: {
+                    x: { 
+                        grid: { display: false },
+                        ticks: { font: { weight: 'bold', size: 11 } }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' }
+                    }
+                }
             }
         });
     }
 
-    function renderTable(data) {
-        const tbody = document.getElementById('expiryTableBody');
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="2" class="text-center py-5 text-success fw-bold">✅ วัตถุดิบทุกรายการยังใช้งานได้ตามปกติ</td></tr>';
+    function renderExpiryTimeline(expiryData) {
+        const container = document.getElementById('expiryList');
+        const noMsg = document.getElementById('noExpireMsg');
+        
+        if (!expiryData || expiryData.length === 0) {
+            noMsg.classList.remove('d-none');
             return;
         }
 
-        tbody.innerHTML = data.map(item => `
-            <tr>
-                <td>
-                    <div class="fw-bold text-dark small">${item.name}</div>
-                    <div style="font-size: 0.7rem;" class="text-muted">Batch: ${item.batch}</div>
-                </td>
-                <td class="text-center">
-                    <span class="badge badge-status ${item.days <= 7 ? 'bg-danger' : 'bg-warning text-dark'}">
-                        ${item.days < 0 ? 'หมดอายุแล้ว' : 'อีก ' + item.days + ' วัน'}
-                    </span>
-                </td>
-            </tr>
-        `).join('');
+        container.innerHTML = expiryData.map(item => {
+            // คำนวณตำแหน่ง Indicator (0-100%) อิงจาก 31 วัน
+            let safeDays = Math.max(0, Math.min(31, item.days));
+            let position = (safeDays / 31) * 100;
+            
+            // เลือกสีตามความด่วน
+            let statusColor = "#10b981"; // Safe
+            if(item.days <= 7) statusColor = "#ef4444"; // Danger
+            else if(item.days <= 15) statusColor = "#f59e0b"; // Warning
+
+            return `
+                <div class="col-md-6 col-lg-4">
+                    <div class="expiry-item shadow-sm">
+                        <div class="expiry-meta">
+                            <span class="fw-bold small text-truncate" style="max-width: 70%;">${item.name}</span>
+                            <span class="badge rounded-pill" style="background:${statusColor}">${item.days < 0 ? 'Expired' : 'เหลือ '+item.days+' วัน'}</span>
+                        </div>
+                        <div class="small text-muted mb-2">Batch: ${item.batch}</div>
+                        
+                        <div class="scale-container">
+                            <div class="seg-danger"></div>
+                            <div class="seg-warning"></div>
+                            <div class="seg-safe"></div>
+                            <div class="indicator" style="left: ${position}%; background: ${statusColor}"></div>
+                        </div>
+                        <div class="day-mark">
+                            <span>0 วัน</span>
+                            <span>7</span>
+                            <span>15</span>
+                            <span>31 วัน</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     window.onload = loadDashboard;
