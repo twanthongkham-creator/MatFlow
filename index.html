@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - Production Issue</title>
+    <title>MatFlow - Production Planning</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -12,12 +12,10 @@
         .stat-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: none; margin-bottom: 25px; }
         .card-title { font-size: 1rem; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 20px; border-left: 5px solid #0ea5e9; padding-left: 15px; }
         
-        /* Nav */
         .nav-custom { background: white; padding: 8px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .nav-link { font-weight: 600; color: #64748b; padding: 10px 20px; border-radius: 10px; transition: 0.3s; text-decoration: none; }
         .nav-link.active { background: #0f172a; color: white; }
 
-        /* Custom UI */
         .queue-item { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .status-ok { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; font-weight: bold; }
         .status-out { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; font-weight: bold; }
@@ -38,7 +36,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold text-dark m-0">🏭 MatFlow Production Planning</h2>
-            <div class="text-muted small">ระบบวางแผนและเบิกจ่ายวัตถุดิบ (FIFO Auto-Issue)</div>
+            <div class="text-muted small">ระบบประเมินเบิกจ่าย (แปลง Package เป็น Unit อัตโนมัติ)</div>
         </div>
         <div class="nav-custom d-flex gap-2">
             <a href="index.html" class="nav-link active">Planning</a>
@@ -51,18 +49,16 @@
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="stat-card h-100">
-                <div class="card-title">1. สร้างคำสั่งผลิต (Production Order)</div>
+                <div class="card-title">1. สร้างคำสั่งผลิต (Production Target)</div>
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-muted">เลือกสินค้า (Product Name)</label>
                     <select id="pSelect" class="form-select form-select-lg"></select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted">จำนวนเป้าหมายที่ต้องการผลิต (Unit)</label>
+                    <label class="form-label fw-bold small text-muted">เป้าหมายการผลิต (Unit)</label>
                     <input type="number" id="tQty" class="form-control form-control-lg" value="10">
                 </div>
-                <button class="btn btn-primary btn-lg w-100 fw-bold rounded-3 shadow-sm mt-2" onclick="addQueue()">
-                    + เพิ่มลงคิวผลิต
-                </button>
+                <button class="btn btn-primary btn-lg w-100 fw-bold rounded-3 shadow-sm mt-2" onclick="addQueue()">+ เพิ่มลงคิวผลิต</button>
 
                 <hr class="my-4">
                 
@@ -71,16 +67,14 @@
                     <div class="text-center py-4 text-muted small border rounded-3 bg-light">ยังไม่มีคำสั่งผลิต</div>
                 </div>
                 
-                <button id="btnEval" class="btn btn-dark btn-lg w-100 fw-bold rounded-3 mt-3 d-none shadow" onclick="evalStock()">
-                    🔍 ประเมินการใช้วัตถุดิบ (BOM Check)
-                </button>
+                <button id="btnEval" class="btn btn-dark btn-lg w-100 fw-bold rounded-3 mt-3 d-none shadow" onclick="evalStock()">🔍 ประเมินการใช้วัตถุดิบ (BOM Check)</button>
             </div>
         </div>
 
         <div class="col-lg-7">
             <div class="stat-card h-100" id="resCard" style="display: none; border: 2px solid #0284c7;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="card-title m-0 border-0 p-0 text-primary">2. ผลประเมินวัตถุดิบ (Material Requirement)</div>
+                    <div class="card-title m-0 border-0 p-0 text-primary">2. ผลประเมินวัตถุดิบ (Requirement & Conversion)</div>
                     <div style="width: 150px;">
                         <input type="text" id="opName" class="form-control form-control-sm text-center" value="Admin" readonly>
                         <small class="d-block text-center text-muted" style="font-size:0.6rem;">Operator ID</small>
@@ -91,10 +85,9 @@
                     <table class="table table-hover align-middle table-eval">
                         <thead class="table-light">
                             <tr>
-                                <th>RM Code</th>
-                                <th>RM Name</th>
+                                <th>RM Name (Code)</th>
                                 <th class="text-center">ต้องใช้</th>
-                                <th class="text-center">มีในคลัง</th>
+                                <th class="text-center">มีในคลัง (แปลงหน่วยแล้ว)</th>
                                 <th class="text-center">สถานะ</th>
                             </tr>
                         </thead>
@@ -103,19 +96,17 @@
                 </div>
 
                 <div class="alert alert-info border-0 mt-3 small">
-                    <strong>ℹ️ กฎการเบิกจ่าย:</strong> ระบบจะทำการตัดสต๊อกจากล๊อตที่เข้ามาก่อน (FIFO) อัตโนมัติ
+                    <strong>ℹ️ กฎการเบิกจ่าย:</strong> ระบบจะตัดสต๊อกเป็น <b>Unit การผลิต</b> แล้วแปลงเศษที่เหลือกลับเป็น <b>Package</b> คืนลงตาราง Monitoring (FIFO)
                 </div>
 
-                <button id="btnIss" class="btn btn-success btn-lg w-100 fw-bold rounded-3 shadow mt-2" onclick="issueStock()">
-                    ✅ ยืนยันตัดสต๊อก (Issue Stock)
-                </button>
+                <button id="btnIss" class="btn btn-success btn-lg w-100 fw-bold rounded-3 shadow mt-2" onclick="issueStock()">✅ ยืนยันตัดสต๊อก (Issue Stock)</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // 🚩 อย่าลืมเปลี่ยน SCRIPT_URL ให้เป็นลิงก์ล่าสุดของคุณ
+    // 🚩 เปลี่ยน SCRIPT_URL ให้ตรงกับของคุณ
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
     let queue = [];
 
@@ -134,11 +125,10 @@
     function addQueue() {
         const name = document.getElementById('pSelect').value;
         const qty = parseInt(document.getElementById('tQty').value);
-        if(!name || !qty || qty <= 0) return alert("โปรดระบุสินค้าและจำนวนเป้าหมายให้ถูกต้อง");
-        
+        if(!name || !qty || qty <= 0) return alert("โปรดระบุสินค้าและเป้าหมายให้ถูกต้อง");
         queue.push({ name, qty });
         renderQueue();
-        document.getElementById('resCard').style.display = 'none'; // ซ่อนผลประเมินเก่า
+        document.getElementById('resCard').style.display = 'none'; 
     }
 
     function renderQueue() {
@@ -148,7 +138,6 @@
             document.getElementById('btnEval').classList.add('d-none');
             return;
         }
-
         qList.innerHTML = queue.map((i, idx) => `
             <div class="queue-item shadow-sm">
                 <div>
@@ -162,7 +151,7 @@
     }
 
     async function evalStock() {
-        showLoader("กำลังคำนวณวัตถุดิบและเช็คสต๊อก...");
+        showLoader("กำลังคำนวณวัตถุดิบและแปลงหน่วย...");
         try {
             const res = await fetch(`${SCRIPT_URL}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(queue))}`);
             const json = await res.json();
@@ -173,32 +162,36 @@
 
             json.data.forEach(i => {
                 if(i.status !== 'OK') isAllOk = false;
-                
                 let statusBadge = i.status === 'OK' 
                     ? `<span class="badge status-ok px-3 py-2">OK (พอ)</span>` 
                     : `<span class="badge status-out px-3 py-2">ขาด ${i.shortage} ${i.unit}</span>`;
 
+                // การแสดงผลคู่ Unit / Package
+                let packageDisplay = i.packageType ? `(${Number(i.availablePackages.toFixed(2))} ${i.packageType})` : '';
+
                 tbody.innerHTML += `
                     <tr>
-                        <td><small class="text-muted fw-bold">${i.code}</small></td>
-                        <td class="fw-bold" style="font-size:0.9rem;">${i.name}</td>
+                        <td>
+                            <div class="fw-bold" style="font-size:0.9rem;">${i.name}</div>
+                            <div class="small text-muted">${i.code}</div>
+                        </td>
                         <td class="text-center text-primary fw-bold">${i.required} ${i.unit}</td>
-                        <td class="text-center">${i.available} ${i.unit}</td>
+                        <td class="text-center">
+                            <div class="fw-bold">${i.available} ${i.unit}</div>
+                            <div class="small text-muted">${packageDisplay}</div>
+                        </td>
                         <td class="text-center">${statusBadge}</td>
                     </tr>
                 `;
             });
-
             document.getElementById('resCard').style.display = 'block';
             
             const btnIss = document.getElementById('btnIss');
             if(isAllOk) {
-                btnIss.disabled = false;
-                btnIss.innerHTML = "✅ ยืนยันตัดสต๊อก (Issue Stock)";
+                btnIss.disabled = false; btnIss.innerHTML = "✅ ยืนยันตัดสต๊อก (Issue Stock)";
                 btnIss.classList.replace('btn-secondary', 'btn-success');
             } else {
-                btnIss.disabled = true;
-                btnIss.innerHTML = "❌ สต๊อกไม่พอเบิกจ่าย";
+                btnIss.disabled = true; btnIss.innerHTML = "❌ สต๊อกไม่พอเบิกจ่าย";
                 btnIss.classList.replace('btn-success', 'btn-secondary');
             }
         } catch(e) { alert("ประเมินล้มเหลว"); }
@@ -206,30 +199,22 @@
     }
 
     async function issueStock() {
-        if(!confirm("⚠️ ยืนยันการตัดสต๊อกวัตถุดิบ?\nระบบจะทำการตัดจากล๊อตเก่าสุดก่อน (FIFO)")) return;
-        
+        if(!confirm("⚠️ ยืนยันการเบิกจ่ายวัตถุดิบ?\nระบบจะหักสต๊อกเป็น Unit และบันทึกกลับเป็นเศษ Package ให้อัตโนมัติ (FIFO)")) return;
         showLoader("กำลังประมวลผลการตัดสต๊อก... ห้ามปิดหน้าต่าง");
         try {
             const op = document.getElementById('opName').value;
             const res = await fetch(`${SCRIPT_URL}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${op}`);
             const json = await res.json();
             if(json.status === 'success') { 
-                alert(`✅ เบิกจ่ายสำเร็จ! (DocNo: ${json.docNo})\nยอดถูกตัดออกจากคลังและบันทึกใน Transaction แล้ว`); 
+                alert(`✅ เบิกจ่ายสำเร็จ! (DocNo: ${json.docNo})`); 
                 location.reload(); 
-            } else {
-                alert("เกิดข้อผิดพลาด: " + json.message);
-            }
+            } else alert("เกิดข้อผิดพลาด: " + json.message);
         } catch(e) { alert("ล้มเหลว"); }
         hideLoader();
     }
 
-    function showLoader(text) {
-        document.getElementById('loaderText').innerText = text;
-        document.getElementById('loader').classList.remove('d-none');
-    }
-    function hideLoader() {
-        document.getElementById('loader').classList.add('d-none');
-    }
+    function showLoader(text) { document.getElementById('loaderText').innerText = text; document.getElementById('loader').classList.remove('d-none'); }
+    function hideLoader() { document.getElementById('loader').classList.add('d-none'); }
 </script>
 </body>
 </html>
