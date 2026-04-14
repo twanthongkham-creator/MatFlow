@@ -210,18 +210,21 @@
         }
 
         tbody.innerHTML = data.map(i => {
+            // 🔧 FIX: handle negative days (already expired)
+            const isExpired = i.days <= 0;
             let safeDays = Math.max(0, Math.min(31, i.days));
             let position = (safeDays / 31) * 100;
-            let themeColor = i.days <= 7 ? '#ef4444' : (i.days <= 15 ? '#f59e0b' : '#10b981');
+            let themeColor = isExpired ? '#7c3aed' : (i.days <= 7 ? '#ef4444' : (i.days <= 15 ? '#f59e0b' : '#10b981'));
+            let daysLabel = isExpired ? `หมดอายุแล้ว ${Math.abs(i.days)} วัน` : `${i.days} วัน`;
             
             return `
                 <tr>
                     <td>
                         <div class="fw-bold text-dark">${i.name}</div>
-                        <div class="small text-muted">${i.batch}</div>
+                        <div class="small text-muted">${i.rmCode || ''}</div>
                     </td>
                     <td><span class="badge bg-light text-dark border">${i.batch}</span></td>
-                    <td class="text-center h6 m-0 fw-bold" style="color:${themeColor}">${i.days} วัน</td>
+                    <td class="text-center h6 m-0 fw-bold" style="color:${themeColor}">${daysLabel}</td>
                     <td class="text-center">
                         <div class="inline-scale-wrapper">
                             <div class="seg-d"></div>
