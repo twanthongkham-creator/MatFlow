@@ -135,17 +135,25 @@
     }
 
     function addToQueue() {
-        const batch = document.getElementById('batchInput').value;
+        const batch = document.getElementById('batchInput').value.trim();
         const qty = parseFloat(document.getElementById('qtyInput').value);
         const mfg = document.getElementById('mfgInput').value;
         const exp = document.getElementById('expInput').value;
-        if(!selected || !batch || isNaN(qty) || !mfg || !exp) return alert("กรุณากรอกข้อมูลให้ครบทุกช่อง!");
+        if(!selected) return alert("กรุณาค้นหาและเลือกรหัสวัตถุดิบก่อน!");
+        if(!batch) return alert("กรุณาระบุเลข Batch!");
+        if(isNaN(qty) || qty <= 0) return alert("กรุณาระบุจำนวนที่ถูกต้อง (> 0)!");
+        if(!mfg || !exp) return alert("กรุณาระบุวันผลิตและวันหมดอายุ!");
+        // 🔧 FIX: validate MFG <= EXP
+        if(new Date(mfg) > new Date(exp)) return alert("วันผลิต (MFG) ต้องไม่มากกว่าวันหมดอายุ (BBF)!");
         
         queue.push({ ...selected, batch, qty, mfgDate: mfg, expDate: exp });
         render();
         
-        // ล้างช่องรหัสวัตถุดิบเพื่อเตรียมยิงบาร์โค้ดหรือคีย์ตัวถัดไป
         document.getElementById('codeInput').value = ''; 
+        document.getElementById('batchInput').value = '';
+        document.getElementById('qtyInput').value = '1';
+        document.getElementById('mfgInput').value = '';
+        document.getElementById('expInput').value = '';
         onCodeChange();
     }
 
@@ -158,9 +166,16 @@
                     <small class="fw-bold text-warning">Batch: ${item.batch}</small> | 
                     <small>Qty: <b>${item.qty} ${item.unit}</b> | MFG: ${formatDate(item.mfgDate)} | EXP: ${formatDate(item.expDate)}</small>
                 </div>
-                <button class="btn btn-sm btn-outline-danger" onclick="queue.splice(${i},1);render()">ลบ</button>
+                <button class="btn btn-sm btn-outline-danger" data-idx="${i}" onclick="removeFromQueue(this)">ลบ</button>
             </div>
         `).join('');
+    }
+
+    // 🔧 FIX: safe remove using data-idx
+    function removeFromQueue(btn) {
+        const idx = parseInt(btn.getAttribute('data-idx'));
+        queue.splice(idx, 1);
+        render();
     }
 
     // 📅 ฟังก์ชันแปลง ค.ศ. สำหรับแสดงผลในคิว
