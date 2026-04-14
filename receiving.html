@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - Receiving (Unit Fix)</title>
+    <title>MatFlow - Receiving</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -16,10 +16,10 @@
 <body>
 
 <div class="container py-4">
-    <div class="op-card d-flex justify-content-between align-items-center shadow-sm">
+    <div class="op-card d-flex justify-content-between align-items-center">
         <h4 class="fw-bold m-0 text-warning">MatFlow Receiving</h4>
         <div style="width: 250px;">
-            <label class="small text-uppercase fw-bold opacity-75">Operator Name</label>
+            <label class="small text-uppercase fw-bold opacity-75">Operator (Default)</label>
             <input type="text" id="opName" class="form-control form-control-sm" value="Admin" readonly>
         </div>
     </div>
@@ -27,16 +27,16 @@
     <div class="card p-4 mb-4 shadow-sm">
         <div class="row g-4">
             <div class="col-md-5 border-end">
-                <label class="form-label fw-bold text-secondary small">1. ระบุรหัสวัตถุดิบ (Code Col A)</label>
-                <input list="masterList" id="codeInput" class="form-control form-control-lg border-2" placeholder="พิมพ์รหัส..." oninput="onCodeChange()">
+                <label class="form-label fw-bold small">1. รหัสวัตถุดิบ (Code)</label>
+                <input list="masterList" id="codeInput" class="form-control form-control-lg" placeholder="พิมพ์รหัส..." oninput="onCodeChange()">
                 <datalist id="masterList"></datalist>
 
                 <div class="auto-fill-box mt-3">
                     <div class="row g-2">
-                        <div class="col-12"><span class="small text-muted">ProductName (B):</span><div id="resPName" class="fw-bold">-</div></div>
-                        <div class="col-12"><span class="small text-muted">Name (C):</span><div id="resName" class="fw-bold">-</div></div>
-                        <div class="col-12"><span class="small text-muted text-primary">Unit (จาก Master Col G):</span><div id="resUnit" class="fw-bold text-primary h5">-</div></div>
-                        <div class="col-12"><span class="small text-muted">Supplier (จาก Master Col M):</span><div id="resSupplier" class="fw-bold">-</div></div>
+                        <div class="col-12"><span class="small text-muted">ProductName:</span><div id="resPName" class="fw-bold">-</div></div>
+                        <div class="col-12"><span class="small text-muted">Name:</span><div id="resName" class="fw-bold">-</div></div>
+                        <div class="col-12"><span class="small text-muted">Supplier:</span><div id="resSupplier" class="fw-bold">-</div></div>
+                        <div class="col-12"><span class="small text-muted text-primary">Unit:</span><div id="resUnit" class="fw-bold text-primary">-</div></div>
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                     <div class="col-md-6"><label class="form-label fw-bold small">4. วันผลิต (MFG)</label><input type="date" id="mfgInput" class="form-control"></div>
                     <div class="col-md-6"><label class="form-label fw-bold small">5. วันหมดอายุ (BBF)</label><input type="date" id="expInput" class="form-control"></div>
                     <div class="col-12 text-end pt-2">
-                        <button class="btn btn-warning btn-lg px-5 fw-bold shadow-sm" onclick="addToQueue()">+ เพิ่มลงคิว</button>
+                        <button class="btn btn-warning btn-lg px-5 fw-bold" onclick="addToQueue()">+ เพิ่มลงคิว</button>
                     </div>
                 </div>
             </div>
@@ -56,12 +56,9 @@
     </div>
 
     <div id="qArea" class="d-none">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold text-secondary m-0">📦 รายการที่เตรียมบันทึกเข้าสต๊อก</h5>
-            <a href="index.html" class="btn btn-sm btn-link">กลับหน้า Planning</a>
-        </div>
+        <h5 class="fw-bold text-secondary mb-3">📦 รายการรอรับเข้า</h5>
         <div id="qList"></div>
-        <button id="btnSubmit" class="btn btn-success btn-lg w-100 mt-4 fw-bold shadow" onclick="doSubmit()">ยืนยันบันทึกทั้งหมดลงระบบ</button>
+        <button id="btnSubmit" class="btn btn-success btn-lg w-100 mt-4 fw-bold shadow" onclick="doSubmit()">ยืนยันบันทึกทั้งหมด</button>
     </div>
 </div>
 
@@ -70,13 +67,11 @@
     let master = []; let queue = []; let selected = null;
 
     window.onload = async () => {
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=getMasterData`);
-            const json = await res.json();
-            master = json.data;
-            const dl = document.getElementById('masterList');
-            master.forEach(i => { let op = document.createElement('option'); op.value = i.code; op.textContent = i.name; dl.appendChild(op); });
-        } catch(e) { alert("เชื่อมต่อ API ล้มเหลว"); }
+        const res = await fetch(`${SCRIPT_URL}?action=getMasterData`);
+        const json = await res.json();
+        master = json.data;
+        const dl = document.getElementById('masterList');
+        master.forEach(i => { let op = document.createElement('option'); op.value = i.code; op.textContent = i.name; dl.appendChild(op); });
     };
 
     function onCodeChange() {
@@ -93,7 +88,7 @@
         const qty = parseFloat(document.getElementById('qtyInput').value);
         const mfg = document.getElementById('mfgInput').value;
         const exp = document.getElementById('expInput').value;
-        if(!selected || !batch || isNaN(qty) || !mfg || !exp) return alert("กรุณากรอกข้อมูลให้ครบ!");
+        if(!selected || !batch || isNaN(qty) || !mfg || !exp) return alert("กรอกข้อมูลให้ครบ!");
         queue.push({ ...selected, batch, qty, mfgDate: mfg, expDate: exp });
         render();
         document.getElementById('codeInput').value = ''; onCodeChange();
@@ -103,20 +98,28 @@
         document.getElementById('qArea').classList.toggle('d-none', queue.length === 0);
         document.getElementById('qList').innerHTML = queue.map((item, i) => `
             <div class="card p-3 mb-2 border-start border-4 border-warning shadow-sm d-flex flex-row justify-content-between align-items-center">
-                <div><strong>${item.name}</strong> (${item.code})<br><small>Batch: ${item.batch} | Qty: ${item.qty} ${item.unit}</small></div>
+                <div>
+                    <strong>${item.name}</strong> (${item.code})<br>
+                    <small>Batch: ${item.batch} | Qty: ${item.qty} ${item.unit} | MFG: ${formatDate(item.mfgDate)} | EXP: ${formatDate(item.expDate)}</small>
+                </div>
                 <button class="btn btn-sm btn-outline-danger" onclick="queue.splice(${i},1);render()">ลบ</button>
             </div>
         `).join('');
     }
 
+    // 📅 ฟังก์ชันแปลง ค.ศ. สำหรับแสดงผลในคิว
+    function formatDate(d) {
+        if(!d) return "-";
+        const [y, m, day] = d.split('-');
+        return `${day}/${m}/${y}`;
+    }
+
     async function doSubmit() {
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true; btn.innerText = "กำลังบันทึก...";
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=receive&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${document.getElementById('opName').value}`);
-            const json = await res.json();
-            if(json.status === 'success') { alert("สำเร็จ!"); location.reload(); }
-        } catch(e) { alert("ล้มเหลว"); btn.disabled = false; btn.innerText = "ยืนยันบันทึกทั้งหมด"; }
+        const res = await fetch(`${SCRIPT_URL}?action=receive&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${document.getElementById('opName').value}`);
+        const json = await res.json();
+        if(json.status === 'success') { alert("สำเร็จ!"); location.reload(); }
     }
 </script>
 </body>
