@@ -11,6 +11,7 @@
         .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; }
         .sticky-header { position: sticky; top: 0; background: #1e293b; color: white; z-index: 100; }
         .btn-edit { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; margin-left: 4px; }
         .filter-section { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     </style>
 </head>
@@ -43,7 +44,7 @@
     </div>
 
     <div class="table-container">
-        <div class="table-responsive" style="max-height: 70vh;">
+        <div class="table-responsive" style="max-height: 75vh;">
             <table class="table table-hover align-middle">
                 <thead class="sticky-header">
                     <tr>
@@ -75,26 +76,11 @@
             </div>
             <div class="modal-body p-4">
                 <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label fw-bold">เลข Batch</label>
-                        <input type="text" id="editBatch" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">จำนวนคงเหลือ (Qty)</label>
-                        <input type="number" id="editQty" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">หน่วย (Unit)</label>
-                        <input type="text" id="editUnit" class="form-control" readonly>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-primary">วันผลิต (MFG)</label>
-                        <input type="date" id="editMfg" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-danger">วันหมดอายุ (BBF)</label>
-                        <input type="date" id="editExp" class="form-control">
-                    </div>
+                    <div class="col-12"><label class="form-label fw-bold">เลข Batch</label><input type="text" id="editBatch" class="form-control"></div>
+                    <div class="col-md-6"><label class="form-label fw-bold">จำนวนคงเหลือ (Qty)</label><input type="number" id="editQty" class="form-control"></div>
+                    <div class="col-md-6"><label class="form-label fw-bold">หน่วย (Unit)</label><input type="text" id="editUnit" class="form-control" readonly></div>
+                    <div class="col-md-6"><label class="form-label fw-bold text-primary">วันผลิต (MFG)</label><input type="date" id="editMfg" class="form-control"></div>
+                    <div class="col-md-6"><label class="form-label fw-bold text-danger">วันหมดอายุ (BBF)</label><input type="date" id="editExp" class="form-control"></div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-3">
@@ -109,25 +95,25 @@
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
     let rawData = [];
-    let editingRow = null;
     const modal = new bootstrap.Modal(document.getElementById('editModal'));
 
     window.onload = loadData;
 
     async function loadData() {
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=getMonitorData`);
-            const json = await res.json();
-            rawData = json.data;
-            
-            // สร้าง Filter Dropdown
-            const products = [...new Set(rawData.map(i => i.productName))].sort();
-            const names = [...new Set(rawData.map(i => i.name))].sort();
-            products.forEach(p => document.getElementById('filterProduct').innerHTML += `<option value="${p}">${p}</option>`);
-            names.forEach(n => document.getElementById('filterName').innerHTML += `<option value="${n}">${n}</option>`);
-            
-            applyFilters();
-        } catch (e) { alert("ล้มเหลวในการดึงข้อมูล"); }
+        const res = await fetch(`${SCRIPT_URL}?action=getMonitorData`);
+        const json = await res.json();
+        rawData = json.data;
+        
+        // ล้าง Dropdown เดิมก่อนเติมใหม่
+        document.getElementById('filterProduct').innerHTML = '<option value="">ทั้งหมด</option>';
+        document.getElementById('filterName').innerHTML = '<option value="">ทั้งหมด</option>';
+        
+        const products = [...new Set(rawData.map(i => i.productName))].sort();
+        const names = [...new Set(rawData.map(i => i.name))].sort();
+        products.forEach(p => document.getElementById('filterProduct').innerHTML += `<option value="${p}">${p}</option>`);
+        names.forEach(n => document.getElementById('filterName').innerHTML += `<option value="${n}">${n}</option>`);
+        
+        applyFilters();
     }
 
     function applyFilters() {
@@ -152,44 +138,67 @@
                 <td class="text-center small">${formatDisplayDate(i.mfg)}</td>
                 <td class="text-center small">${formatDisplayDate(i.exp)}</td>
                 <td><small>${i.supplier}</small></td>
-                <td class="text-center">
+                <td class="text-center" style="min-width: 180px;">
                     <button class="btn-edit" onclick="openEdit(${i.rowIdx})">แก้ไข</button>
+                    <button class="btn-delete" onclick="confirmDelete(${i.rowIdx}, '${i.batch}')">ลบ</button>
                 </td>
             </tr>
         `).join('');
     }
 
-    // 📅 ฟังก์ชันแปลง ISO เป็น dd/mm/yyyy (สำหรับตาราง)
+    // 🚩 ฟังก์ชันยืนยันการลบ
+    function confirmDelete(rowIdx, batch) {
+        if (confirm(`⚠️ คุณแน่ใจหรือไม่ที่จะลบรายการ Batch: ${batch}?\nการกระทำนี้ไม่สามารถย้อนกลับได้`)) {
+            doDelete(rowIdx);
+        }
+    }
+
+    // 🚩 ฟังก์ชันส่งคำสั่งลบไป API
+    async function doDelete(rowIdx) {
+        const btnDelete = event.target;
+        btnDelete.disabled = true;
+        btnDelete.innerText = "ลบ...";
+
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=deleteMonitor&rowIdx=${rowIdx}`);
+            const json = await res.json();
+            if (json.status === 'success') {
+                alert("ลบข้อมูลสำเร็จ!");
+                location.reload(); // รีเฟรชหน้าเพื่อให้ลำดับแถวใหม่ถูกต้อง
+            }
+        } catch (e) {
+            alert("ล้มเหลวในการลบข้อมูล");
+            btnDelete.disabled = false;
+            btnDelete.innerText = "ลบ";
+        }
+    }
+
     function formatDisplayDate(dateStr) {
         if (!dateStr || dateStr === "") return "-";
         const date = new Date(dateStr);
-        if (isNaN(date)) return dateStr;
-        return date.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return isNaN(date) ? dateStr : date.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
-    // 📅 ฟังก์ชันแปลง ISO เป็น yyyy-mm-dd (สำหรับ Input Date)
     function formatInputDate(dateStr) {
         if (!dateStr || dateStr === "") return "";
         const date = new Date(dateStr);
-        if (isNaN(date)) return "";
-        return date.toISOString().split('T')[0];
+        return isNaN(date) ? "" : date.toISOString().split('T')[0];
     }
 
     function openEdit(rowIdx) {
-        editingRow = rawData.find(i => i.rowIdx === rowIdx);
+        let editingRow = rawData.find(i => i.rowIdx === rowIdx);
         document.getElementById('modalBatchTitle').innerText = editingRow.batch;
         document.getElementById('editBatch').value = editingRow.batch;
         document.getElementById('editQty').value = editingRow.qty;
         document.getElementById('editUnit').value = editingRow.unit;
-        
-        // แปลงวันที่ให้เข้ากับรูปแบบของ <input type="date"> (yyyy-mm-dd)
         document.getElementById('editMfg').value = formatInputDate(editingRow.mfg);
         document.getElementById('editExp').value = formatInputDate(editingRow.exp);
-        
+        window.currentEditIdx = rowIdx;
         modal.show();
     }
 
     async function saveEdit() {
+        let editingRow = rawData.find(i => i.rowIdx === window.currentEditIdx);
         const updated = {
             ...editingRow,
             batch: document.getElementById('editBatch').value,
@@ -198,20 +207,11 @@
             exp: document.getElementById('editExp').value
         };
 
-        const btn = document.querySelector('.modal-footer .btn-primary');
-        btn.disabled = true; btn.innerText = "กำลังบันทึก...";
-
         try {
             const res = await fetch(`${SCRIPT_URL}?action=updateMonitor&rowData=${encodeURIComponent(JSON.stringify(updated))}`);
             const json = await res.json();
-            if(json.status === 'success') {
-                alert("บันทึกการแก้ไขเรียบร้อย!");
-                location.reload();
-            }
-        } catch(e) { 
-            alert("ล้มเหลว"); 
-            btn.disabled = false; btn.innerText = "บันทึกข้อมูล";
-        }
+            if(json.status === 'success') { alert("บันทึกสำเร็จ!"); location.reload(); }
+        } catch(e) { alert("ล้มเหลว"); }
     }
 </script>
 </body>
