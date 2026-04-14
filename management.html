@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - Management</title>
+    <title>MatFlow - Management (No Refresh Delete)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
         .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; }
         .sticky-header { position: sticky; top: 0; background: #1e293b; color: white; z-index: 100; }
-        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; }
-        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; margin-left: 4px; }
+        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; transition: 0.2s; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 500; margin-left: 4px; transition: 0.2s; }
+        .btn-edit:hover, .btn-delete:hover { opacity: 0.8; transform: scale(1.05); }
         
         /* Popup Styling */
-        .modal-content { border-radius: 24px; border: none; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-        .modal-header { background: #1e293b; color: white; border-radius: 24px 24px 0 0; border: none; padding: 20px 30px; }
-        .qty-hero { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 25px; }
-        .qty-hero label { color: #0369a1; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 10px; display: block; }
-        .qty-hero input { font-size: 3rem; font-weight: 700; color: #0284c7; background: transparent; border: none; text-align: center; width: 100%; outline: none; }
-        .info-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
-        .info-value { font-weight: 600; color: #1e293b; margin-bottom: 15px; }
-        .date-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; }
+        .modal-content { border-radius: 24px; border: none; }
+        .qty-hero { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 20px; padding: 20px; text-align: center; }
+        .qty-hero input { font-size: 3rem; font-weight: 700; color: #0284c7; border: none; text-align: center; width: 100%; outline: none; background: transparent; }
     </style>
 </head>
 <body>
@@ -38,21 +34,25 @@
     <div class="bg-white rounded-4 p-4 mb-4 shadow-sm">
         <div class="row g-3">
             <div class="col-md-3">
-                <label class="form-label small fw-bold">กรอง ProductName</label>
+                <label class="form-label small fw-bold text-muted text-uppercase">กรองตาม ProductName</label>
                 <select id="filterProduct" class="form-select" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
             </div>
             <div class="col-md-3">
-                <label class="form-label small fw-bold">กรอง Name (RM)</label>
+                <label class="form-label small fw-bold text-muted text-uppercase">กรองตาม Name (RM)</label>
                 <select id="filterName" class="form-select" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
             </div>
             <div class="col-md-6">
-                <label class="form-label small fw-bold">ค้นหาคำสำคัญ</label>
+                <label class="form-label small fw-bold text-muted text-uppercase">ค้นหาคำสำคัญ</label>
                 <input type="text" id="searchInput" class="form-control" placeholder="พิมพ์ Batch, Code หรือ Supplier..." oninput="applyFilters()">
             </div>
         </div>
     </div>
 
     <div class="table-container">
+        <div id="loadingInfo" class="text-center py-3 d-none">
+            <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+            <span class="ms-2 small text-muted">กำลังประมวลผลการลบ...</span>
+        </div>
         <div class="table-responsive" style="max-height: 70vh;">
             <table class="table table-hover align-middle">
                 <thead class="sticky-header">
@@ -63,11 +63,11 @@
                         <th class="text-center">MFG (ค.ศ.)</th>
                         <th class="text-center">BBF (ค.ศ.)</th>
                         <th>Supplier</th>
-                        <th class="text-center">จัดการ</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody id="dataTable">
-                    <tr><td colspan="7" class="text-center py-5 text-muted">⌛ กำลังโหลดฐานข้อมูล...</td></tr>
+                    <tr><td colspan="7" class="text-center py-5 text-muted">⌛ กำลังโหลดข้อมูล...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -76,52 +76,39 @@
 
 <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Batch: <span id="modalBatchTitle"></span></h5>
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">แก้ไขรายการ Batch: <span id="modalBatchTitle"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="row mb-3">
-                    <div class="col-6">
-                        <div class="info-label">Name (RM)</div>
-                        <div id="modalRMName" class="info-value text-truncate">-</div>
-                    </div>
-                    <div class="col-6">
-                        <div class="info-label">Supplier</div>
-                        <div id="modalSupplier" class="info-value text-truncate">-</div>
-                    </div>
+                    <div class="col-6"><small class="fw-bold text-muted">NAME (RM)</small><div id="modalRMName" class="fw-bold">-</div></div>
+                    <div class="col-6"><small class="fw-bold text-muted">SUPPLIER</small><div id="modalSupplier" class="fw-bold">-</div></div>
                 </div>
-
-                <div class="qty-hero">
-                    <label>จำนวนคงเหลือ (Quantity)</label>
+                <div class="qty-hero mb-4">
+                    <small class="fw-bold text-primary text-uppercase">จำนวนคงเหลือ (Quantity)</small>
                     <input type="number" id="editQty">
                     <div id="modalUnit" class="fw-bold text-muted small">UNIT</div>
                 </div>
-
                 <div class="row g-3">
                     <div class="col-6">
-                        <div class="date-card">
-                            <label class="info-label text-primary">วันผลิต (MFG)</label>
-                            <input type="date" id="editMfg" class="form-control form-control-sm border-0 bg-transparent p-0 fw-bold">
-                        </div>
+                        <label class="small fw-bold text-primary">วันผลิต (MFG)</label>
+                        <input type="date" id="editMfg" class="form-control border-primary-subtle">
                     </div>
                     <div class="col-6">
-                        <div class="date-card">
-                            <label class="info-label text-danger">วันหมดอายุ (BBF)</label>
-                            <input type="date" id="editExp" class="form-control form-control-sm border-0 bg-transparent p-0 fw-bold">
-                        </div>
+                        <label class="small fw-bold text-danger">วันหมดอายุ (BBF)</label>
+                        <input type="date" id="editExp" class="form-control border-danger-subtle">
                     </div>
                 </div>
-
                 <div class="mt-4">
-                    <label class="info-label">แก้ไขเลข Batch</label>
+                    <label class="small fw-bold text-muted">แก้ไขเลข Batch</label>
                     <input type="text" id="editBatch" class="form-control">
                 </div>
             </div>
-            <div class="modal-footer border-0 p-4">
+            <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" class="btn btn-primary px-5 fw-bold rounded-pill" onclick="saveEdit()">บันทึกข้อมูล</button>
+                <button type="button" class="btn btn-primary px-5 fw-bold rounded-pill" onclick="saveEdit()">บันทึกการแก้ไข</button>
             </div>
         </div>
     </div>
@@ -141,6 +128,7 @@
         const json = await res.json();
         rawData = json.data;
         
+        // Setup Filters
         const products = [...new Set(rawData.map(i => i.productName))].sort();
         const names = [...new Set(rawData.map(i => i.name))].sort();
         document.getElementById('filterProduct').innerHTML = '<option value="">ทั้งหมด</option>';
@@ -164,7 +152,7 @@
 
         const tbody = document.getElementById('dataTable');
         tbody.innerHTML = filtered.map(i => `
-            <tr>
+            <tr id="row-${i.rowIdx}">
                 <td class="fw-bold">${i.batch}</td>
                 <td>${i.name} <br><small class="text-muted">${i.code}</small></td>
                 <td class="text-center fw-bold text-primary">${i.qty}</td>
@@ -177,6 +165,39 @@
                 </td>
             </tr>
         `).join('');
+    }
+
+    function confirmDelete(rowIdx, batch) {
+        if (confirm(`⚠️ ยืนยันการลบ Batch: ${batch}?\nข้อมูลจะหายไปจากระบบทันที`)) {
+            doDelete(rowIdx);
+        }
+    }
+
+    async function doDelete(rowIdx) {
+        const loading = document.getElementById('loadingInfo');
+        loading.classList.remove('d-none');
+        
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=deleteMonitor&rowIdx=${rowIdx}`);
+            const json = await res.json();
+            
+            if(json.status === 'success') {
+                // 1. ลบข้อมูลออกจากตัวแปรในหน้าเว็บ
+                rawData = rawData.filter(item => item.rowIdx !== rowIdx);
+                
+                // 2. 🚩 สำคัญ: Re-index ข้อมูลที่เหลือ (เลื่อนบรรทัดขึ้นมาแทนที่ใน Sheets)
+                rawData = rawData.map(item => {
+                    if(item.rowIdx > rowIdx) {
+                        return { ...item, rowIdx: item.rowIdx - 1 };
+                    }
+                    return item;
+                });
+
+                // 3. วาดตารางใหม่ทันที
+                applyFilters();
+            }
+        } catch(e) { alert("ล้มเหลวในการลบ"); }
+        finally { loading.classList.add('d-none'); }
     }
 
     function formatDisplayDate(dateStr) {
@@ -194,19 +215,14 @@
     function openEdit(rowIdx) {
         let editingRow = rawData.find(i => i.rowIdx === rowIdx);
         currentEditIdx = rowIdx;
-        
-        // Populate Header & Info
         document.getElementById('modalBatchTitle').innerText = editingRow.batch;
         document.getElementById('modalRMName').innerText = editingRow.name;
         document.getElementById('modalSupplier').innerText = editingRow.supplier || '-';
         document.getElementById('modalUnit').innerText = editingRow.unit || 'UNIT';
-        
-        // Populate Inputs
         document.getElementById('editBatch').value = editingRow.batch;
         document.getElementById('editQty').value = editingRow.qty;
         document.getElementById('editMfg').value = formatInputDate(editingRow.mfg);
         document.getElementById('editExp').value = formatInputDate(editingRow.exp);
-        
         modal.show();
     }
 
@@ -219,28 +235,16 @@
             mfg: document.getElementById('editMfg').value,
             exp: document.getElementById('editExp').value
         };
-
-        const btn = document.querySelector('.modal-footer .btn-primary');
-        btn.disabled = true; btn.innerText = "กำลังบันทึก...";
-
         try {
             const res = await fetch(`${SCRIPT_URL}?action=updateMonitor&rowData=${encodeURIComponent(JSON.stringify(updated))}`);
             const json = await res.json();
-            if(json.status === 'success') { alert("บันทึกสำเร็จ!"); location.reload(); }
-        } catch(e) { alert("ล้มเหลว"); btn.disabled = false; }
-    }
-
-    function confirmDelete(rowIdx, batch) {
-        if (confirm(`⚠️ ยืนยันการลบ Batch: ${batch}?`)) {
-            doDelete(rowIdx);
-        }
-    }
-
-    async function doDelete(rowIdx) {
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=deleteMonitor&rowIdx=${rowIdx}`);
-            const json = await res.json();
-            if(json.status === 'success') { alert("ลบสำเร็จ!"); location.reload(); }
+            if(json.status === 'success') { 
+                // อัปเดตข้อมูลในหน้าเว็บโดยไม่ต้อง Refresh
+                const idx = rawData.findIndex(i => i.rowIdx === currentEditIdx);
+                rawData[idx] = updated;
+                applyFilters();
+                modal.hide();
+            }
         } catch(e) { alert("ล้มเหลว"); }
     }
 </script>
