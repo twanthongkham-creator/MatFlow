@@ -3,92 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - Receiving</title>
+    <title>MatFlow - Receiving (In)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; background-color: #fffbeb; }
-        .card { border-radius: 16px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .btn-warning { background-color: #f59e0b; color: white; border-radius: 10px; }
-        .queue-item { background: white; border-left: 5px solid #f59e0b; border-radius: 10px; }
+        .card { border-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
+        .header-title { color: #b45309; font-weight: 700; }
+        .label-auto { color: #0369a1; font-weight: 600; font-size: 0.85rem; }
+        .btn-add { background-color: #f59e0b; color: white; border-radius: 12px; transition: 0.3s; }
+        .btn-add:hover { background-color: #d97706; color: white; }
+        .queue-item { background: white; border-left: 5px solid #f59e0b; border-radius: 12px; }
+        .auto-display { background-color: #f8fafc; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
+<div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-warning m-0">📥 รับเข้าวัตถุดิบ (Receiving)</h2>
-        <a href="index.html" class="btn btn-outline-secondary">กลับหน้าเบิกจ่าย</a>
+        <h2 class="header-title m-0">📥 รับเข้าวัตถุดิบ <span class="text-secondary font-monospace h5">MatFlow-In</span></h2>
+        <a href="index.html" class="btn btn-outline-secondary px-4">ไปหน้าเบิกจ่าย</a>
     </div>
 
     <div class="card p-4 mb-4">
         <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label fw-bold small text-secondary">1. เลือกวัตถุดิบ (จาก Master)</label>
-                <select id="matSelect" class="form-select form-select-lg">
-                    <option value="">กำลังโหลดรายการ...</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label fw-bold small text-secondary">2. เลข Batch / Lot No.</label>
-                <input type="text" id="batchInput" class="form-control form-control-lg" placeholder="ระบุเลข Batch">
-            </div>
             <div class="col-md-4">
-                <label class="form-label fw-bold small text-secondary">3. จำนวนที่รับเข้า</label>
-                <input type="number" id="qtyInput" class="form-control form-control-lg" value="1">
+                <label class="form-label fw-bold small">1. รหัสวัตถุดิบ (Code)</label>
+                <input list="masterCodes" id="codeInput" class="form-control form-control-lg" placeholder="พิมพ์หรือเลือกรหัส..." oninput="autoFillData()">
+                <datalist id="masterCodes"></datalist>
+                
+                <div class="mt-3 auto-display">
+                    <div class="label-auto">ชื่อวัตถุดิบ:</div>
+                    <div id="displayName" class="fw-bold text-dark">-</div>
+                    <div class="label-auto mt-2">หน่วย:</div>
+                    <div id="displayUnit" class="fw-bold text-dark">-</div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label fw-bold small text-secondary">4. Supplier / แหล่งที่มา</label>
-                <input type="text" id="supplierInput" class="form-control form-control-lg" placeholder="ระบุแหล่งที่มา">
+
+            <div class="col-md-8">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small">2. เลข Batch / Lot No.</label>
+                        <input type="text" id="batchInput" class="form-control" placeholder="ระบุ Batch">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small">3. จำนวนที่รับเข้า</label>
+                        <div class="input-group">
+                            <input type="number" id="qtyInput" class="form-control" value="1">
+                            <span class="input-group-text" id="unitAddon">หน่วย</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small">4. วันผลิต (MFG)</label>
+                        <input type="date" id="mfgInput" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small">5. วันหมดอายุ (EXP)</label>
+                        <input type="date" id="expInput" class="form-control">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold small">6. Supplier / แหล่งที่มา</label>
+                        <input type="text" id="supplierInput" class="form-control" placeholder="ระบุแหล่งที่มา">
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4 align-self-end">
-                <button class="btn btn-warning btn-lg w-100 fw-bold" onclick="addToQueue()">+ เพิ่มเข้ารายการรับ</button>
+
+            <div class="col-12 mt-4 text-end">
+                <button class="btn btn-add btn-lg px-5 fw-bold shadow-sm" onclick="addToQueue()">
+                    + เพิ่มเข้ารายการรอรับเข้า
+                </button>
             </div>
         </div>
     </div>
 
     <div id="queueSection" class="d-none">
-        <h5 class="fw-bold mb-3 text-secondary">รายการที่พร้อมบันทึกลงคลัง</h5>
+        <h5 class="fw-bold mb-3 text-secondary">📦 รายการที่เตรียมบันทึกลงคลัง</h5>
         <div id="queueList"></div>
-        <button class="btn btn-success btn-lg w-100 mt-4 fw-bold shadow" onclick="submitReceive()">ยืนยันการบันทึกรับเข้าทั้งหมด</button>
+        <button class="btn btn-success btn-lg w-100 mt-4 fw-bold shadow" onclick="submitReceive()">
+            ยืนยันการบันทึกรับเข้าทั้งหมดลงระบบ
+        </button>
     </div>
 </div>
 
 <script>
-    // 🚩 เปลี่ยน URL เป็นตัวล่าสุดของคุณ
+    // 🚩 เปลี่ยน URL เป็นตัวล่าสุดของคุณที่นี่
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
+    
+    let masterData = [];
     let receiveQueue = [];
+    let selectedItem = null;
 
+    // โหลดข้อมูล Master เมื่อเปิดหน้า
     window.onload = async () => {
-        const res = await fetch(`${SCRIPT_URL}?action=getProducts`);
-        const json = await res.json();
-        const select = document.getElementById('matSelect');
-        select.innerHTML = '<option value="">-- เลือกรายการวัตถุดิบ --</option>';
-        json.data.forEach(p => select.innerHTML += `<option value="${p}">${p}</option>`);
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getMasterData`);
+            const json = await res.json();
+            if(json.status === 'success') {
+                masterData = json.data;
+                const datalist = document.getElementById('masterCodes');
+                masterData.forEach(item => {
+                    let opt = document.createElement('option');
+                    opt.value = item.code;
+                    opt.textContent = item.name;
+                    datalist.appendChild(opt);
+                });
+            }
+        } catch (e) { alert("ล้มเหลวในการเชื่อมต่อ Master Data"); }
     };
 
+    // ฟังก์ชัน Auto-fill เมื่อใส่ Code
+    function autoFillData() {
+        const code = document.getElementById('codeInput').value;
+        selectedItem = masterData.find(i => i.code === code);
+        
+        if(selectedItem) {
+            document.getElementById('displayName').innerText = selectedItem.name;
+            document.getElementById('displayUnit').innerText = selectedItem.unit;
+            document.getElementById('unitAddon').innerText = selectedItem.unit;
+        } else {
+            document.getElementById('displayName').innerText = "-";
+            document.getElementById('displayUnit').innerText = "-";
+            document.getElementById('unitAddon').innerText = "หน่วย";
+        }
+    }
+
     function addToQueue() {
-        const mat = document.getElementById('matSelect').value;
         const batch = document.getElementById('batchInput').value;
         const qty = parseFloat(document.getElementById('qtyInput').value);
+        const mfg = document.getElementById('mfgInput').value;
+        const exp = document.getElementById('expInput').value;
         const supplier = document.getElementById('supplierInput').value;
 
-        if(!mat || !batch || isNaN(qty)) return alert("กรุณากรอกข้อมูลหลักให้ครบ");
+        if(!selectedItem || !batch || isNaN(qty) || !mfg || !exp) {
+            return alert("กรุณากรอกข้อมูลให้ครบ (Code, Batch, จำนวน, MFG, EXP)");
+        }
 
-        receiveQueue.push({ code: mat, productName: mat, batch, qty, supplier });
+        receiveQueue.push({
+            code: selectedItem.code,
+            name: selectedItem.name,
+            unit: selectedItem.unit,
+            batch: batch,
+            qty: qty,
+            mfgDate: mfg,
+            expDate: exp,
+            supplier: supplier
+        });
+
         renderQueue();
+        
+        // ล้างค่าในฟอร์มบางส่วน
+        document.getElementById('codeInput').value = '';
         document.getElementById('batchInput').value = '';
         document.getElementById('qtyInput').value = '1';
+        autoFillData(); // Reset display
     }
 
     function renderQueue() {
+        const sec = document.getElementById('queueSection');
         const list = document.getElementById('queueList');
-        document.getElementById('queueSection').classList.toggle('d-none', receiveQueue.length === 0);
+        sec.classList.toggle('d-none', receiveQueue.length === 0);
+        
         list.innerHTML = receiveQueue.map((item, i) => `
             <div class="queue-item p-3 mb-2 d-flex justify-content-between align-items-center shadow-sm">
                 <div>
-                    <strong>${item.code}</strong> | Batch: <span class="text-primary">${item.batch}</span><br>
-                    <small>จำนวน: ${item.qty} | จาก: ${item.supplier || '-'}</small>
+                    <strong class="text-dark">${item.name}</strong> (${item.code})<br>
+                    <small class="text-muted">Batch: <strong>${item.batch}</strong> | จำนวน: <strong>${item.qty} ${item.unit}</strong></small><br>
+                    <span class="badge bg-light text-dark border mt-1">MFG: ${item.mfgDate}</span>
+                    <span class="badge bg-light text-dark border mt-1">EXP: ${item.expDate}</span>
                 </div>
                 <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${i})">ลบ</button>
             </div>
@@ -103,15 +184,17 @@
     async function submitReceive() {
         const op = prompt("ระบุชื่อผู้บันทึกรับเข้า:");
         if(!op) return;
+
         try {
             const res = await fetch(`${SCRIPT_URL}?action=receive&items=${encodeURIComponent(JSON.stringify(receiveQueue))}&operator=${encodeURIComponent(op)}`);
             const json = await res.json();
             if(json.status === 'success') {
-                alert("สำเร็จ! บันทึกรับเข้าเรียบร้อย");
+                alert("บันทึกสำเร็จ! เลขที่เอกสาร: " + json.docNo);
                 location.reload();
             }
-        } catch (e) { alert("เกิดข้อผิดพลาดในการเชื่อมต่อ"); }
+        } catch (e) { alert("เกิดข้อผิดพลาดในการบันทึก"); }
     }
 </script>
+
 </body>
 </html>
