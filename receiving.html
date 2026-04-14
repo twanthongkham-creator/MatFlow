@@ -7,58 +7,105 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #fffbeb; }
-        .card { border-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
-        .auto-fill-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 15px; }
-        .op-card { background-color: #1e293b; color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; color: #334155; }
+        .dashboard-container { padding: 30px; max-width: 1400px; margin: auto; }
+        .stat-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: none; margin-bottom: 25px; }
+        .card-title { font-size: 1rem; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 20px; border-left: 5px solid #f59e0b; padding-left: 15px; }
+        
+        /* Navigation Styling */
+        .nav-custom { background: white; padding: 8px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .nav-link { font-weight: 600; color: #64748b; padding: 10px 20px; border-radius: 10px; transition: 0.3s; text-decoration: none; }
+        .nav-link.active { background: #0f172a; color: white; }
+
+        /* Custom Input & Boxes */
+        .auto-fill-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 15px; }
+        .queue-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
-    <div class="op-card d-flex justify-content-between align-items-center">
-        <h4 class="fw-bold m-0 text-warning">MatFlow Receiving</h4>
-        <div style="width: 250px;">
-            <label class="small text-uppercase fw-bold opacity-75">Operator (Default)</label>
-            <input type="text" id="opName" class="form-control form-control-sm" value="Admin" readonly>
+<div id="loader" class="loading-overlay d-none">
+    <div class="text-center">
+        <div class="spinner-border text-warning" role="status"></div>
+        <div class="mt-2 fw-bold text-secondary" id="loaderText">กำลังประมวลผล...</div>
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark m-0">📥 MatFlow Receiving</h2>
+            <div class="text-muted small">ระบบรับเข้าวัตถุดิบ (Goods Receipt)</div>
+        </div>
+        <div class="nav-custom d-flex gap-2">
+            <a href="index.html" class="nav-link">Planning</a>
+            <a href="receiving.html" class="nav-link active">Receiving</a>
+            <a href="management.html" class="nav-link">Management</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
         </div>
     </div>
 
-    <div class="card p-4 mb-4 shadow-sm">
+    <div class="stat-card">
         <div class="row g-4">
             <div class="col-md-5 border-end">
-                <label class="form-label fw-bold small">1. รหัสวัตถุดิบ (Code)</label>
-                <input list="masterList" id="codeInput" class="form-control form-control-lg" placeholder="พิมพ์รหัส..." oninput="onCodeChange()">
+                <div class="card-title text-warning">1. ค้นหาวัตถุดิบ</div>
+                <label class="form-label fw-bold small text-muted">รหัสวัตถุดิบ (Code Col A)</label>
+                <input list="masterList" id="codeInput" class="form-control form-control-lg border-2 border-warning-subtle" placeholder="พิมพ์รหัสวัตถุดิบ..." oninput="onCodeChange()">
                 <datalist id="masterList"></datalist>
 
                 <div class="auto-fill-box mt-3">
                     <div class="row g-2">
-                        <div class="col-12"><span class="small text-muted">ProductName:</span><div id="resPName" class="fw-bold">-</div></div>
-                        <div class="col-12"><span class="small text-muted">Name:</span><div id="resName" class="fw-bold">-</div></div>
-                        <div class="col-12"><span class="small text-muted">Supplier:</span><div id="resSupplier" class="fw-bold">-</div></div>
-                        <div class="col-12"><span class="small text-muted text-primary">Unit:</span><div id="resUnit" class="fw-bold text-primary">-</div></div>
+                        <div class="col-12"><span class="small text-muted">ProductName (B):</span><div id="resPName" class="fw-bold">-</div></div>
+                        <div class="col-12"><span class="small text-muted">Name (C):</span><div id="resName" class="fw-bold">-</div></div>
+                        <div class="col-6 mt-2"><span class="small text-muted">Supplier (J):</span><div id="resSupplier" class="fw-bold">-</div></div>
+                        <div class="col-6 mt-2"><span class="small text-muted text-warning">Unit (M):</span><div id="resUnit" class="fw-bold text-warning h5 m-0">-</div></div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-7">
+                <div class="card-title text-warning">2. บันทึกรายละเอียดล๊อตสินค้า</div>
                 <div class="row g-3">
-                    <div class="col-md-6"><label class="form-label fw-bold small">2. เลข Batch</label><input type="text" id="batchInput" class="form-control"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold small">3. จำนวนที่รับ</label><input type="number" id="qtyInput" class="form-control" value="1"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold small">4. วันผลิต (MFG)</label><input type="date" id="mfgInput" class="form-control"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold small">5. วันหมดอายุ (BBF)</label><input type="date" id="expInput" class="form-control"></div>
-                    <div class="col-12 text-end pt-2">
-                        <button class="btn btn-warning btn-lg px-5 fw-bold" onclick="addToQueue()">+ เพิ่มลงคิว</button>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-muted">เลข Batch</label>
+                        <input type="text" id="batchInput" class="form-control form-control-lg" placeholder="Lot No.">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-muted">จำนวนที่รับ</label>
+                        <input type="number" id="qtyInput" class="form-control form-control-lg" value="1">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-primary">วันผลิต (MFG)</label>
+                        <input type="date" id="mfgInput" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-danger">วันหมดอายุ (BBF)</label>
+                        <input type="date" id="expInput" class="form-control">
+                    </div>
+                    <div class="col-12 text-end pt-3">
+                        <button class="btn btn-warning btn-lg px-5 fw-bold shadow-sm w-100 rounded-3" onclick="addToQueue()">+ เพิ่มลงคิวรับเข้า</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="qArea" class="d-none">
-        <h5 class="fw-bold text-secondary mb-3">📦 รายการรอรับเข้า</h5>
+    <div id="qArea" class="stat-card d-none border border-warning-subtle">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-secondary m-0">📦 รายการเตรียมบันทึกเข้าสต๊อก</h5>
+            <div style="width: 150px;">
+                <input type="text" id="opName" class="form-control form-control-sm text-center bg-light" value="Admin" readonly>
+                <small class="d-block text-center text-muted" style="font-size:0.6rem;">Operator ID</small>
+            </div>
+        </div>
+        
         <div id="qList"></div>
-        <button id="btnSubmit" class="btn btn-success btn-lg w-100 mt-4 fw-bold shadow" onclick="doSubmit()">ยืนยันบันทึกทั้งหมด</button>
+        
+        <button id="btnSubmit" class="btn btn-success btn-lg w-100 mt-4 fw-bold shadow rounded-3" onclick="doSubmit()">
+            ✅ ยืนยันบันทึกข้อมูลทั้งหมดเข้าคลัง
+        </button>
     </div>
 </div>
 
@@ -67,11 +114,15 @@
     let master = []; let queue = []; let selected = null;
 
     window.onload = async () => {
-        const res = await fetch(`${SCRIPT_URL}?action=getMasterData`);
-        const json = await res.json();
-        master = json.data;
-        const dl = document.getElementById('masterList');
-        master.forEach(i => { let op = document.createElement('option'); op.value = i.code; op.textContent = i.name; dl.appendChild(op); });
+        showLoader("กำลังเชื่อมต่อฐานข้อมูล Master Data...");
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getMasterData`);
+            const json = await res.json();
+            master = json.data;
+            const dl = document.getElementById('masterList');
+            master.forEach(i => { let op = document.createElement('option'); op.value = i.code; op.textContent = i.name; dl.appendChild(op); });
+        } catch(e) { alert("เชื่อมต่อ API ล้มเหลว"); }
+        hideLoader();
     };
 
     function onCodeChange() {
@@ -88,19 +139,24 @@
         const qty = parseFloat(document.getElementById('qtyInput').value);
         const mfg = document.getElementById('mfgInput').value;
         const exp = document.getElementById('expInput').value;
-        if(!selected || !batch || isNaN(qty) || !mfg || !exp) return alert("กรอกข้อมูลให้ครบ!");
+        if(!selected || !batch || isNaN(qty) || !mfg || !exp) return alert("กรุณากรอกข้อมูลให้ครบทุกช่อง!");
+        
         queue.push({ ...selected, batch, qty, mfgDate: mfg, expDate: exp });
         render();
-        document.getElementById('codeInput').value = ''; onCodeChange();
+        
+        // ล้างช่องรหัสวัตถุดิบเพื่อเตรียมยิงบาร์โค้ดหรือคีย์ตัวถัดไป
+        document.getElementById('codeInput').value = ''; 
+        onCodeChange();
     }
 
     function render() {
         document.getElementById('qArea').classList.toggle('d-none', queue.length === 0);
         document.getElementById('qList').innerHTML = queue.map((item, i) => `
-            <div class="card p-3 mb-2 border-start border-4 border-warning shadow-sm d-flex flex-row justify-content-between align-items-center">
+            <div class="queue-item shadow-sm">
                 <div>
-                    <strong>${item.name}</strong> (${item.code})<br>
-                    <small>Batch: ${item.batch} | Qty: ${item.qty} ${item.unit} | MFG: ${formatDate(item.mfgDate)} | EXP: ${formatDate(item.expDate)}</small>
+                    <strong class="text-dark">${item.name}</strong> <span class="text-muted small">(${item.code})</span><br>
+                    <small class="fw-bold text-warning">Batch: ${item.batch}</small> | 
+                    <small>Qty: <b>${item.qty} ${item.unit}</b> | MFG: ${formatDate(item.mfgDate)} | EXP: ${formatDate(item.expDate)}</small>
                 </div>
                 <button class="btn btn-sm btn-outline-danger" onclick="queue.splice(${i},1);render()">ลบ</button>
             </div>
@@ -115,11 +171,36 @@
     }
 
     async function doSubmit() {
+        if(!confirm("ยืนยันการนำเข้าวัตถุดิบทั้งหมดลงในคลัง?")) return;
+
+        showLoader("กำลังบันทึกข้อมูลเข้า Google Sheets... ห้ามปิดหน้าต่าง");
         const btn = document.getElementById('btnSubmit');
-        btn.disabled = true; btn.innerText = "กำลังบันทึก...";
-        const res = await fetch(`${SCRIPT_URL}?action=receive&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${document.getElementById('opName').value}`);
-        const json = await res.json();
-        if(json.status === 'success') { alert("สำเร็จ!"); location.reload(); }
+        btn.disabled = true; 
+        
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=receive&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${document.getElementById('opName').value}`);
+            const json = await res.json();
+            if(json.status === 'success') { 
+                alert("บันทึกรับเข้าสำเร็จ!"); 
+                location.reload(); 
+            } else {
+                alert("เกิดข้อผิดพลาด: " + json.message);
+                btn.disabled = false;
+            }
+        } catch (e) {
+            alert("การบันทึกล้มเหลว กรุณาลองใหม่");
+            btn.disabled = false;
+        }
+        hideLoader();
+    }
+
+    function showLoader(text) {
+        document.getElementById('loaderText').innerText = text;
+        document.getElementById('loader').classList.remove('d-none');
+    }
+    
+    function hideLoader() {
+        document.getElementById('loader').classList.add('d-none');
     }
 </script>
 </body>
