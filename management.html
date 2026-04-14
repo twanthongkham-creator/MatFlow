@@ -3,55 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - Management Pro</title>
+    <title>MatFlow Management Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; }
-        .table-container { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .table-container { background: white; border-radius: 16px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .sticky-header { position: sticky; top: 0; background: #1e293b; color: white; z-index: 10; }
-        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 500; }
-        .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 500; margin-left: 4px; }
+        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.9rem; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.9rem; margin-left: 2px; }
         
-        /* Modal Extension */
-        .modal-content { border-radius: 24px; border: none; }
-        .qty-display { background: #f0f9ff; border-radius: 20px; padding: 15px; text-align: center; border: 2px solid #bae6fd; }
-        .qty-display input { font-size: 2.5rem; font-weight: 700; color: #0284c7; border: none; background: transparent; width: 100%; text-align: center; outline: none; }
-        .extend-box { background: #fff7ed; border: 1px dashed #fb923c; border-radius: 15px; padding: 15px; display: none; }
-        .badge-ext { background-color: #ffedd5; color: #9a3412; font-size: 0.75rem; border: 1px solid #fed7aa; }
+        /* Compact Modal Styling */
+        .modal-content { border-radius: 20px; border: none; overflow: hidden; }
+        .modal-header { background: #1e293b; color: white; padding: 12px 20px; border: none; }
+        .modal-body { padding: 15px 20px !important; }
+        .qty-hero { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 15px; padding: 10px; text-align: center; margin-bottom: 12px; }
+        .qty-hero input { font-size: 2.2rem; font-weight: 700; color: #0284c7; border: none; background: transparent; width: 100%; text-align: center; outline: none; }
+        .info-label { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 2px; }
+        .info-value { font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px; line-height: 1.2; }
+        .date-input-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; }
+        .form-control-sm { font-size: 0.85rem; }
+        .extend-box { background: #fff7ed; border: 1px dashed #fb923c; border-radius: 10px; padding: 10px; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary m-0">🛠️ MatFlow Management</h2>
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary m-0">🛠️ MatFlow Management</h3>
         <div class="d-flex gap-2">
-            <a href="index.html" class="btn btn-outline-secondary px-4">เบิกจ่าย</a>
-            <a href="receiving.html" class="btn btn-outline-warning px-4">รับเข้า</a>
+            <a href="index.html" class="btn btn-sm btn-outline-secondary px-3">เบิกจ่าย</a>
+            <a href="receiving.html" class="btn btn-sm btn-outline-warning px-3">รับเข้า</a>
         </div>
     </div>
 
-    <div class="bg-white rounded-4 p-4 mb-4 shadow-sm">
-        <div class="row g-3">
+    <div class="bg-white rounded-4 p-3 mb-3 shadow-sm">
+        <div class="row g-2">
             <div class="col-md-3">
-                <label class="form-label small fw-bold">กรอง ProductName</label>
-                <select id="filterProduct" class="form-select" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
+                <select id="filterProduct" class="form-select form-select-sm" onchange="applyFilters()"><option value="">สินค้าทั้งหมด</option></select>
             </div>
             <div class="col-md-3">
-                <label class="form-label small fw-bold">กรอง Name (RM)</label>
-                <select id="filterName" class="form-select" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
+                <select id="filterName" class="form-select form-select-sm" onchange="applyFilters()"><option value="">RM ทั้งหมด</option></select>
             </div>
             <div class="col-md-6">
-                <label class="form-label small fw-bold">ค้นหาด่วน</label>
-                <input type="text" id="searchInput" class="form-control" placeholder="พิมพ์ Batch, Code หรือ Supplier..." oninput="applyFilters()">
+                <input type="text" id="searchInput" class="form-control form-select-sm" placeholder="ค้นหา Batch, Code, Supplier..." oninput="applyFilters()">
             </div>
         </div>
     </div>
 
     <div class="table-container">
-        <div class="table-responsive" style="max-height: 70vh;">
-            <table class="table table-hover align-middle">
+        <div class="table-responsive" style="max-height: 75vh;">
+            <table class="table table-sm table-hover align-middle">
                 <thead class="sticky-header">
                     <tr>
                         <th>Code</th>
@@ -60,12 +62,12 @@
                         <th class="text-center">Qty</th>
                         <th class="text-center">MFG</th>
                         <th class="text-center">BBF (เดิม)</th>
-                        <th class="text-center">Extended BBF</th>
+                        <th class="text-center">Extended</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody id="dataTable">
-                    <tr><td colspan="8" class="text-center py-5">⌛ กำลังดึงข้อมูลและจัดเรียง...</td></tr>
+                    <tr><td colspan="8" class="text-center py-5">⌛ กำลังโหลดและจัดเรียง...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -75,52 +77,62 @@
 <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg">
-            <div class="modal-header bg-dark text-white p-4">
-                <h5 class="modal-title fw-bold">จัดการรายการ: <span id="modalBatchTitle"></span></h5>
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold">แก้ไข Batch: <span id="modalBatchTitle"></span></h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <div class="row mb-3">
-                    <div class="col-6"><small class="fw-bold text-muted">NAME (RM)</small><div id="modalRMName" class="fw-bold">-</div></div>
-                    <div class="col-6"><small class="fw-bold text-muted">SUPPLIER</small><div id="modalSupplier" class="fw-bold">-</div></div>
+            <div class="modal-body">
+                <div class="row g-2 mb-2">
+                    <div class="col-7">
+                        <div class="info-label">Name (RM)</div>
+                        <div id="modalRMName" class="info-value text-truncate">-</div>
+                    </div>
+                    <div class="col-5">
+                        <div class="info-label">Supplier</div>
+                        <div id="modalSupplier" class="info-value text-truncate">-</div>
+                    </div>
                 </div>
 
-                <div class="qty-display mb-4">
-                    <small class="fw-bold text-primary text-uppercase">จำนวนคงเหลือ</small>
+                <div class="qty-hero">
+                    <div class="info-label text-primary">จำนวนคงเหลือ (Quantity)</div>
                     <input type="number" id="editQty">
-                    <div id="modalUnit" class="small fw-bold text-muted">-</div>
+                    <div id="modalUnit" class="fw-bold text-muted small" style="font-size: 0.75rem;">-</div>
                 </div>
 
-                <div class="row g-3 mb-4">
+                <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <label class="small fw-bold">วันผลิต (MFG)</label>
-                        <input type="date" id="editMfg" class="form-control">
+                        <div class="date-input-group">
+                            <label class="info-label text-primary">วันผลิต (MFG)</label>
+                            <input type="date" id="editMfg" class="form-control form-control-sm border-0 bg-transparent p-0 fw-bold">
+                        </div>
                     </div>
                     <div class="col-6">
-                        <label class="small fw-bold">วันหมดอายุ (BBF)</label>
-                        <input type="date" id="editExp" class="form-control">
+                        <div class="date-input-group">
+                            <label class="info-label text-danger">วันหมดอายุ (BBF)</label>
+                            <input type="date" id="editExp" class="form-control form-control-sm border-0 bg-transparent p-0 fw-bold">
+                        </div>
                     </div>
                 </div>
 
-                <div class="p-3 border rounded-4 bg-light">
+                <div class="p-2 border rounded-3 bg-light">
                     <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
-                        <label class="form-check-label fw-bold text-orange" for="toggleExtend">⚠️ ต่ออายุวัตถุดิบ (Extended BBF)</label>
+                        <label class="form-check-label fw-bold text-secondary small" for="toggleExtend">⚠️ ต่ออายุวัตถุดิบ (Extended)</label>
                         <input class="form-check-input ms-0" type="checkbox" id="toggleExtend" onchange="toggleExtendField()">
                     </div>
-                    <div id="extendField" class="extend-box mt-3">
-                        <label class="small fw-bold text-danger">ระบุวันที่ต่ออายุใหม่:</label>
-                        <input type="date" id="editExtExp" class="form-control border-warning">
+                    <div id="extendField" class="extend-box">
+                        <label class="info-label text-danger">วันที่ต่ออายุใหม่:</label>
+                        <input type="date" id="editExtExp" class="form-control form-control-sm">
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <label class="small fw-bold text-muted">แก้ไขเลข Batch</label>
-                    <input type="text" id="editBatch" class="form-control">
+                <div class="mt-3">
+                    <label class="info-label">แก้ไขเลข Batch</label>
+                    <input type="text" id="editBatch" class="form-control form-control-sm">
                 </div>
             </div>
-            <div class="modal-footer border-0 p-4">
-                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">ปิด</button>
-                <button type="button" class="btn btn-primary px-5 fw-bold rounded-pill shadow" onclick="saveEdit()">บันทึกข้อมูล</button>
+            <div class="modal-footer border-0 p-2 px-4 pb-4">
+                <button type="button" class="btn btn-sm btn-light px-3" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-sm btn-primary px-4 fw-bold rounded-pill shadow" onclick="saveEdit()">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
@@ -140,11 +152,8 @@
         const json = await res.json();
         rawData = json.data;
         
-        // Setup Filters
         const products = [...new Set(rawData.map(i => i.productName))].sort();
         const names = [...new Set(rawData.map(i => i.name))].sort();
-        document.getElementById('filterProduct').innerHTML = '<option value="">ทั้งหมด</option>';
-        document.getElementById('filterName').innerHTML = '<option value="">ทั้งหมด</option>';
         products.forEach(p => document.getElementById('filterProduct').innerHTML += `<option value="${p}">${p}</option>`);
         names.forEach(n => document.getElementById('filterName').innerHTML += `<option value="${n}">${n}</option>`);
         
@@ -162,27 +171,23 @@
                    (Object.values(i).some(v => String(v).toLowerCase().includes(search)));
         });
 
-        // 🚩 SORTING: เรียงตามวันหมดอายุ (BBF) ค.ศ. น้อยไปมาก (ใกล้หมดอายุอยู่บน)
-        filtered.sort((a, b) => {
-            const dateA = new Date(a.extExp || a.exp);
-            const dateB = new Date(b.extExp || b.exp);
-            return dateA - dateB;
-        });
+        // SORTING: เรียงตามวันหมดอายุจริง (Extended หรือ Exp)
+        filtered.sort((a, b) => new Date(a.extExp || a.exp) - new Date(b.extExp || b.exp));
 
         const tbody = document.getElementById('dataTable');
         tbody.innerHTML = filtered.map(i => `
             <tr>
-                <td><small class="fw-bold">${i.code}</small></td>
-                <td>${i.name}</td>
-                <td class="fw-bold text-secondary">${i.batch}</td>
+                <td><small class="fw-bold text-muted">${i.code}</small></td>
+                <td class="small">${i.name}</td>
+                <td class="small fw-bold">${i.batch}</td>
                 <td class="text-center fw-bold text-primary">${i.qty}</td>
                 <td class="text-center small">${formatDisplayDate(i.mfg)}</td>
                 <td class="text-center small">${formatDisplayDate(i.exp)}</td>
                 <td class="text-center">
-                    ${i.extExp ? `<span class="badge badge-ext px-2 py-1">${formatDisplayDate(i.extExp)}</span>` : '-'}
+                    ${i.extExp ? `<span class="badge bg-info-subtle text-info-emphasis border border-info-subtle" style="font-size: 0.7rem;">${formatDisplayDate(i.extExp)}</span>` : '-'}
                 </td>
-                <td class="text-center" style="min-width: 160px;">
-                    <button class="btn-edit" onclick="openEdit(${i.rowIdx})">แก้ไข</button>
+                <td class="text-center">
+                    <button class="btn-edit" onclick="openEdit(${i.rowIdx})">แก้</button>
                     <button class="btn-delete" onclick="confirmDelete(${i.rowIdx}, '${i.batch}')">ลบ</button>
                 </td>
             </tr>
@@ -209,18 +214,15 @@
     function openEdit(rowIdx) {
         let item = rawData.find(i => i.rowIdx === rowIdx);
         currentEditIdx = rowIdx;
-        
         document.getElementById('modalBatchTitle').innerText = item.batch;
         document.getElementById('modalRMName').innerText = item.name;
         document.getElementById('modalSupplier').innerText = item.supplier || '-';
         document.getElementById('modalUnit').innerText = item.unit || 'UNIT';
-        
         document.getElementById('editBatch').value = item.batch;
         document.getElementById('editQty').value = item.qty;
         document.getElementById('editMfg').value = formatInputDate(item.mfg);
         document.getElementById('editExp').value = formatInputDate(item.exp);
         
-        // Extended BBF Logic
         if(item.extExp) {
             document.getElementById('toggleExtend').checked = true;
             document.getElementById('editExtExp').value = formatInputDate(item.extExp);
@@ -230,26 +232,22 @@
             document.getElementById('editExtExp').value = "";
             document.getElementById('extendField').style.display = 'none';
         }
-        
         modal.show();
     }
 
     async function saveEdit() {
         let item = rawData.find(i => i.rowIdx === currentEditIdx);
         const isExtended = document.getElementById('toggleExtend').checked;
-        
         const updated = {
             ...item,
             batch: document.getElementById('editBatch').value,
             qty: parseFloat(document.getElementById('editQty').value),
             mfg: document.getElementById('editMfg').value,
             exp: document.getElementById('editExp').value,
-            extExp: isExtended ? document.getElementById('editExtExp').value : "" // ล้างค่าถ้าไม่ได้ติ๊กต่ออายุ
+            extExp: isExtended ? document.getElementById('editExtExp').value : ""
         };
-
         const btn = document.querySelector('.modal-footer .btn-primary');
-        btn.disabled = true; btn.innerText = "กำลังบันทึก...";
-
+        btn.disabled = true; btn.innerText = "บันทึก...";
         try {
             const res = await fetch(`${SCRIPT_URL}?action=updateMonitor&rowData=${encodeURIComponent(JSON.stringify(updated))}`);
             const json = await res.json();
