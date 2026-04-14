@@ -3,196 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - ระบบวางแผนและเบิกจ่ายวัตถุดิบ</title>
+    <title>MatFlow - Sermsuk PLC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; color: #1e293b; }
-        .card { border-radius: 16px; border: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .table-custom th { background-color: #1e293b; color: #ffffff; font-weight: 500; border: none; }
-        .status-badge { font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn-primary { background-color: #2563eb; border: none; padding: 10px 20px; border-radius: 10px; }
-        .btn-success { background-color: #059669; border: none; padding: 10px 20px; border-radius: 10px; }
-        .icon-svg { vertical-align: middle; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f0f4f8; color: #334155; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .btn-primary { background-color: #0284c7; border: none; border-radius: 10px; }
+        .status-bar { font-size: 0.8rem; padding: 5px 15px; border-radius: 20px; background: #e2e8f0; }
+        .table thead { background-color: #1e293b; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-        </svg>
-        <h1 class="h2 fw-bold m-0 text-dark">MatFlow</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark m-0">MatFlow</h2>
+        <div id="statusIndicator" class="status-bar text-muted">กำลังเริ่มระบบ...</div>
     </div>
 
     <div class="card p-4 mb-4">
         <div class="row g-3 align-items-end">
-            <div class="col-lg-5 col-md-6">
-                <label class="form-label fw-semibold text-secondary small text-uppercase">สินค้าที่ต้องการผลิต</label>
+            <div class="col-md-5">
+                <label class="form-label fw-bold">1. เลือกสินค้าที่ต้องการผลิต</label>
                 <select id="productSelect" class="form-select form-select-lg" disabled>
-                    <option value="">กำลังดึงข้อมูลจาก Master...</option>
+                    <option>กำลังดึงข้อมูล...</option>
                 </select>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label fw-semibold text-secondary small text-uppercase">จำนวนเป้าหมาย (Unit)</label>
-                <input type="number" id="targetQty" class="form-control form-select-lg" value="12" min="1">
+            <div class="col-md-3">
+                <label class="form-label fw-bold">2. จำนวน Unit</label>
+                <input type="number" id="targetQty" class="form-control form-control-lg" value="12">
             </div>
-            <div class="col-lg-4 col-md-12">
-                <button id="btnEvaluate" class="btn btn-primary w-100 btn-lg fw-bold d-flex align-items-center justify-content-center gap-2" onclick="evaluateStock()" disabled>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <span id="evalBtnText">ประเมินวัตถุดิบ</span>
-                    <span id="evalLoading" class="loader d-none"></span>
-                </button>
+            <div class="col-md-4">
+                <button id="btnEval" class="btn btn-primary btn-lg w-100 fw-bold" onclick="evaluateStock()" disabled>ประเมินวัตถุดิบ</button>
             </div>
         </div>
     </div>
 
-    <div id="resultContainer" class="card p-4 d-none">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="15" y2="18"></line><line x1="9" y1="10" x2="15" y2="10"></line></svg>
-                ผลการประเมินวัตถุดิบ
-            </h5>
-            <span id="lblDetails" class="badge bg-light text-dark border p-2"></span>
-        </div>
-
+    <div id="resultBox" class="card p-4 d-none">
+        <h5 class="fw-bold mb-3 border-bottom pb-2">📦 รายการวัตถุดิบที่ต้องเบิก</h5>
         <div class="table-responsive">
-            <table class="table table-hover align-middle table-custom">
+            <table class="table table-hover align-middle">
                 <thead>
-                    <tr>
-                        <th>รหัส</th>
-                        <th>ชื่อวัตถุดิบ</th>
-                        <th class="text-center">ต้องใช้</th>
-                        <th class="text-center">ในสต๊อก</th>
-                        <th class="text-center">สถานะ</th>
-                    </tr>
+                    <tr><th>รหัส</th><th>ชื่อวัตถุดิบ</th><th class="text-center">ต้องใช้</th><th class="text-center">สถานะ</th></tr>
                 </thead>
                 <tbody id="resultBody"></tbody>
             </table>
         </div>
-
-        <div class="text-end mt-4">
-            <button id="btnIssueStock" class="btn btn-success btn-lg px-5 fw-bold d-none align-items-center gap-2" onclick="confirmIssue()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                ยืนยันการเบิกจ่าย (FIFO)
-            </button>
-        </div>
+        <button id="btnIssue" class="btn btn-success btn-lg w-100 mt-3 fw-bold d-none" onclick="confirmIssue()">ยืนยันการเบิกจ่าย (FIFO)</button>
     </div>
 </div>
 
 <script>
-    // URL Web App ตัวล่าสุด
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
+    // 🚩 วาง URL ใหม่ของคุณที่นี่
+    const SCRIPT_URL = 'ใส่_URL_ที่_ได้_จากการ_Deploy_ตรงนี้';
 
-    window.onload = loadProducts;
+    const updateStatus = (msg, color = '#64748b') => {
+        const el = document.getElementById('statusIndicator');
+        el.innerText = msg; el.style.color = color;
+    };
 
-    async function loadProducts() {
+    window.onload = async () => {
+        updateStatus("🔄 กำลังเชื่อมต่อฐานข้อมูล Master...");
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getProducts`);
             const json = await res.json();
-            const select = document.getElementById('productSelect');
-            if (json.status === 'success') {
+            
+            if(json.status === 'success') {
+                const select = document.getElementById('productSelect');
                 select.innerHTML = '<option value="">-- เลือกรายการผลิต --</option>';
-                json.data.forEach(p => {
-                    let opt = document.createElement('option');
-                    opt.value = p; opt.textContent = p;
-                    select.appendChild(opt);
-                });
+                json.data.forEach(p => select.innerHTML += `<option value="${p}">${p}</option>`);
                 select.disabled = false;
-                document.getElementById('btnEvaluate').disabled = false;
+                document.getElementById('btnEval').disabled = false;
+                updateStatus("✅ ระบบพร้อมใช้งาน", "#059669");
+            } else {
+                updateStatus("❌ Error: " + json.message, "#dc2626");
             }
         } catch (e) {
-            document.getElementById('productSelect').innerHTML = '<option>เชื่อมต่อล้มเหลว (CORS/URL)</option>';
+            updateStatus("❌ ไม่สามารถติดต่อ API ได้", "#dc2626");
         }
-    }
+    };
 
     async function evaluateStock() {
         const product = document.getElementById('productSelect').value;
         const qty = document.getElementById('targetQty').value;
-        if (!product || !qty) return alert('ระบุข้อมูลให้ครบ');
+        if(!product) return alert("กรุณาเลือกสินค้า");
 
-        const btn = document.getElementById('btnEvaluate');
-        const loader = document.getElementById('evalLoading');
-        btn.disabled = true; loader.classList.remove('d-none');
-
+        updateStatus("⌛ กำลังตรวจสอบสต๊อก...");
         try {
             const res = await fetch(`${SCRIPT_URL}?action=evaluate&product=${encodeURIComponent(product)}&qty=${qty}`);
             const json = await res.json();
-            if (json.status === 'success') renderTable(json.data, product, qty);
-        } catch (e) {
-            alert('Error: ' + e.message);
-        } finally {
-            btn.disabled = false; loader.classList.add('d-none');
-        }
+            if(json.status === 'success') {
+                renderTable(json.data);
+                updateStatus("✅ ประเมินเสร็จสิ้น");
+            }
+        } catch (e) { updateStatus("❌ ประเมินผิดพลาด", "#dc2626"); }
     }
 
-    function renderTable(data, product, qty) {
-        const container = document.getElementById('resultContainer');
+    function renderTable(data) {
+        document.getElementById('resultBox').classList.remove('d-none');
         const tbody = document.getElementById('resultBody');
-        const btnIssue = document.getElementById('btnIssueStock');
-        const lbl = document.getElementById('lblDetails');
-        
-        container.classList.remove('d-none');
-        lbl.textContent = `${product} x ${qty} Unit`;
         tbody.innerHTML = '';
-        
-        let canProcess = true;
-        const svgCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-        const svgX = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+        let allAvailable = true;
 
         data.forEach(item => {
-            const isOk = item.status === 'OK';
-            if (!isOk) canProcess = false;
-            tbody.innerHTML += `
-                <tr>
-                    <td><code class="text-primary fw-bold">${item.code}</code></td>
-                    <td class="fw-medium">${item.name}</td>
-                    <td class="text-center fw-bold text-dark">${item.required} <small class="text-muted fw-normal">${item.unit}</small></td>
-                    <td class="text-center">${item.available} <small class="text-muted">${item.unit}</small></td>
-                    <td class="text-center">
-                        <span class="status-badge ${isOk ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">
-                            ${isOk ? svgCheck + ' พร้อม' : svgX + ' ขาด ' + item.shortage}
-                        </span>
-                    </td>
-                </tr>`;
+            if(item.status !== 'OK') allAvailable = false;
+            tbody.innerHTML += `<tr>
+                <td><code class="fw-bold">${item.code}</code></td>
+                <td class="fw-medium">${item.name}</td>
+                <td class="text-center fw-bold">${item.required} <small>${item.unit}</small></td>
+                <td class="text-center">
+                    ${item.status === 'OK' ? '<span class="badge bg-success">✅ พร้อม</span>' : '<span class="badge bg-danger">❌ ขาด '+item.shortage+'</span>'}
+                </td>
+            </tr>`;
         });
-
-        btnIssue.classList.toggle('d-none', !canProcess);
-        btnIssue.classList.toggle('d-inline-flex', canProcess);
+        document.getElementById('btnIssue').classList.toggle('d-none', !allAvailable);
     }
 
     async function confirmIssue() {
-        const product = document.getElementById('productSelect').value;
-        const qty = document.getElementById('targetQty').value;
-        const operator = prompt("ระบุชื่อผู้เบิกจ่าย:");
-        if (!operator) return;
-
-        const btn = document.getElementById('btnIssueStock');
-        btn.disabled = true;
-        btn.innerHTML = `<span class="loader"></span> กำลังบันทึก...`;
-
+        const op = prompt("ระบุชื่อผู้ดำเนินการเบิกจ่าย:");
+        if(!op) return;
+        
+        updateStatus("💾 กำลังบันทึกธุรกรรม...");
         try {
-            const res = await fetch(`${SCRIPT_URL}?action=issue&product=${encodeURIComponent(product)}&qty=${qty}&operator=${encodeURIComponent(operator)}`);
+            const product = document.getElementById('productSelect').value;
+            const qty = document.getElementById('targetQty').value;
+            const res = await fetch(`${SCRIPT_URL}?action=issue&product=${encodeURIComponent(product)}&qty=${qty}&operator=${encodeURIComponent(op)}`);
             const json = await res.json();
-            if (json.status === 'success') {
-                alert(`เบิกจ่ายสำเร็จ!\nเลขที่เอกสาร: ${json.docNo}`);
-                evaluateStock(); // รีเฟรชยอด
-            } else {
-                alert('ข้อผิดพลาด: ' + json.message);
-            }
-        } catch (e) {
-            alert('การเชื่อมต่อล้มเหลว');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> ยืนยันการเบิกจ่าย (FIFO)`;
-        }
+            if(json.status === 'success') {
+                alert("สำเร็จ! เลขที่เอกสาร: " + json.docNo);
+                location.reload();
+            } else { alert("เกิดข้อผิดพลาด: " + json.message); }
+        } catch (e) { updateStatus("❌ บันทึกไม่สำเร็จ", "#dc2626"); }
     }
 </script>
-
 </body>
 </html>
