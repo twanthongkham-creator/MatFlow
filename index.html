@@ -3,61 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - Planning & Issue</title>
+    <title>MatFlow - Planning</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; }
-        .card { border-radius: 16px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .btn-add { background-color: #0ea5e9; color: white; border-radius: 10px; }
-        .item-row { background: white; border-left: 4px solid #0ea5e9; margin-bottom: 8px; border-radius: 8px; }
+        .card { border-radius: 16px; border: none; }
+        .btn-add { background-color: #0ea5e9; color: white; border-radius: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary m-0">📋 MatFlow - วางแผนการผลิต</h2>
+        <h2 class="fw-bold text-primary">📋 MatFlow - Planning</h2>
         <a href="receiving.html" class="btn btn-warning text-white fw-bold">ไปหน้า รับเข้า (In)</a>
     </div>
 
-    <div class="card p-4 mb-4">
+    <div class="card p-4 mb-4 shadow-sm">
         <div class="row g-3 align-items-end">
             <div class="col-md-5">
                 <label class="form-label fw-bold">เลือกสินค้าที่จะผลิต</label>
-                <select id="productSelect" class="form-select form-select-lg" disabled>
-                    <option>กำลังโหลดสินค้า...</option>
-                </select>
+                <select id="pSelect" class="form-select form-select-lg"></select>
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-bold">จำนวน Unit (ใส่เองได้)</label>
-                <input type="number" id="targetQty" class="form-control form-control-lg" value="12">
+                <label class="form-label fw-bold">จำนวน Unit</label>
+                <input type="number" id="tQty" class="form-control form-control-lg" value="12">
             </div>
             <div class="col-md-4">
-                <button class="btn btn-add btn-lg w-100 fw-bold" onclick="addItem()">+ Add รายการสินค้า</button>
+                <button class="btn btn-add btn-lg w-100 fw-bold" onclick="add()">+ Add รายการสินค้า</button>
             </div>
         </div>
     </div>
 
-    <div id="queueBox" class="mb-4 d-none">
-        <h6 class="fw-bold text-secondary mb-3">📦 ตะกร้าสินค้าที่เตรียมผลิต</h6>
-        <div id="queueList"></div>
-        <button id="btnEval" class="btn btn-primary w-100 btn-lg fw-bold mt-2 shadow" onclick="evaluateMulti()">
-            ประเมินวัตถุดิบรวม (Common Check)
-        </button>
+    <div id="qBox" class="mb-4 d-none">
+        <h6 class="fw-bold text-secondary mb-3">ตะกร้าสินค้าเตรียมผลิต</h6>
+        <div id="qList"></div>
+        <button class="btn btn-primary w-100 btn-lg fw-bold mt-3 shadow" onclick="eval()">ประเมินสต๊อกรวม (Common Check)</button>
     </div>
 
-    <div id="resultBox" class="card p-4 d-none">
-        <h5 class="fw-bold mb-3">📊 สรุปวัตถุดิบที่ต้องใช้ (หักลบ Ignore แล้ว)</h5>
+    <div id="resBox" class="card p-4 d-none shadow">
+        <h5 class="fw-bold mb-3">สรุปวัตถุดิบที่ต้องใช้ (RM_Name)</h5>
         <div class="table-responsive">
-            <table class="table align-middle">
+            <table class="table table-hover">
                 <thead class="table-dark">
-                    <tr><th>รหัส</th><th>ชื่อวัตถุดิบ</th><th class="text-center">ต้องใช้รวม</th><th class="text-center">สถานะ</th></tr>
+                    <tr><th>รหัส (RM_Code)</th><th>ชื่อวัตถุดิบ</th><th class="text-center">ต้องใช้</th><th class="text-center">สถานะ</th></tr>
                 </thead>
-                <tbody id="resultBody"></tbody>
+                <tbody id="resBody"></tbody>
             </table>
         </div>
-        <button id="btnIssue" class="btn btn-success btn-lg w-100 mt-3 fw-bold d-none shadow" onclick="confirmIssueMulti()">ยืนยันตัดสต๊อก FIFO</button>
+        <button id="btnIss" class="btn btn-success btn-lg w-100 mt-3 fw-bold d-none" onclick="iss()">ยืนยันเบิกจ่าย FIFO</button>
     </div>
 </div>
 
@@ -68,79 +63,54 @@
     window.onload = async () => {
         const res = await fetch(`${SCRIPT_URL}?action=getProducts`);
         const json = await res.json();
-        const select = document.getElementById('productSelect');
-        select.innerHTML = '<option value="">-- เลือกรายการผลิต --</option>';
-        json.data.forEach(p => select.innerHTML += `<option value="${p}">${p}</option>`);
-        select.disabled = false;
+        const sel = document.getElementById('pSelect');
+        sel.innerHTML = '<option value="">-- เลือกรายการ --</option>';
+        json.data.forEach(p => sel.innerHTML += `<option value="${p}">${p}</option>`);
     };
 
-    function addItem() {
-        const name = document.getElementById('productSelect').value;
-        const qty = parseInt(document.getElementById('targetQty').value);
-        if(!name || !qty) return alert("เลือกสินค้าและระบุจำนวนก่อน");
+    function add() {
+        const name = document.getElementById('pSelect').value;
+        const qty = parseInt(document.getElementById('tQty').value);
+        if(!name || !qty) return alert("ระบุข้อมูลก่อน");
         queue.push({ name, qty });
-        renderQueue();
-        document.getElementById('resultBox').classList.add('d-none');
+        render();
     }
 
-    function removeItem(index) {
-        queue.splice(index, 1);
-        renderQueue();
-        document.getElementById('resultBox').classList.add('d-none');
-    }
-
-    function renderQueue() {
-        const box = document.getElementById('queueBox');
-        const list = document.getElementById('queueList');
-        box.classList.toggle('d-none', queue.length === 0);
-        list.innerHTML = queue.map((item, i) => `
-            <div class="item-row p-3 d-flex justify-content-between align-items-center shadow-sm">
-                <span><strong>${item.name}</strong> (${item.qty} Unit)</span>
-                <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${i})">ลบ</button>
+    function render() {
+        document.getElementById('qBox').classList.toggle('d-none', queue.length === 0);
+        document.getElementById('qList').innerHTML = queue.map((i, idx) => `
+            <div class="card p-3 mb-2 border-start border-4 border-info shadow-sm d-flex flex-row justify-content-between">
+                <strong>${i.name} (${i.qty} Unit)</strong>
+                <button class="btn btn-sm btn-link text-danger" onclick="queue.splice(${idx},1);render()">ลบ</button>
             </div>
         `).join('');
     }
 
-    async function evaluateMulti() {
-        if(queue.length === 0) return;
-        const btn = document.getElementById('btnEval');
-        btn.disabled = true; btn.innerText = "กำลังคำนวณ...";
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(queue))}`);
-            const json = await res.json();
-            if(json.status === 'success') renderTable(json.data);
-        } catch (e) { alert("ล้มเหลว"); }
-        btn.disabled = false; btn.innerText = "ประเมินวัตถุดิบรวม (Common Check)";
-    }
-
-    function renderTable(data) {
-        document.getElementById('resultBox').classList.remove('d-none');
-        const tbody = document.getElementById('resultBody');
+    async function eval() {
+        const res = await fetch(`${SCRIPT_URL}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(queue))}`);
+        const json = await res.json();
+        const tbody = document.getElementById('resBody');
         tbody.innerHTML = '';
-        let canIssue = true;
-        data.forEach(item => {
-            if(item.status !== 'OK') canIssue = false;
+        let ok = true;
+        json.data.forEach(i => {
+            if(i.status !== 'OK') ok = false;
             tbody.innerHTML += `<tr>
-                <td><code>${item.code}</code></td>
-                <td>${item.name}</td>
-                <td class="text-center fw-bold">${item.required} <small>${item.unit}</small></td>
-                <td class="text-center">${item.status === 'OK' ? '✅ พร้อม' : '<span class="text-danger">❌ ขาด '+item.shortage+'</span>'}</td>
+                <td><code>${i.code}</code></td>
+                <td>${i.name}</td>
+                <td class="text-center fw-bold">${i.required} ${i.unit}</td>
+                <td class="text-center">${i.status === 'OK' ? '✅' : '❌ ขาด '+i.shortage}</td>
             </tr>`;
         });
-        document.getElementById('btnIssue').classList.toggle('d-none', !canIssue);
+        document.getElementById('resBox').classList.remove('d-none');
+        document.getElementById('btnIss').classList.toggle('d-none', !ok);
     }
 
-    async function confirmIssueMulti() {
-        const op = prompt("ชื่อผู้เบิกจ่าย:");
+    async function iss() {
+        const op = prompt("ชื่อผู้เบิก:");
         if(!op) return;
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${encodeURIComponent(op)}`);
-            const json = await res.json();
-            if(json.status === 'success') {
-                alert("เบิกสำเร็จ! " + json.docNo);
-                location.reload();
-            }
-        } catch (e) { alert("Error"); }
+        const res = await fetch(`${SCRIPT_URL}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${encodeURIComponent(op)}`);
+        const json = await res.json();
+        if(json.status === 'success') { alert("สำเร็จ: " + json.docNo); location.reload(); }
     }
 </script>
 </body>
