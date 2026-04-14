@@ -281,15 +281,25 @@
     }
 
     async function saveEdit() {
+        // 🔧 FIX: validate before saving
+        const newQty = parseFloat(document.getElementById('editQty').value);
+        const newBatch = document.getElementById('editBatch').value.trim();
+        const newMfg = document.getElementById('editMfg').value;
+        const newExp = document.getElementById('editExp').value;
+        if(isNaN(newQty) || newQty < 0) return alert("จำนวน (Qty) ต้องเป็นตัวเลข >= 0");
+        if(!newBatch) return alert("กรุณาระบุเลข Batch");
+        if(!newMfg || !newExp) return alert("กรุณาระบุวันผลิตและวันหมดอายุ");
+        if(new Date(newMfg) > new Date(newExp)) return alert("วันผลิต (MFG) ต้องไม่มากกว่าวันหมดอายุ (BBF)!");
+
         let item = rawData.find(i => i.rowIdx === currentEditIdx);
         const isExtended = document.getElementById('toggleExtend').checked;
         
         const updated = {
             ...item,
-            batch: document.getElementById('editBatch').value,
-            qty: parseFloat(document.getElementById('editQty').value),
-            mfg: document.getElementById('editMfg').value,
-            exp: document.getElementById('editExp').value,
+            batch: newBatch,
+            qty: newQty,
+            mfg: newMfg,
+            exp: newExp,
             extExp: isExtended ? document.getElementById('editExtExp').value : "" 
         };
 
@@ -304,7 +314,7 @@
                 rawData[idx] = updated;
                 applyFilters();
             } else {
-                alert("เกิดข้อผิดพลาดในการบันทึก");
+                alert("เกิดข้อผิดพลาดในการบันทึก: " + (json.message || ""));
             }
         } catch(e) { 
             alert("บันทึกล้มเหลว"); 
@@ -321,9 +331,14 @@
     async function doDelete(rowIdx) {
         showLoader("กำลังลบข้อมูล...");
         try {
-            await fetch(`${SCRIPT_URL}?action=deleteMonitor&rowIdx=${rowIdx}`);
-            rawData = rawData.filter(i => i.rowIdx !== rowIdx).map(i => i.rowIdx > rowIdx ? {...i, rowIdx: i.rowIdx-1} : i);
-            applyFilters();
+            const res = await fetch(`${SCRIPT_URL}?action=deleteMonitor&rowIdx=${rowIdx}`);
+            const json = await res.json(); // 🔧 FIX: check API response before updating local state
+            if(json.status === 'success') {
+                rawData = rawData.filter(i => i.rowIdx !== rowIdx).map(i => i.rowIdx > rowIdx ? {...i, rowIdx: i.rowIdx-1} : i);
+                applyFilters();
+            } else {
+                alert("ลบไม่สำเร็จ: " + (json.message || "unknown error"));
+            }
         } catch(e) { 
             alert("ลบล้มเหลว"); 
         }
