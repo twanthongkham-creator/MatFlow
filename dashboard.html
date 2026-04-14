@@ -9,33 +9,49 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f4f7f9; color: #334155; font-size: 0.9rem; }
-        .dashboard-container { padding: 15px; }
-        .stat-card { background: white; border-radius: 16px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: none; margin-bottom: 15px; }
-        .card-title { font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 15px; border-left: 4px solid #0284c7; padding-left: 10px; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; color: #334155; font-size: 0.85rem; }
+        .dashboard-container { padding: 15px; max-width: 100%; margin: auto; }
+        .stat-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: none; margin-bottom: 15px; height: 100%; }
+        .card-title { font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 15px; border-left: 4px solid #0ea5e9; padding-left: 10px; }
         
-        /* Table Compact Styling */
-        .table-compact th { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; border-top: none; }
-        .table-compact td { padding: 8px 4px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+        /* Navigation Styling */
+        .nav-custom { background: white; padding: 5px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: inline-flex; }
+        .nav-link { font-weight: 600; color: #64748b; padding: 6px 15px; border-radius: 8px; font-size: 0.8rem; text-decoration: none; transition: 0.2s; }
+        .nav-link.active { background: #0f172a; color: white; }
 
-        /* Expiry Scale (Inline) */
-        .inline-scale-container { height: 10px; background: #e2e8f0; border-radius: 10px; position: relative; width: 150px; display: inline-flex; overflow: hidden; }
-        .seg-d { width: 22.5%; background: #fee2e2; }
-        .seg-w { width: 25.8%; background: #fef3c7; }
-        .seg-s { width: 51.7%; background: #dcfce7; }
-        .indicator-dot { position: absolute; top: 0; height: 100%; width: 4px; background: #1e293b; z-index: 5; }
+        /* Out of Stock Styling */
+        .out-stock-list { max-height: 350px; overflow-y: auto; }
+        .out-stock-item { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .out-stock-name { font-weight: 600; color: #be123c; font-size: 0.8rem; }
+        .out-stock-pname { font-size: 0.65rem; color: #fb7185; }
 
-        .out-of-stock-badge { background: #fff1f2; color: #e11d48; border-radius: 6px; padding: 4px 10px; font-weight: 600; font-size: 0.75rem; border: 1px solid #fecdd3; }
-        .nav-link { font-weight: 600; color: #64748b; padding: 6px 15px; border-radius: 8px; font-size: 0.85rem; }
-        .nav-link.active { background: #1e293b; color: white; }
+        /* Expiry Inline Scale */
+        .table-compact th { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; background: #f8fafc; }
+        .inline-scale-wrapper { position: relative; width: 140px; height: 10px; background: #e2e8f0; border-radius: 10px; display: inline-flex; overflow: hidden; vertical-align: middle; }
+        .seg-d { width: 22.5%; background: #fee2e2; border-right: 1px solid rgba(239, 68, 68, 0.2); } /* 1-7 days */
+        .seg-w { width: 25.8%; background: #fef3c7; border-right: 1px solid rgba(245, 158, 11, 0.2); } /* 8-15 days */
+        .seg-s { width: 51.7%; background: #dcfce7; } /* 16-31 days */
+        .indicator-dot { position: absolute; top: 0; height: 100%; width: 4px; background: #1e293b; z-index: 5; box-shadow: 0 0 4px rgba(0,0,0,0.3); }
+
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
     </style>
 </head>
 <body>
 
+<div id="loader" class="loading-overlay">
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-2 fw-bold">ระบบกำลังประมวลผลข้อมูล...</div>
+    </div>
+</div>
+
 <div class="dashboard-container">
-    <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-        <h5 class="fw-bold m-0 text-primary">MatFlow Pro Dashboard</h5>
-        <div class="d-flex gap-1 bg-white p-1 rounded-3 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold text-dark m-0">MatFlow Pro Dashboard</h4>
+            <div id="lastUpdate" class="text-muted" style="font-size: 0.7rem;">กำลังรอข้อมูลจาก Google Sheets...</div>
+        </div>
+        <div class="nav-custom">
             <a href="index.html" class="nav-link">Planning</a>
             <a href="receiving.html" class="nav-link">Receiving</a>
             <a href="management.html" class="nav-link">Management</a>
@@ -46,39 +62,38 @@
     <div class="row g-3">
         <div class="col-lg-8">
             <div class="stat-card">
-                <div class="card-title">Production Capacity (Potential Units)</div>
-                <div id="chartContainer" style="height: 320px;"><canvas id="capacityChart"></canvas></div>
+                <div class="card-title">📦 Production Capability (Potential Units)</div>
+                <div id="chartScrollContainer" style="overflow-y: auto; max-height: 400px; position: relative;">
+                    <div id="canvasParent">
+                        <canvas id="capacityChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="col-lg-4">
             <div class="stat-card">
-                <div class="card-title text-danger">🚨 Focus: Out of Stock (On Floor)</div>
-                <div class="table-responsive" style="max-height: 320px;">
-                    <table class="table table-compact">
-                        <tbody id="outOfStockBody">
-                            <tr><td class="text-center py-4 text-muted">กำลังตรวจสอบสต๊อก...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="card-title text-danger">⚠️ Critical: Out of Stock (On Floor)</div>
+                <div class="out-stock-list" id="outOfStockBody">
+                    </div>
             </div>
         </div>
 
         <div class="col-12">
             <div class="stat-card">
-                <div class="card-title">Expiry Risk Inventory Monitoring (31-Day Scale)</div>
+                <div class="card-title text-warning">📅 Expiry Timeline Monitoring (31-Day Scale)</div>
                 <div class="table-responsive">
-                    <table class="table table-compact table-hover">
+                    <table class="table table-sm table-compact align-middle">
                         <thead>
                             <tr>
                                 <th>Name / RM Code</th>
                                 <th>Batch</th>
-                                <th class="text-center">Days Remaining</th>
-                                <th class="text-center">31-Day Timeline Scale (0 <--- 31)</th>
+                                <th class="text-center">Days</th>
+                                <th class="text-center">31-Day Scale (D | W | S)</th>
                             </tr>
                         </thead>
                         <tbody id="expiryTableBody">
-                            <tr><td colspan="4" class="text-center py-4 text-muted">กำลังรวบรวมข้อมูลวันหมดอายุ...</td></tr>
+                            <tr><td colspan="4" class="text-center py-4 text-muted">กำลังดึงข้อมูลวันหมดอายุ...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -88,63 +103,121 @@
 </div>
 
 <script>
+    // ลงทะเบียน Plugin สำหรับ Datalabels
     Chart.register(ChartDataLabels);
+
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
 
-    window.onload = loadData;
+    window.onload = loadDashboard;
 
-    async function loadData() {
+    async function loadDashboard() {
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getDashboardData`);
             const json = await res.json();
             if (json.status === 'success') {
-                renderChart(json.data.productionCapacity);
+                renderLollipopChart(json.data.productionCapacity);
                 renderOutOfStock(json.data.outOfStock);
-                renderExpiry(json.data.expiryTable);
+                renderExpiryTable(json.data.expiryTable);
+                document.getElementById('lastUpdate').innerText = "อัปเดตล่าสุดเมื่อ: " + new Date().toLocaleString('th-TH');
             }
-        } catch (e) { alert("Error connecting to GAS"); }
+        } catch (e) {
+            console.error(e);
+            alert("ไม่สามารถเชื่อมต่อฐานข้อมูลได้");
+        } finally {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }
     }
 
-    function renderChart(data) {
-        let items = Object.keys(data).map(k => ({n:k, v:data[k]})).filter(i=>i.v>0).sort((a,b)=>b.v-a.v);
+    function renderLollipopChart(capacityData) {
+        // 1. จัดเรียงข้อมูล มาก -> น้อย
+        let items = Object.keys(capacityData)
+            .map(key => ({ name: key, value: capacityData[key] }))
+            .filter(item => item.value > 0)
+            .sort((a, b) => b.value - a.value);
+
+        // 2. ปรับความสูง Dynamic
+        const chartHeight = Math.max(400, items.length * 30);
+        document.getElementById('canvasParent').style.height = chartHeight + "px";
+
         const ctx = document.getElementById('capacityChart').getContext('2d');
-        new Chart(ctx, {
+        if (window.myChart) window.myChart.destroy();
+
+        window.myChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: items.map(i=>i.n), datasets: [{ data: items.map(i=>i.v), backgroundColor: '#0ea5e9', barThickness: 15 }] },
+            data: {
+                labels: items.map(d => d.name),
+                datasets: [{
+                    data: items.map(d => d.value),
+                    // Lollipop Color Gradient (Green > 500, Orange > 100, Red <= 100)
+                    backgroundColor: items.map(i => i.value > 500 ? '#10b981' : (i.value > 100 ? '#f59e0b' : '#ef4444')),
+                    barPercentage: 0.1, // ทำให้แท่งบางเหมือนก้าน Lollipop
+                    borderRadius: 20,
+                    pointStyle: 'circle'
+                }]
+            },
             options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                plugins: { legend: {display:false}, datalabels: { align: 'right', anchor: 'end', color: '#0369a1', font: {weight:'bold', size:10} } },
-                scales: { x: { grid: {display:false} }, y: { ticks: { font: {size:10} } } }
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'right',
+                        color: '#475569',
+                        font: { weight: 'bold', size: 10 },
+                        formatter: (val) => val.toLocaleString()
+                    }
+                },
+                scales: {
+                    x: { display: true, grid: { display: false }, ticks: { font: { size: 9 } } },
+                    y: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+                }
             }
         });
     }
 
     function renderOutOfStock(data) {
-        const body = document.getElementById('outOfStockBody');
-        if (data.length === 0) { body.innerHTML = '<tr><td class="text-center text-success py-4 fw-bold">✅ วัตถุดิบครบถ้วน</td></tr>'; return; }
-        body.innerHTML = data.map(i => `
-            <tr>
-                <td><div class="fw-bold">${i.rmName}</div><div class="small text-muted">${i.pName}</div></td>
-                <td class="text-end"><span class="out-of-stock-badge">OUT</span></td>
-            </tr>
+        const container = document.getElementById('outOfStockBody');
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="text-center py-5 text-success fw-bold">✅ วัตถุดิบ On Floor ครบถ้วน</div>';
+            return;
+        }
+        container.innerHTML = data.map(i => `
+            <div class="out-stock-item">
+                <div>
+                    <div class="out-stock-name">${i.rmName}</div>
+                    <div class="out-stock-pname">Target: ${i.pName}</div>
+                </div>
+                <span class="badge bg-danger px-2">OUT</span>
+            </div>
         `).join('');
     }
 
-    function renderExpiry(data) {
-        const body = document.getElementById('expiryTableBody');
-        if (data.length === 0) { body.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-success">✅ ไม่มีรายการใกล้หมดอายุ</td></tr>'; return; }
-        body.innerHTML = data.map(i => {
-            let pos = (Math.max(0, Math.min(31, i.days)) / 31) * 100;
-            let color = i.days <= 7 ? '#ef4444' : (i.days <= 15 ? '#f59e0b' : '#10b981');
+    function renderExpiryTable(data) {
+        const tbody = document.getElementById('expiryTableBody');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-success fw-bold">✅ ทุกรายการอยู่ในสถานะปลอดภัย</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(i => {
+            let safeDays = Math.max(0, Math.min(31, i.days));
+            let position = (safeDays / 31) * 100;
+            let themeColor = i.days <= 7 ? '#ef4444' : (i.days <= 15 ? '#f59e0b' : '#10b981');
+            
             return `
                 <tr>
-                    <td><div class="fw-bold">${i.name}</div></td>
+                    <td><div class="fw-bold text-dark">${i.name}</div></td>
                     <td><small class="text-muted">${i.batch}</small></td>
-                    <td class="text-center fw-bold" style="color:${color}">${i.days} วัน</td>
+                    <td class="text-center fw-bold" style="color:${themeColor}">${i.days} วัน</td>
                     <td class="text-center">
-                        <div class="inline-scale-container">
-                            <div class="seg-d"></div><div class="seg-w"></div><div class="seg-s"></div>
-                            <div class="indicator-dot" style="left:${pos}%; background:${color}"></div>
+                        <div class="inline-scale-wrapper">
+                            <div class="seg-d"></div>
+                            <div class="seg-w"></div>
+                            <div class="seg-s"></div>
+                            <div class="indicator-dot" style="left: ${position}%; background: ${themeColor}"></div>
                         </div>
                     </td>
                 </tr>
