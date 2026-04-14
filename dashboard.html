@@ -3,118 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow — Dashboard Pro</title>
+    <title>MatFlow — Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{
-          --ocean-deep:#0a1628;--sky:#2171e5;--sky-bright:#3b8ef8;--sky-lt:#5ba4ff;
-          --glass-white:rgba(255,255,255,0.72);--glass-border:rgba(255,255,255,0.55);
-          --glass-shadow:0 8px 32px rgba(10,22,40,0.12),0 2px 8px rgba(10,22,40,0.08);
-          --glass-shadow-lg:0 20px 60px rgba(10,22,40,0.18),0 4px 16px rgba(10,22,40,0.10);
-          --glass-inset:inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -1px 0 rgba(255,255,255,0.2);
-          --txt:#0d2548;--txt2:#2d5a8e;--txt3:#7aa3cc;
-          --green:#05a06a;--red:#e0334c;--amber:#e09305;
-          --r:12px;--r-lg:18px;--r-xl:24px;--r-2xl:32px;
-        }
-        body{font-family:'Outfit',sans-serif;background:var(--ocean-deep);color:#fff;font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-        body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 10% 10%,rgba(33,113,229,0.55) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 20%,rgba(59,142,248,0.35) 0%,transparent 55%),radial-gradient(ellipse 70% 50% at 50% 90%,rgba(91,164,255,0.28) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(26,74,140,0.45) 0%,transparent 50%);background-color:var(--ocean-deep)}
-        body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
+        body { font-family: 'Outfit', sans-serif; background-color: #f0f4f8; color: #1e293b; font-size: 15px; line-height: 1.6; }
         
-        .topbar{position:sticky;top:0;z-index:200;height:64px;background:rgba(10,22,40,0.55);backdrop-filter:blur(28px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;padding:0 24px;gap:16px;}
-        .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
-        .brand-ico{width:34px;height:34px;background:linear-gradient(135deg,rgba(59,142,248,0.9),rgba(33,113,229,0.9));border:1px solid rgba(255,255,255,0.30);border-radius:10px;display:flex;align-items:center;justify-content:center;}
-        .brand-ico svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:1.8}
-        .brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.3px}
-        .brand-sep{width:1px;height:16px;background:rgba(255,255,255,0.18);margin:0 4px}
-        .brand-sub{font-size:10.5px;color:rgba(255,255,255,0.40);font-weight:400}
-        .topnav{display:flex;align-items:center;gap:2px;margin-left:auto}
-        .nav-a{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:500;color:rgba(255,255,255,0.50);transition:all .2s;}
-        .nav-a svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;}
-        .nav-a:hover{background:rgba(255,255,255,0.10);color:rgba(255,255,255,0.85)}
-        .nav-a.active{background:rgba(255,255,255,0.16);color:#fff;font-weight:600;border:1px solid rgba(255,255,255,0.18);box-shadow:inset 0 1px 0 rgba(255,255,255,0.20)}
-        
-        .shell{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:24px 24px 64px}
-        .ph{margin-bottom:22px; display:flex; justify-content:space-between; align-items:flex-end;}
-        .ph h1{font-size:22px;font-weight:700;color:#fff;display:flex;align-items:center;gap:12px;}
-        .ph-ico{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,rgba(71,85,105,0.9),rgba(30,58,95,0.85));border:1px solid rgba(255,255,255,0.30);display:flex;align-items:center;justify-content:center;}
-        .ph-ico svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
-        
-        .stat-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(24px) saturate(200%); border: 1px solid rgba(255,255,255,0.15); border-radius: var(--r-xl); padding: 20px; box-shadow: var(--glass-shadow); height: 100%; }
-        .card-title { font-size: 14px; font-weight: 600; color: #93c5fd; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        /* Topbar & Nav */
+        .topbar { position: sticky; top: 0; z-index: 200; height: 64px; background: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 24px; gap: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+        .brand-ico { width: 34px; height: 34px; background: linear-gradient(135deg, #3b8ef8, #2171e5); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(33,113,229,0.3); }
+        .brand-ico svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 1.8; }
+        .brand-name { font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: -.3px; }
+        .brand-sub { font-size: 11px; color: #64748b; font-weight: 500; border-left: 1px solid #e2e8f0; padding-left: 10px; }
+        .topnav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+        .nav-a { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; color: #64748b; transition: all 0.2s; }
+        .nav-a svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+        .nav-a:hover { background: #f1f5f9; color: #0284c7; }
+        .nav-a.active { background: #eff6ff; color: #0284c7; border: 1px solid #bae6fd; }
+
+        /* Shell & Cards */
+        .shell { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .page-header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .page-title { font-size: 22px; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .page-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+        .stat-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); height: 100%; }
+        .card-title { font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #3b8ef8; padding-left: 10px; }
         
         /* Interactive Elements */
-        .interactive-chart { cursor: pointer; transition: 0.3s; }
-        .interactive-chart:hover { opacity: 0.8; }
+        .clickable-chart { cursor: pointer; transition: 0.2s; }
+        .clickable-chart:hover { opacity: 0.85; }
         .clickable-row { cursor: pointer; transition: background 0.2s; }
-        .clickable-row:hover { background: rgba(255,255,255,0.15) !important; transform: scale(1.01); border-radius: 8px; }
+        .clickable-row:hover { background-color: #f8fafc; }
+        .clickable-row td { border-bottom: 1px solid #f1f5f9; padding: 12px; }
         
-        /* Out of stock list */
-        .out-stock-item { background: rgba(224,51,76,0.15); border: 1px solid rgba(224,51,76,0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-        .out-stock-item:hover { background: rgba(224,51,76,0.25); transform: translateX(5px); }
-        
-        /* Modals (Match Management) */
-        .modal-content{border:none;border-radius:var(--r-2xl);box-shadow:0 30px 80px rgba(10,22,40,0.5);overflow:hidden;backdrop-filter:blur(32px);background:rgba(240,247,255,0.95); color: var(--txt);}
-        .modal-hd{background:linear-gradient(135deg,rgba(10,22,40,0.90),rgba(26,74,140,0.80));padding:18px 24px;display:flex;align-items:center;justify-content:space-between; color:#fff;}
-        .modal-hd-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
-        .btn-close-w{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.18);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;}
-        .modal-bd{padding:22px 24px;background:rgba(240,247,255,0.90)}
-        .modal-ft{background:rgba(255,255,255,0.70);border-top:1px solid rgba(255,255,255,0.50);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end}
+        /* Out of Stock */
+        .out-stock-item { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .out-stock-item:hover { background: #ffe4e6; transform: scale(1.01); }
+        .out-stock-name { font-weight: 700; color: #be123c; font-size: 14px; }
+        .out-stock-pname { font-size: 11px; color: #fb7185; margin-top: 2px; }
+
+        /* Expiry Scale */
+        .mt-header th { font-size: 11px; color: #64748b; text-transform: uppercase; padding: 12px; border-bottom: 2px solid #e2e8f0; text-align: left; }
+        .inline-scale-wrapper { position: relative; width: 100%; max-width: 150px; height: 12px; background: #e2e8f0; border-radius: 6px; display: inline-flex; overflow: hidden; }
+        .seg-d { width: 22.5%; background: rgba(239,68,68,0.2); } 
+        .seg-w { width: 25.8%; background: rgba(245,158,11,0.2); } 
+        .seg-s { width: 51.7%; background: rgba(16,185,129,0.2); } 
+        .indicator-dot { position: absolute; top: 0; height: 100%; width: 4px; background: #0f172a; border-radius: 2px; }
+
+        /* Modals */
+        .modal-content { border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .modal-hd { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .modal-hd-title { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .btn-close-w { background: #e2e8f0; border: none; border-radius: 8px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569; transition: 0.2s; }
+        .btn-close-w:hover { background: #cbd5e1; color: #0f172a; }
+        .btn-close-w svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+        .modal-bd { padding: 24px; background: #ffffff; }
+        .modal-ft { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 24px; display: flex; gap: 10px; justify-content: flex-end; }
         
         /* Form inputs in Modal */
-        .mi-lbl{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--txt3);margin-bottom:3px}
-        .mi-val{font-size:14px;font-weight:700;color:var(--txt)}
-        .qty-hero{background:rgba(59,142,248,0.08);border:2px solid rgba(59,142,248,0.25);border-radius:var(--r-lg);padding:14px;text-align:center;margin-bottom:14px;}
-        .qty-hero input{font-size:2.2rem;font-weight:700;color:#0d2548;border:none;background:transparent;width:100%;text-align:center;outline:none;font-family:'JetBrains Mono',monospace}
-        .date-field-wrap{background:rgba(255,255,255,0.55);border:1.5px solid rgba(255,255,255,0.60);border-radius:var(--r-lg);padding:11px 13px}
-        .date-field-wrap input{background:transparent;border:none;outline:none;font-family:'Outfit',sans-serif;font-weight:700;font-size:14.5px;color:var(--txt);width:100%}
-        .extend-wrap{background:rgba(224,147,5,0.08);border:1.5px solid rgba(224,147,5,0.28);border-radius:var(--r-lg);padding:13px 15px;}
-        .fc{width:100%;font-size:14px;color:var(--txt);background:rgba(255,255,255,0.65);border:1.5px solid rgba(255,255,255,0.60);border-radius:var(--r);padding:9px 13px;outline:none;}
+        .mi-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 4px; }
+        .mi-val { font-size: 14px; font-weight: 700; color: #0f172a; }
+        .qty-hero { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px; }
+        .qty-hero input { font-size: 2.2rem; font-weight: 700; color: #0284c7; border: none; background: transparent; width: 100%; text-align: center; outline: none; font-family: 'JetBrains Mono', monospace; }
+        .date-field-wrap { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; }
+        .date-field-wrap input { background: transparent; border: none; outline: none; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: #0f172a; width: 100%; }
+        .fc { width: 100%; font-size: 14px; color: #0f172a; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; outline: none; transition: 0.2s; }
+        .fc:focus { border-color: #3b8ef8; box-shadow: 0 0 0 3px rgba(59,142,248,0.1); }
         
         /* Mini Table for Select Modal */
         .mt-mini { width: 100%; border-collapse: collapse; }
-        .mt-mini th { background: rgba(10,22,40,0.8); color: white; padding: 10px; font-size: 11px; }
-        .mt-mini td { padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 13px; }
+        .mt-mini th { background: #f8fafc; color: #475569; padding: 12px; font-size: 12px; border-bottom: 2px solid #e2e8f0; text-align: left; }
+        .mt-mini td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
         .mt-mini tr { cursor: pointer; transition: 0.2s; }
-        .mt-mini tr:hover { background: rgba(59,142,248,0.1); }
+        .mt-mini tr:hover { background: #f0f9ff; }
 
         /* Buttons */
-        .btn-custom{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;border:none;border-radius:var(--r);padding:7px 14px;cursor:pointer;transition:all .18s;}
-        .btn-blue{background:linear-gradient(135deg,var(--sky-bright),var(--sky));color:#fff;border:1px solid rgba(255,255,255,0.22);box-shadow:0 3px 12px rgba(59,142,248,0.35);}
-        .btn-outline{background:rgba(255,255,255,0.55);color:var(--txt2);border:1.5px solid rgba(255,255,255,0.50)}
+        .btn-custom { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; transition: 0.2s; }
+        .btn-blue { background: #0ea5e9; color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,0.3); }
+        .btn-blue:hover { background: #0284c7; transform: translateY(-1px); }
+        .btn-outline { background: #ffffff; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-outline:hover { background: #f1f5f9; }
         
         /* Loader */
-        .loader{position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.60);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center}
-        .loader-box{background:rgba(255,255,255,0.82);border-radius:var(--r-2xl);padding:32px 48px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
-        .spinner{width:38px;height:38px;border:3px solid rgba(59,142,248,0.25);border-top-color:var(--sky-bright);border-radius:50%;animation:spin .65s linear infinite}
-        @keyframes spin{to{transform:rotate(360deg)}}
+        .loader { position: fixed; inset: 0; z-index: 9999; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; }
+        .loader-box { background: #ffffff; border-radius: 16px; padding: 32px 48px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e0f2fe; border-top-color: #0ea5e9; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Scale Inline */
-        .inline-scale-wrapper { position: relative; width: 100%; max-width: 140px; height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; display: inline-flex; overflow: hidden; vertical-align: middle; border: 1px solid rgba(255,255,255,0.2); }
-        .seg-d { width: 22.5%; background: rgba(239, 68, 68, 0.4); } 
-        .seg-w { width: 25.8%; background: rgba(245, 158, 11, 0.4); } 
-        .seg-s { width: 51.7%; background: rgba(16, 185, 129, 0.4); } 
-        .indicator-dot { position: absolute; top: 0; height: 100%; width: 4px; background: #fff; z-index: 5; box-shadow: 0 0 8px rgba(255,255,255,0.8); border-radius: 2px;}
-        
-        ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:rgba(255,255,255,0.05)}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:99px}
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loader">
+<div id="loader" class="loader" style="display:none;">
   <div class="loader-box">
       <div class="spinner"></div>
-      <div class="loader-txt" id="loaderText" style="color:#0d2548; font-weight:700;">กำลังโหลดข้อมูลแดชบอร์ด...</div>
+      <div class="loader-txt" id="loaderText" style="color:#0f172a; font-weight:700; font-size:15px;">กำลังโหลดข้อมูลแดชบอร์ด...</div>
   </div>
 </div>
 
 <header class="topbar">
   <a href="index.html" class="brand">
     <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
-    <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
+    <span class="brand-name">MatFlow</span><div class="brand-sub">Inventory System</div>
   </a>
   <nav class="topnav">
     <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg><span>Planning</span></a>
@@ -125,20 +120,23 @@
 </header>
 
 <div class="shell">
-  <div class="ph">
+  <div class="page-header">
     <div>
-        <h1><span class="ph-ico"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></span>Analytics Dashboard</h1>
-        <p>คลิกที่แท่งกราฟ หรือรายการแจ้งเตือนต่างๆ เพื่อเปิด Popup แก้ไขข้อมูลทันที</p>
+        <h1 class="page-title">
+            <span class="ph-ico"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></span>
+            Analytics Dashboard
+        </h1>
+        <p class="page-subtitle">คลิกที่แท่งกราฟ หรือรายการด้านล่าง เพื่อเปิดหน้าต่างแก้ไขข้อมูลได้ทันที</p>
     </div>
-    <div id="lastUpdate" style="font-size: 12px; color: rgba(255,255,255,0.5);"></div>
+    <div id="lastUpdate" style="font-size: 12px; color: #64748b; font-weight:500;"></div>
   </div>
 
   <div class="row g-4">
       <div class="col-lg-8">
           <div class="stat-card">
-              <div class="card-title">📦 Production Capability <span style="font-size:10px; color:rgba(255,255,255,0.4); text-transform:none;">(Click on bars to edit)</span></div>
+              <div class="card-title">📦 Production Capability <span style="font-size:10px; color:#94a3b8; text-transform:none; font-weight:500;">(Click on bars to edit)</span></div>
               <div id="chartScrollContainer" style="overflow-y: auto; max-height: 420px; padding-right:10px;">
-                  <div id="canvasParent" class="interactive-chart">
+                  <div id="canvasParent" class="clickable-chart">
                       <canvas id="capacityChart"></canvas>
                   </div>
               </div>
@@ -147,22 +145,22 @@
 
       <div class="col-lg-4">
           <div class="stat-card">
-              <div class="card-title" style="color: #fca5a5; border-left-color: #e11d48;">⚠️ Critical: Out of Stock</div>
+              <div class="card-title" style="border-left-color: #e11d48; color:#be123c;">⚠️ Critical: Out of Stock</div>
               <div id="outOfStockBody" style="max-height: 420px; overflow-y: auto; padding-right: 5px;"></div>
           </div>
       </div>
 
       <div class="col-12">
           <div class="stat-card">
-              <div class="card-title" style="color: #fcd34d; border-left-color: #f59e0b;">📅 Expiry Timeline <span style="font-size:10px; color:rgba(255,255,255,0.4); text-transform:none;">(Click row to edit)</span></div>
+              <div class="card-title" style="border-left-color: #f59e0b; color:#b45309;">📅 Expiry Timeline <span style="font-size:10px; color:#94a3b8; text-transform:none; font-weight:500;">(Click row to edit)</span></div>
               <div class="table-responsive">
                   <table style="width: 100%; border-collapse: collapse;">
                       <thead>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-size:12px; text-transform:uppercase;">
-                              <th style="padding:10px; text-align:left;">RM Name</th>
-                              <th style="padding:10px; text-align:left;">Batch</th>
-                              <th style="padding:10px; text-align:center;">Days Left</th>
-                              <th style="padding:10px; text-align:center;">Risk Scale</th>
+                          <tr class="mt-header">
+                              <th>RM Name</th>
+                              <th>Batch</th>
+                              <th style="text-align:center;">Days Left</th>
+                              <th style="text-align:center;">Risk Scale</th>
                           </tr>
                       </thead>
                       <tbody id="expiryTableBody"></tbody>
@@ -194,7 +192,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-hd">
-        <div class="modal-hd-title">แก้ไขรายการ — <span class="btitle" id="modalBatchTitle" style="color:#93c5fd; font-family:'JetBrains Mono',monospace;"></span></div>
+        <div class="modal-hd-title">แก้ไขรายการ — <span id="modalBatchTitle" style="color:#0ea5e9; font-family:'JetBrains Mono',monospace;"></span></div>
         <button class="btn-close-w" onclick="closeEditModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="modal-bd">
@@ -203,25 +201,28 @@
           <div><div class="mi-lbl">Supplier</div><div class="mi-val" id="modalSupplier">—</div></div>
         </div>
         <div class="qty-hero">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--sky);margin-bottom:6px">จำนวนคงเหลือ</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#0284c7;margin-bottom:6px">จำนวนคงเหลือ</div>
           <input type="number" step="0.0001" id="editQty">
-          <div style="font-size:12px;font-weight:600;color:var(--txt3);margin-top:3px;text-transform:uppercase;">Package</div>
+          <div style="font-size:12px;font-weight:600;color:#64748b;margin-top:3px;text-transform:uppercase;">Package</div>
         </div>
         <div class="row g-3" style="margin-bottom:14px">
-          <div class="col-6"><div class="date-field-wrap"><label style="color:var(--sky);font-size:11px;font-weight:700;">วันผลิต (MFG)</label><input type="date" id="editMfg"></div></div>
-          <div class="col-6"><div class="date-field-wrap"><label style="color:var(--red);font-size:11px;font-weight:700;">วันหมดอายุ (BBF)</label><input type="date" id="editExp"></div></div>
+          <div class="col-6"><div class="date-field-wrap"><label style="color:#0284c7;font-size:11px;font-weight:700;">วันผลิต (MFG)</label><input type="date" id="editMfg"></div></div>
+          <div class="col-6"><div class="date-field-wrap"><label style="color:#e11d48;font-size:11px;font-weight:700;">วันหมดอายุ (BBF)</label><input type="date" id="editExp"></div></div>
         </div>
         <div class="extend-wrap">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:13.5px;font-weight:700;color:#92400e;">⚠️ ต่ออายุวัตถุดิบ (Extended BBF)</span>
+            <span style="font-size:13.5px;font-weight:700;color:#b45309;">⚠️ ต่ออายุวัตถุดิบ (Extended BBF)</span>
             <input class="form-check-input" type="checkbox" id="toggleExtend" style="width:18px;height:18px;cursor:pointer" onchange="document.getElementById('extendField').style.display=this.checked?'block':'none'">
           </div>
-          <div id="extendField" style="display:none;margin-top:11px;padding-top:11px;border-top:1px dashed rgba(224,147,5,0.35)">
-            <label style="font-size:11.5px;font-weight:600;color:var(--amber);">วันที่ต่ออายุใหม่</label>
-            <input type="date" id="editExtExp" class="fc" style="border-color:rgba(224,147,5,0.40)">
+          <div id="extendField" style="display:none;margin-top:11px;padding-top:11px;border-top:1px dashed #fcd34d">
+            <label style="font-size:11.5px;font-weight:700;color:#d97706;margin-bottom:4px;display:block;">วันที่ต่ออายุใหม่</label>
+            <input type="date" id="editExtExp" class="fc" style="border-color:#fcd34d;">
           </div>
         </div>
-        <div style="margin-top:14px"><label style="font-size:11.5px;font-weight:600;color:var(--txt2);">แก้ไขเลข Batch</label><input type="text" id="editBatch" class="fc" style="font-family:'JetBrains Mono',monospace"></div>
+        <div style="margin-top:14px">
+            <label style="font-size:11.5px;font-weight:700;color:#64748b;margin-bottom:4px;display:block;">แก้ไขเลข Batch</label>
+            <input type="text" id="editBatch" class="fc" style="font-family:'JetBrains Mono',monospace">
+        </div>
       </div>
       <div class="modal-ft">
         <button class="btn-custom btn-outline" onclick="closeEditModal()">ยกเลิก</button>
@@ -236,20 +237,22 @@
     Chart.register(ChartDataLabels);
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
     
-    // ตัวแปรเก็บข้อมูล
     let rawData = [];
     let dashboardStats = null;
     let currentEditIdx = null;
     
-    const listModal = new bootstrap.Modal(document.getElementById('listModal'));
-    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    // สร้างตัวแปรควบคุม Modal ที่เรียกง่ายขึ้น
+    let listModalIns, editModalIns;
 
-    window.onload = loadAllData;
+    window.onload = () => {
+        listModalIns = new bootstrap.Modal(document.getElementById('listModal'));
+        editModalIns = new bootstrap.Modal(document.getElementById('editModal'));
+        loadAllData();
+    };
 
     async function loadAllData() {
         showLoader('กำลังเชื่อมต่อฐานข้อมูลระบบ...');
         try {
-            // โหลดข้อมูลดิบ (สำหรับแก้ไข) และ ข้อมูลสรุป (สำหรับกราฟ) พร้อมกัน
             const [resDash, resMon] = await Promise.all([
                 fetch(`${SCRIPT_URL}?action=getDashboardData`),
                 fetch(`${SCRIPT_URL}?action=getMonitorData`)
@@ -262,7 +265,7 @@
                 dashboardStats = jsonDash.data;
                 rawData = jsonMon.data;
                 
-                renderLollipopChart(dashboardStats.productionCapacity);
+                renderChart(dashboardStats.productionCapacity);
                 renderOutOfStock(dashboardStats.outOfStock);
                 renderExpiryTable(dashboardStats.expiryTable);
                 document.getElementById('lastUpdate').innerText = "อัปเดตล่าสุด: " + new Date().toLocaleString('th-TH');
@@ -270,21 +273,22 @@
                 throw new Error("API Returned Error");
             }
         } catch(e) {
-            alert("เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาตรวจสอบการเชื่อมต่อ");
+            alert("เกิดข้อผิดพลาดในการดึงข้อมูล");
         }
         hideLoader();
     }
 
     // ==========================================
-    // RENDER FUNCTIONS (UI)
+    // 1. RENDER CHART (BARS)
     // ==========================================
-    function renderLollipopChart(capacityData) {
+    function renderChart(capacityData) {
         let items = Object.keys(capacityData)
             .map(key => ({ name: key, value: capacityData[key] }))
             .filter(item => item.value > 0)
             .sort((a, b) => b.value - a.value);
 
-        const chartHeight = Math.max(380, items.length * 35);
+        // คำนวณความสูงให้แท่งกราฟหนาขึ้น (35px ต่อ 1 แท่ง)
+        const chartHeight = Math.max(380, items.length * 45);
         document.getElementById('canvasParent').style.height = chartHeight + "px";
 
         const ctx = document.getElementById('capacityChart').getContext('2d');
@@ -297,19 +301,17 @@
                 datasets: [{
                     data: items.map(d => d.value),
                     backgroundColor: items.map(i => i.value > 500 ? '#10b981' : (i.value > 100 ? '#f59e0b' : '#ef4444')),
-                    barPercentage: 0.08, 
-                    borderRadius: 20,
-                    pointStyle: 'circle'
+                    barThickness: 22, // 🚩 กำหนดความหนาของแท่งกราฟให้อ่านง่าย กดยาก
+                    borderRadius: 6
                 }]
             },
             options: {
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                // 🚩 แก้ Label ล้นขอบ: เผื่อระยะขอบขวาไว้ 80px
-                layout: { padding: { right: 80, left: 10 } },
-                // 🚩 ระบบ Click กราฟเพื่อแก้ไข
+                layout: { padding: { right: 80, left: 10 } }, // 🚩 เผื่อที่ว่างด้านขวาไม่ให้ Label ล้นขอบ
                 onClick: (e, activeEls) => {
+                    // 🚩 ระบบ Click แท่งกราฟ
                     if(activeEls.length > 0) {
                         const idx = activeEls[0].index;
                         const productName = window.myChart.data.labels[idx];
@@ -320,54 +322,66 @@
                 plugins: {
                     legend: { display: false },
                     datalabels: {
-                        anchor: 'end', align: 'right', color: '#93c5fd',
-                        font: { weight: 'bold', size: 11, family: 'JetBrains Mono' },
+                        anchor: 'end', align: 'right', color: '#0f172a',
+                        font: { weight: 'bold', size: 12, family: 'JetBrains Mono' },
                         formatter: (val) => val.toLocaleString() + " U"
                     }
                 },
                 scales: {
                     x: { display: false },
-                    y: { grid: { display: false }, ticks: { font: { size: 11, family: 'Outfit' }, color: '#f8fafc' } }
+                    y: { grid: { display: false }, ticks: { font: { size: 12, family: 'Outfit', weight: '600' }, color: '#334155' } }
                 }
             }
         });
     }
 
+    // ==========================================
+    // 2. RENDER OUT OF STOCK
+    // ==========================================
     function renderOutOfStock(data) {
         const container = document.getElementById('outOfStockBody');
         if (!data || data.length === 0) {
-            container.innerHTML = '<div style="padding:30px; text-align:center; color:#10b981;">✅ วัตถุดิบพร้อมใช้งาน</div>';
+            container.innerHTML = '<div style="padding:30px; text-align:center; color:#10b981; font-weight:600;">✅ วัตถุดิบพร้อมใช้งาน</div>';
             return;
         }
-        // 🚩 กดที่ Out of stock ก็เปิด Modal ได้
-        container.innerHTML = data.map(i => `
-            <div class="out-stock-item" onclick="openListModal('${i.rmName}', 'rm')">
-                <div>
-                    <div class="out-stock-name">${i.rmName}</div>
-                    <div class="out-stock-pname">Product: ${i.pName}</div>
+        
+        container.innerHTML = data.map(i => {
+            // 🚩 ป้องกันบั๊กเครื่องหมายคำพูดในชื่อ
+            const safeName = String(i.rmName || '').replace(/'/g, "\\'");
+            return `
+                <div class="out-stock-item" onclick="openListModal('${safeName}', 'rm')">
+                    <div>
+                        <div class="out-stock-name">${i.rmName}</div>
+                        <div class="out-stock-pname">Product: ${i.pName}</div>
+                    </div>
+                    <span style="background:#e11d48; color:#fff; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:bold;">CLICK TO FIX</span>
                 </div>
-                <span style="background:rgba(255,255,255,0.8); color:#e11d48; padding:2px 8px; border-radius:8px; font-size:10px; font-weight:bold;">CLICK TO EDIT</span>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
+    // ==========================================
+    // 3. RENDER EXPIRY
+    // ==========================================
     function renderExpiryTable(data) {
         const tbody = document.getElementById('expiryTableBody');
         if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="padding:40px; text-align:center; color:#10b981;">✅ ปลอดภัย (> 30 วัน)</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="padding:40px; text-align:center; color:#10b981; font-weight:600;">✅ ปลอดภัย (> 30 วัน)</td></tr>';
             return;
         }
-        // 🚩 กดที่แถวเพื่อแก้ Batch นั้นๆ ทันที
+        
         tbody.innerHTML = data.map(i => {
             let safeDays = Math.max(0, Math.min(31, i.days));
             let position = (safeDays / 31) * 100;
-            let tc = i.days <= 7 ? '#ef4444' : (i.days <= 15 ? '#f59e0b' : '#10b981');
+            let tc = i.days <= 7 ? '#e11d48' : (i.days <= 15 ? '#d97706' : '#059669');
+            const safeBatch = String(i.batch || '').replace(/'/g, "\\'"); // 🚩 ป้องกันบั๊ก Click
+
             return `
-                <tr class="clickable-row" onclick="findAndEditByBatch('${i.batch}')">
-                    <td style="padding:12px; font-weight:500;">${i.name}</td>
-                    <td style="padding:12px; font-family:'JetBrains Mono'; font-size:12px; color:#93c5fd;">${i.batch}</td>
-                    <td style="padding:12px; text-align:center; font-weight:bold; color:${tc};">${i.days}</td>
-                    <td style="padding:12px; text-align:center;">
+                <tr class="clickable-row" onclick="findAndEditByBatch('${safeBatch}')">
+                    <td><span style="font-weight:600; color:#0f172a;">${i.name}</span></td>
+                    <td><span style="font-family:'JetBrains Mono'; font-size:13px; color:#0284c7; background:#f0f9ff; padding:2px 6px; border-radius:4px; border:1px solid #bae6fd;">${i.batch}</span></td>
+                    <td style="text-align:center; font-weight:bold; color:${tc}; font-size:15px;">${i.days}</td>
+                    <td style="text-align:center;">
                         <div class="inline-scale-wrapper">
                             <div class="seg-d"></div><div class="seg-w"></div><div class="seg-s"></div>
                             <div class="indicator-dot" style="left: ${position}%;"></div>
@@ -379,10 +393,9 @@
     }
 
     // ==========================================
-    // EDIT LOGIC (INTERACTIVITY)
+    // CLICK & EDIT LOGIC
     // ==========================================
 
-    // 1. เปิดตารางย่อยเพื่อเลือก Batch ที่จะแก้ (สำหรับ Chart และ OutOfStock)
     function openListModal(keyword, type) {
         let filtered = [];
         if(type === 'product') {
@@ -390,38 +403,37 @@
             document.getElementById('listModalTitle').innerText = "เลือกวัตถุดิบเพื่อแก้ไข (สินค้า: " + keyword + ")";
         } else {
             filtered = rawData.filter(i => i.name === keyword);
-            document.getElementById('listModalTitle').innerText = "ประวัติสต๊อกของ: " + keyword;
+            document.getElementById('listModalTitle').innerText = "ตรวจสอบสต๊อกของ: " + keyword;
         }
 
         const tbody = document.getElementById('listModalBody');
         if(filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:#ef4444;">❌ ไม่พบข้อมูลในคลัง (ยอด=0) กรุณาไปที่เมนู "Receiving" เพื่อรับเข้า</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#e11d48; font-weight:600;">❌ ไม่พบประวัติวัตถุดิบนี้ในคลัง (ยอด = 0)<br><br><a href="receiving.html" class="btn-custom btn-blue" style="text-decoration:none;">ไปที่หน้ารับเข้า</a></td></tr>`;
         } else {
             tbody.innerHTML = filtered.map(i => `
                 <tr onclick="openEdit(${i.rowIdx})">
-                    <td style="font-family:'JetBrains Mono'; color:#93c5fd;">${i.code}</td>
-                    <td style="font-weight:600;">${i.name}</td>
-                    <td>${i.batch}</td>
-                    <td style="font-weight:bold; color:#10b981;">${i.qty}</td>
+                    <td style="font-family:'JetBrains Mono'; color:#64748b;">${i.code}</td>
+                    <td style="font-weight:600; color:#0f172a;">${i.name}</td>
+                    <td style="font-family:'JetBrains Mono'; color:#0284c7;">${i.batch}</td>
+                    <td style="font-weight:bold; color:#059669;">${i.qty}</td>
                     <td style="text-align:center;"><button class="btn-custom btn-outline" style="padding:4px 10px; font-size:11px;">แก้ไข</button></td>
                 </tr>
             `).join('');
         }
-        listModal.show();
+        listModalIns.show();
     }
 
-    // 2. ค้นหา Batch ใน rawData แล้วเปิดฟอร์มแก้ (สำหรับ Expiry Table)
     function findAndEditByBatch(batchStr) {
-        const item = rawData.find(i => i.batch === batchStr);
+        const item = rawData.find(i => i.batch == batchStr);
         if(item) openEdit(item.rowIdx);
+        else alert("ไม่พบข้อมูล Batch นี้ในคลัง");
     }
 
-    // 3. เปิดฟอร์มแก้ข้อมูลของจริง
     function openEdit(ri) {
         const it = rawData.find(i => i.rowIdx === ri); 
         if(!it) return;
         
-        listModal.hide(); // ปิด Modal แรกถ้าเปิดอยู่
+        listModalIns.hide(); // ปิด Modal เลือกรายการ
         editIdx = ri;
 
         const fmtI = (v) => (!v || v==='') ? '' : new Date(v).toISOString().split('T')[0];
@@ -439,12 +451,11 @@
         document.getElementById('editExtExp').value = hasExt ? fmtI(it.extExp) : '';
         document.getElementById('extendField').style.display = hasExt ? 'block' : 'none';
         
-        editModal.show();
+        editModalIns.show();
     }
 
-    function closeEditModal() { editModal.hide(); }
+    function closeEditModal() { editModalIns.hide(); }
 
-    // 4. บันทึกข้อมูลและรีโหลด Dashboard
     async function saveEdit() {
       const qty = parseFloat(document.getElementById('editQty').value);
       const batch = document.getElementById('editBatch').value.trim();
@@ -458,15 +469,14 @@
       const it = rawData.find(i => i.rowIdx === editIdx);
       const updated = { ...it, batch, qty, mfg, exp, extExp: isExt ? document.getElementById('editExtExp').value : '' };
       
-      editModal.hide(); 
+      editModalIns.hide(); 
       showLoader('กำลังบันทึกข้อมูลและอัปเดตกราฟ...');
       
       try {
         const r = await fetch(`${SCRIPT_URL}?action=updateMonitor&rowData=${encodeURIComponent(JSON.stringify(updated))}`);
         const j = await r.json();
         if (j.status === 'success') {
-            // ดึงข้อมูล Dashboard ใหม่เพื่อวาดกราฟใหม่
-            loadAllData();
+            loadAllData(); // โหลดกราฟและตารางใหม่ทั้งหมด
         } else {
             alert('เกิดข้อผิดพลาด: ' + (j.message || ''));
             hideLoader();
