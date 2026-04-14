@@ -137,11 +137,20 @@
     <p>จัดการและแก้ไขข้อมูลคลังวัตถุดิบ — เรียงตามวันหมดอายุใกล้ที่สุด</p>
   </div>
   <div class="filter-strip a1">
-    <div class="fg"><label class="fl">Product</label><select id="filterProduct" class="fc" onchange="applyFilters()"><option value="">ทั้งหมด</option></select></div>
-    <div class="fg"><label class="fl">RM Name</label><select id="filterName" class="fc" onchange="applyFilters()"><option value="">ทั้งหมด</option></select></div>
-    <div class="fg wide"><label class="fl">ค้นหา</label>
-      <div class="search-wrap"><div class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-      <input type="text" id="searchInput" class="fc" placeholder="Batch, Code, Supplier..." oninput="applyFilters()"></div>
+    <div class="fg">
+        <label class="fl">Product</label>
+        <select id="filterProduct" class="fc" onchange="updateNameFilter()"><option value="">ทั้งหมด</option></select>
+    </div>
+    <div class="fg">
+        <label class="fl">RM Name</label>
+        <select id="filterName" class="fc" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
+    </div>
+    <div class="fg wide">
+      <label class="fl">ค้นหา</label>
+      <div class="search-wrap">
+        <div class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input type="text" id="searchInput" class="fc" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
+      </div>
     </div>
     <div style="display:flex;align-items:flex-end;position:relative;z-index:1"><span id="rowCount" class="row-count">— รายการ</span></div>
   </div>
@@ -154,6 +163,7 @@
     </div>
   </div>
 </div>
+
 <div class="modal fade" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -194,6 +204,7 @@
     </div>
   </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -212,7 +223,7 @@ async function loadData() {
     try {
       j = JSON.parse(text);
     } catch (err) {
-      throw new Error("ระบบหลังบ้าน (API) ไม่ได้ส่งค่ากลับมาเป็น JSON โปรดตรวจสอบการตั้งค่าสิทธิ์ให้เป็น 'Anyone' ตอน Deploy");
+      throw new Error("ระบบหลังบ้าน (API) ไม่ได้ส่งค่ากลับมาเป็น JSON โปรดตรวจสอบลิงก์ SCRIPT_URL");
     }
 
     if (j.status === 'error') {
@@ -221,15 +232,15 @@ async function loadData() {
 
     rawData = j.data || [];
     
-    // Fallback หากข้อมูลว่างเปล่า ป้องกัน .map พัง
+    // ดึงเฉพาะชื่อสินค้า (Product) ไปใส่ใน Dropdown ตัวแรก
     const prods = [...new Set(rawData.map(i => i.productName).filter(Boolean))].sort();
-    const names = [...new Set(rawData.map(i => i.name).filter(Boolean))].sort();
-    const fp = document.getElementById('filterProduct'), fn = document.getElementById('filterName');
-    fp.innerHTML = '<option value="">ทั้งหมด</option>'; fn.innerHTML = '<option value="">ทั้งหมด</option>';
+    const fp = document.getElementById('filterProduct');
+    fp.innerHTML = '<option value="">ทั้งหมด</option>';
     prods.forEach(p => fp.innerHTML += `<option value="${p}">${p}</option>`);
-    names.forEach(n => fn.innerHTML += `<option value="${n}">${n}</option>`);
     
-    applyFilters();
+    // เรียกฟังก์ชันจัดเรียงชื่อวัตถุดิบ ตามค่าเริ่มต้น
+    updateNameFilter();
+
   } catch (e) {
     console.error(e);
     alert('โหลดข้อมูลล้มเหลว: \n' + e.message);
@@ -237,8 +248,40 @@ async function loadData() {
   hide();
 }
 
+// 🚩 ฟังก์ชันใหม่: เพื่อการทำ Cascading Dropdown (กรอง RM Name ตาม Product)
+function updateNameFilter() {
+    const pf = document.getElementById('filterProduct').value;
+    const fn = document.getElementById('filterName');
+    const currentVal = fn.value; // จำค่าเดิมไว้ก่อน
+    
+    let names = [];
+    if (pf === "") {
+        // ถ้าไม่เลือก Product ให้แสดง RM Name ทั้งหมด
+        names = [...new Set(rawData.map(i => i.name).filter(Boolean))].sort();
+    } else {
+        // ถ้าเลือก Product แล้ว ให้ดึงเฉพาะ RM Name ที่เกี่ยวข้องมาแสดง
+        names = [...new Set(rawData.filter(i => i.productName === pf).map(i => i.name).filter(Boolean))].sort();
+    }
+    
+    // รีเซ็ตและใส่ค่าใหม่ลงใน Dropdown ที่ 2
+    fn.innerHTML = '<option value="">ทั้งหมด</option>';
+    names.forEach(n => {
+        let isSelected = (n === currentVal) ? ' selected' : '';
+        fn.innerHTML += `<option value="${n}"${isSelected}>${n}</option>`;
+    });
+    
+    // ถ้าของเดิมที่เลือกไว้ ไม่มีในรายการที่ดึงมาใหม่ ให้ล้างค่าทิ้ง
+    if (currentVal && !names.includes(currentVal)) {
+        fn.value = "";
+    }
+    
+    // เรียกแสดงผลตาราง
+    applyFilters();
+}
+
 function applyFilters() {
-  const pf = document.getElementById('filterProduct').value, nf = document.getElementById('filterName').value;
+  const pf = document.getElementById('filterProduct').value;
+  const nf = document.getElementById('filterName').value;
   const s = document.getElementById('searchInput').value.toLowerCase();
   
   let data = rawData.filter(i => 
@@ -247,7 +290,6 @@ function applyFilters() {
     Object.values(i).some(v => String(v).toLowerCase().includes(s))
   );
   
-  // 🚩 ป้องกันบั๊กการ Sort เมื่อวันที่เป็นค่าว่าง (จะถูกดันไปไว้ล่างสุด)
   data.sort((a, b) => {
     const d1 = new Date(a.extExp || a.exp);
     const d2 = new Date(b.extExp || b.exp);
@@ -269,7 +311,6 @@ function applyFilters() {
     const d = eff ? Math.ceil((new Date(eff) - new Date()) / 864e5) : null;
     const ec = d === null ? '' : d <= 0 ? 'exp-expired' : d <= 7 ? 'exp-danger' : d <= 15 ? 'exp-warn' : 'exp-ok';
     
-    // 🚩 แปลงค่า i.batch ให้เป็น String ก่อนเสมอเพื่อป้องกันปัญหา .replace() ในปุ่มลบ
     const safeBatch = String(i.batch || '').replace(/'/g, "\\'");
     
     return `<tr>
