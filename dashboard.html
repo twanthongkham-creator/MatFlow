@@ -11,12 +11,11 @@
         body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; }
         .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: 100%; border: none; }
         .card-title { font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 15px; border-left: 4px solid #0284c7; padding-left: 10px; }
-        .nav-link { font-weight: 600; color: #64748b; border-radius: 10px; padding: 8px 16px; transition: 0.3s; }
+        .nav-link { font-weight: 600; color: #64748b; border-radius: 10px; padding: 8px 16px; transition: 0.3s; text-decoration: none; }
         .nav-link.active { background: #1e293b; color: white; }
         .badge-urgent { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
         .badge-warning { background-color: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
         .badge-expired { background-color: #451a03; color: white; }
-        .table-sm { font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -25,7 +24,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 px-3">
         <div>
             <h2 class="fw-bold text-primary m-0">MatFlow Dashboard</h2>
-            <p class="text-muted small m-0">สรุปข้อมูลคลังสินค้าโรงงาน</p>
+            <p class="text-muted small m-0" id="refreshTime">กำลังโหลดข้อมูลล่าสุด...</p>
         </div>
         <div class="d-flex gap-2 bg-white p-2 rounded-4 shadow-sm">
             <a href="index.html" class="nav-link">Planning</a>
@@ -38,8 +37,8 @@
     <div class="row g-4">
         <div class="col-lg-7">
             <div class="stat-card">
-                <div class="card-title">Total Stock Quantity per Product (All Batches)</div>
-                <div style="height: 450px;">
+                <div class="card-title">Stock Quantity per Product (All Batches)</div>
+                <div style="height: 450px; position: relative;">
                     <canvas id="capacityChart"></canvas>
                 </div>
             </div>
@@ -48,20 +47,18 @@
         <div class="col-lg-5">
             <div class="stat-card">
                 <div class="card-title text-danger">Expiry Alerts (Within 30 Days)</div>
-                <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
-                    <table class="table table-sm table-hover align-middle">
+                <div class="table-responsive" style="max-height: 450px;">
+                    <table class="table table-sm table-hover">
                         <thead class="sticky-top bg-white">
                             <tr class="text-muted small">
-                                <th>Name (RM) / Batch</th>
+                                <th>Name / Batch</th>
                                 <th class="text-center">Days Left</th>
                             </tr>
                         </thead>
                         <tbody id="expiryTableBody">
-                            </tbody>
+                            <tr><td colspan="2" class="text-center py-5">⌛ กำลังโหลดรายการ...</td></tr>
+                        </tbody>
                     </table>
-                </div>
-                <div id="noExpireMsg" class="text-center py-5 d-none">
-                    <div class="text-success fw-bold">✅ ไม่มีรายการใกล้หมดอายุใน 30 วัน</div>
                 </div>
             </div>
         </div>
@@ -69,91 +66,78 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
-
-    window.onload = loadDashboard;
+    // 🚩 เปลี่ยน URL นี้ให้เป็นตัวล่าสุดที่คุณเพิ่ง Deploy มา
+    const SCRIPT_URL = 'ใส่_URL_ล่าสุด_ของคุณ';
 
     async function loadDashboard() {
+        console.log("Fetching dashboard data from:", SCRIPT_URL);
         try {
             const res = await fetch(`${SCRIPT_URL}?action=getDashboardData`);
             const json = await res.json();
-            const data = json.data;
+            console.log("Received Data:", json);
 
-            renderCapacityChart(data.productionCapacity);
-            renderExpiryTable(data.expiryTable);
+            if (json.status === 'success') {
+                renderCapacityChart(json.data.productionCapacity);
+                renderExpiryTable(json.data.expiryTable);
+                document.getElementById('refreshTime').innerText = "อัปเดตเมื่อ: " + new Date().toLocaleTimeString('th-TH');
+            } else {
+                alert("API Error: " + json.message);
+            }
         } catch (e) {
-            console.error("Dashboard Load Error:", e);
+            console.error("Fetch Error:", e);
+            document.getElementById('expiryTableBody').innerHTML = `<tr><td colspan="2" class="text-center text-danger">ไม่สามารถโหลดข้อมูลได้ (ตรวจสอบ URL ใน Code)</td></tr>`;
         }
     }
 
     function renderCapacityChart(capacityData) {
-        const ctx = document.getElementById('capacityChart').getContext('2d');
         const labels = Object.keys(capacityData);
         const values = Object.values(capacityData);
+        
+        if (labels.length === 0) return console.warn("No capacity data found");
 
+        const ctx = document.getElementById('capacityChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'ยอดรวม Quantity (Col I)',
                     data: values,
                     backgroundColor: 'rgba(2, 132, 199, 0.7)',
-                    borderColor: '#0284c7',
-                    borderWidth: 2,
-                    borderRadius: 10,
-                    barThickness: 40
+                    borderRadius: 5
                 }]
             },
             options: {
-                indexAxis: 'y', // ปรับเป็นแนวนอนเพื่อให้ชื่อสินค้าอ่านง่าย
+                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { backgroundColor: '#1e293b' }
-                },
-                scales: {
-                    x: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                    y: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
-                }
+                plugins: { legend: { display: false } }
             }
         });
     }
 
     function renderExpiryTable(expiryData) {
         const tbody = document.getElementById('expiryTableBody');
-        const noMsg = document.getElementById('noExpireMsg');
-        
-        if (expiryData.length === 0) {
-            noMsg.classList.remove('d-none');
+        if (!expiryData || expiryData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center py-5 text-success fw-bold">✅ ไม่มีสินค้าใกล้หมดอายุใน 30 วัน</td></tr>';
             return;
         }
 
-        tbody.innerHTML = expiryData.map(item => {
-            let badgeClass = "badge-warning";
-            let dayText = `เหลือ ${item.days} วัน`;
-            
-            if (item.days < 0) {
-                badgeClass = "badge-expired";
-                dayText = "หมดอายุแล้ว";
-            } else if (item.days <= 7) {
-                badgeClass = "badge-urgent";
-            }
-
-            return `
-                <tr>
-                    <td>
-                        <div class="fw-bold text-dark">${item.name}</div>
-                        <div class="small text-muted">Batch: ${item.batch}</div>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge ${badgeClass} rounded-pill px-3 py-2">${dayText}</span>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+        tbody.innerHTML = expiryData.map(item => `
+            <tr>
+                <td>
+                    <div class="fw-bold text-dark small">${item.name}</div>
+                    <div style="font-size: 0.7rem;" class="text-muted">Batch: ${item.batch}</div>
+                </td>
+                <td class="text-center">
+                    <span class="badge ${item.days < 0 ? 'badge-expired' : (item.days <= 7 ? 'badge-urgent' : 'badge-warning')} rounded-pill px-3">
+                        ${item.days < 0 ? 'หมดอายุ' : 'เหลือ ' + item.days + ' วัน'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
     }
+
+    window.onload = loadDashboard;
 </script>
 </body>
 </html>
