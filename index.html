@@ -1,236 +1,298 @@
 <!DOCTYPE html>
+
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow - Production Planning</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; color: #334155; }
-        .dashboard-container { padding: 30px; max-width: 1400px; margin: auto; }
-        .stat-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: none; margin-bottom: 25px; }
-        .card-title { font-size: 1rem; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 20px; border-left: 5px solid #0ea5e9; padding-left: 15px; }
-        
-        .nav-custom { background: white; padding: 8px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .nav-link { font-weight: 600; color: #64748b; padding: 10px 20px; border-radius: 10px; transition: 0.3s; text-decoration: none; }
-        .nav-link.active { background: #0f172a; color: white; }
-
-        .queue-item { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .status-ok { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; font-weight: bold; }
-        .status-out { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; font-weight: bold; }
-        .table-eval th { color: #64748b; font-size: 0.85rem; text-transform: uppercase; }
-        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; align-items:center; justify-content:center; opacity:0.9;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MatFlow — Production Planning</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;--surface:#fff;--border:#d9e2ec;--border-focus:#3b82f6;
+  --txt:#0f2744;--txt2:#4a6380;--txt3:#8fa3b8;
+  --navy:#1e3a5f;--blue:#2563eb;--blue-mid:#3b82f6;--blue-lt:#eff6ff;--blue-br:#bfdbfe;
+  --green:#059669;--green-lt:#ecfdf5;--green-br:#6ee7b7;
+  --red:#dc2626;--red-lt:#fef2f2;--red-br:#fca5a5;
+  --shadow-s:0 2px 8px rgba(15,39,68,.08);
+  --shadow-m:0 4px 20px rgba(15,39,68,.10);
+  --r:10px;--r-lg:16px;--r-xl:20px;
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.6;min-height:100vh}
+/* ── Topbar ── */
+.topbar{position:sticky;top:0;z-index:200;height:60px;background:var(--navy);display:flex;align-items:center;padding:0 28px;gap:20px;box-shadow:0 2px 12px rgba(0,0,0,.22)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-ico{width:32px;height:32px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.brand-ico svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:1.8}
+.brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.brand-sep{width:1px;height:18px;background:rgba(255,255,255,.18);margin:0 2px}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.45);font-weight:400}
+.topnav{display:flex;align-items:center;gap:2px;margin-left:auto}
+.nav-a{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;text-decoration:none;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.55);transition:background .15s,color .15s;white-space:nowrap}
+.nav-a svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.nav-a:hover{background:rgba(255,255,255,.10);color:#fff}
+.nav-a.active{background:rgba(255,255,255,.16);color:#fff;font-weight:600}
+/* ── Shell ── */
+.shell{max-width:1300px;margin:0 auto;padding:28px 28px 56px}
+/* ── Page Header ── */
+.ph{margin-bottom:26px;animation:fadeUp .4s both}
+.ph h1{font-size:21px;font-weight:700;color:var(--txt);letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+.ph-ico{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--navy));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(37,99,235,.30)}
+.ph-ico svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8}
+.ph p{font-size:13px;color:var(--txt3);margin-top:4px;margin-left:48px}
+/* ── Card ── */
+.card-mf{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-s);padding:24px;transition:box-shadow .2s}
+.card-mf:hover{box-shadow:var(--shadow-m)}
+.card-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.1px;color:var(--blue);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.card-ttl::before{content:'';display:block;width:3px;height:14px;background:linear-gradient(var(--blue-mid),var(--blue));border-radius:2px;flex-shrink:0}
+.step-dot{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;background:var(--blue);color:#fff;border-radius:50%;font-size:11.5px;font-weight:700;flex-shrink:0}
+/* ── Form ── */
+.fl{display:block;font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.fc{width:100%;font-family:'Sarabun',sans-serif;font-size:14.5px;color:var(--txt);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 13px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+.fc:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.fc::placeholder{color:var(--txt3)}
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:var(--r);padding:10px 20px;cursor:pointer;transition:transform .12s,box-shadow .12s,opacity .12s;position:relative;overflow:hidden;white-space:nowrap}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.btn-w{width:100%}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.30)}
+.btn-blue:hover{box-shadow:0 4px 16px rgba(37,99,235,.40);transform:translateY(-1px)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(5,150,105,.28)}
+.btn-green:hover{box-shadow:0 4px 16px rgba(5,150,105,.38);transform:translateY(-1px)}
+.btn-outline{background:var(--surface);color:var(--blue);border:1.5px solid var(--blue-br)}
+.btn-outline:hover{background:var(--blue-lt);border-color:var(--blue-mid)}
+.btn-red-ghost{background:var(--red-lt);color:var(--red);border:1.5px solid var(--red-br);font-size:13px;padding:7px 12px}
+.btn-red-ghost:hover{background:#fee2e2}
+/* ── Queue ── */
+.qi{display:flex;align-items:center;gap:10px;background:var(--blue-lt);border:1.5px solid var(--blue-br);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;animation:slideIn .18s}
+@keyframes slideIn{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:translateX(0)}}
+.qi-info{flex:1;min-width:0}
+.qi-name{font-size:14px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qi-meta{font-size:12.5px;color:var(--blue);font-weight:500;margin-top:1px}
+/* ── Table ── */
+.tw{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border)}
+.mt{width:100%;border-collapse:collapse}
+.mt thead tr{background:var(--navy)}
+.mt thead th{padding:10px 13px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.65);text-align:left;white-space:nowrap}
+.mt tbody tr{border-bottom:1px solid var(--bg)}
+.mt tbody tr:hover{background:var(--blue-lt)}
+.mt tbody tr:last-child{border-bottom:none}
+.mt tbody td{padding:11px 13px;font-size:14px;color:var(--txt)}
+/* ── Badges ── */
+.bok{display:inline-flex;align-items:center;gap:4px;background:var(--green-lt);color:#065f46;border:1px solid var(--green-br);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.bok svg{width:12px;height:12px;stroke:#059669;fill:none;stroke-width:2.5}
+.bout{display:inline-flex;align-items:center;gap:4px;background:var(--red-lt);color:#991b1b;border:1px solid var(--red-br);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.bout svg{width:12px;height:12px;stroke:#dc2626;fill:none;stroke-width:2.5}
+.bcode{display:inline-block;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+/* ── Misc ── */
+.empty{text-align:center;padding:40px 20px;background:var(--blue-lt);border:2px dashed var(--blue-br);border-radius:var(--r-lg)}
+.empty svg{width:34px;height:34px;stroke:var(--blue-br);fill:none;stroke-width:1.2;margin-bottom:10px}
+.empty p{font-size:13.5px;font-weight:600;color:var(--txt3)}
+.empty span{font-size:12.5px;color:var(--txt3);opacity:.7}
+.info-box{background:var(--blue-lt);border:1px solid var(--blue-br);border-left:4px solid var(--blue-mid);border-radius:var(--r);padding:11px 13px;font-size:13px;color:var(--txt2);display:flex;gap:8px}
+.info-box svg{width:15px;height:15px;stroke:var(--blue-mid);fill:none;stroke-width:2;flex-shrink:0;margin-top:2px}
+.op-box{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--blue-lt);border:1.5px solid var(--blue-br);border-radius:var(--r);padding:8px 13px;min-width:108px}
+.op-box input{font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:var(--navy);background:transparent;border:none;outline:none;text-align:center;width:100%}
+.op-lbl{font-size:10.5px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+.cph{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:300px;gap:12px}
+.cph svg{width:44px;height:44px;stroke:#dbeafe;fill:none;stroke-width:1}
+.cph p{font-size:14px;font-weight:600;color:#94a3b8}
+.cph span{font-size:12.5px;color:#cbd5e1}
+/* ── Loader ── */
+.loader{position:fixed;inset:0;z-index:9999;background:rgba(10,20,40,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
+.loader-box{background:#fff;border-radius:var(--r-xl);padding:30px 44px;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.20);min-width:220px;text-align:center}
+.spinner{width:38px;height:38px;border:3px solid var(--blue-br);border-top-color:var(--blue);border-radius:50%;animation:spin .65s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{font-size:13.5px;font-weight:600;color:var(--txt2)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.a1{animation:fadeUp .4s .04s both}.a2{animation:fadeUp .4s .10s both}.a3{animation:fadeUp .4s .17s both}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--blue-br);border-radius:99px}
+</style>
 </head>
 <body>
 
-<div id="loader" class="loading-overlay d-none">
-    <div class="text-center">
-        <div class="spinner-border text-primary" role="status"></div>
-        <div class="mt-2 fw-bold" id="loaderText">กำลังประมวลผล...</div>
-    </div>
+<div id="loader" class="loader" style="display:none">
+  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังประมวลผล...</div></div>
 </div>
 
-<div class="dashboard-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark m-0">🏭 MatFlow Production Planning</h2>
-            <div class="text-muted small">ระบบประเมินเบิกจ่าย (แปลง Package เป็น Unit อัตโนมัติ)</div>
+<header class="topbar">
+  <a href="index.html" class="brand">
+    <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
+    <span class="brand-name">MatFlow</span>
+    <div class="brand-sep"></div>
+    <span class="brand-sub">Inventory System</span>
+  </a>
+  <nav class="topnav">
+    <a href="index.html" class="nav-a active">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Planning
+    </a>
+    <a href="receiving.html" class="nav-a">
+      <svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving
+    </a>
+    <a href="management.html" class="nav-a">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management
+    </a>
+    <a href="dashboard.html" class="nav-a">
+      <svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard
+    </a>
+  </nav>
+</header>
+
+<div class="shell">
+  <div class="ph a1">
+    <h1>
+      <span class="ph-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>
+      Production Planning
+    </h1>
+    <p>ระบบประเมินเบิกจ่าย — แปลง Package เป็น Unit อัตโนมัติ (FIFO)</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- LEFT -->
+    <div class="col-lg-5 a2">
+      <div class="card-mf h-100">
+        <div class="card-ttl"><span class="step-dot">1</span> สร้างคำสั่งผลิต</div>
+        <div style="margin-bottom:14px">
+          <label class="fl">Product Name</label>
+          <select id="pSelect" class="fc"></select>
         </div>
-        <div class="nav-custom d-flex gap-2">
-            <a href="index.html" class="nav-link active">Planning</a>
-            <a href="receiving.html" class="nav-link">Receiving</a>
-            <a href="management.html" class="nav-link">Management</a>
-            <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <div style="margin-bottom:14px">
+          <label class="fl">เป้าหมายการผลิต (Unit)</label>
+          <input type="number" id="tQty" class="fc" placeholder="ระบุจำนวน Unit...">
         </div>
+        <button class="btn btn-blue btn-w" onclick="addQueue()" style="margin-bottom:20px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>เพิ่มลงคิวผลิต
+        </button>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txt2)">คิวเตรียมประเมิน</span>
+          <span id="qCount" class="bcode" style="display:none">0 รายการ</span>
+        </div>
+        <div id="qList">
+          <div class="empty"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p>ยังไม่มีคำสั่งผลิต</p><span>เลือกสินค้าและเพิ่มคิวด้านบน</span></div>
+        </div>
+        <div id="btnEvalWrap" style="margin-top:14px;display:none">
+          <button class="btn btn-outline btn-w" style="padding:11px 20px" onclick="evalStock()">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>ประเมินการใช้วัตถุดิบ (BOM Check)
+          </button>
+        </div>
+      </div>
     </div>
-
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="stat-card h-100">
-                <div class="card-title">1. สร้างคำสั่งผลิต (Production Target)</div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted">เลือกสินค้า (Product Name)</label>
-                    <select id="pSelect" class="form-select form-select-lg"></select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted">เป้าหมายการผลิต (Unit)</label>
-                    <input type="number" id="tQty" class="form-control form-control-lg" value="">
-                </div>
-                <button class="btn btn-primary btn-lg w-100 fw-bold rounded-3 shadow-sm mt-2" onclick="addQueue()">+ เพิ่มลงคิวผลิต</button>
-
-                <hr class="my-4">
-                
-                <h6 class="fw-bold text-secondary mb-3">🛒 คิวเตรียมประเมินสต๊อก</h6>
-                <div id="qList">
-                    <div class="text-center py-4 text-muted small border rounded-3 bg-light">ยังไม่มีคำสั่งผลิต</div>
-                </div>
-                
-                <button id="btnEval" class="btn btn-dark btn-lg w-100 fw-bold rounded-3 mt-3 d-none shadow" onclick="evalStock()">🔍 ประเมินการใช้วัตถุดิบ (BOM Check)</button>
-            </div>
+    <!-- RIGHT -->
+    <div class="col-lg-7 a3">
+      <div class="card-mf h-100" id="resCard" style="display:none;border:1.5px solid var(--blue-br)">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px">
+          <div class="card-ttl" style="margin-bottom:0"><span class="step-dot">2</span> ผลประเมินวัตถุดิบ</div>
+          <div class="op-box"><input type="text" id="opName" value="Admin" readonly><span class="op-lbl">Operator ID</span></div>
         </div>
-
-        <div class="col-lg-7">
-            <div class="stat-card h-100" id="resCard" style="display: none; border: 2px solid #0284c7;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="card-title m-0 border-0 p-0 text-primary">2. ผลประเมินวัตถุดิบ (Requirement & Conversion)</div>
-                    <div style="width: 150px;">
-                        <input type="text" id="opName" class="form-control form-control-sm text-center" value="Admin" readonly>
-                        <small class="d-block text-center text-muted" style="font-size:0.6rem;">Operator ID</small>
-                    </div>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle table-eval">
-                        <thead class="table-light">
-                            <tr>
-                                <th>RM Name (Code)</th>
-                                <th class="text-center">ต้องใช้</th>
-                                <th class="text-center">มีในคลัง (แปลงหน่วยแล้ว)</th>
-                                <th class="text-center">สถานะ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resBody"></tbody>
-                    </table>
-                </div>
-
-                <div class="alert alert-info border-0 mt-3 small">
-                    <strong>ℹ️ กฎการเบิกจ่าย:</strong> ระบบจะตัดสต๊อกเป็น <b>Unit การผลิต</b> แล้วแปลงเศษที่เหลือกลับเป็น <b>Package</b> คืนลงตาราง Monitoring (FIFO)
-                </div>
-
-                <button id="btnIss" class="btn btn-success btn-lg w-100 fw-bold rounded-3 shadow mt-2" onclick="issueStock()">✅ ยืนยันตัดสต๊อก (Issue Stock)</button>
-            </div>
+        <div style="overflow-y:auto;max-height:310px;margin-bottom:14px">
+          <div class="tw"><table class="mt">
+            <thead><tr>
+              <th>RM Name / Code</th><th style="text-align:center">ต้องใช้</th><th style="text-align:center">มีในคลัง</th><th style="text-align:center">สถานะ</th>
+            </tr></thead>
+            <tbody id="resBody"></tbody>
+          </table></div>
         </div>
+        <div class="info-box" style="margin-bottom:14px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>ระบบตัดสต๊อกเป็น <strong>Unit</strong> แล้วแปลงเศษที่เหลือกลับเป็น <strong>Package</strong> คืนลงตาราง Monitoring (FIFO)</span>
+        </div>
+        <button id="btnIss" class="btn btn-green btn-w" onclick="issueStock()">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>ยืนยันตัดสต๊อก (Issue Stock)
+        </button>
+      </div>
+      <div id="resPlaceholder" class="card-mf h-100 cph">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p>รอการประเมิน</p><span>เพิ่มคำสั่งผลิตและกด BOM Check</span>
+      </div>
     </div>
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 🚩 เปลี่ยน SCRIPT_URL ให้ตรงกับของคุณ
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
-    let queue = [];
-    let lastEvalData = null; // 🔧 FIX: store eval result to prevent stale state
+const URL_API='https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
+let queue=[],lastEval=null;
+const SVG_CHECK=`<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
+const SVG_X=`<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+const EMPTY_Q=`<div class="empty"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p>ยังไม่มีคำสั่งผลิต</p><span>เลือกสินค้าและเพิ่มคิวด้านบน</span></div>`;
 
-    window.onload = async () => {
-        showLoader("กำลังโหลดฐานข้อมูลสินค้า...");
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=getProducts`);
-            const json = await res.json();
-            const sel = document.getElementById('pSelect');
-            sel.innerHTML = '<option value="">-- กรุณาเลือกรายการ --</option>';
-            json.data.forEach(p => sel.innerHTML += `<option value="${p}">${p}</option>`);
-        } catch(e) { alert("เชื่อมต่อ API ล้มเหลว"); }
-        hideLoader();
-    };
+window.onload=async()=>{
+  show('กำลังโหลดฐานข้อมูลสินค้า...');
+  try{const r=await fetch(`${URL_API}?action=getProducts`);const j=await r.json();
+  const s=document.getElementById('pSelect');s.innerHTML='<option value="">— กรุณาเลือกสินค้า —</option>';
+  j.data.forEach(p=>s.innerHTML+=`<option value="${p}">${p}</option>`);}
+  catch(e){alert('เชื่อมต่อ API ล้มเหลว');}hide();
+};
 
-    function addQueue() {
-        const name = document.getElementById('pSelect').value;
-        const qty = parseInt(document.getElementById('tQty').value);
-        if(!name || !qty || qty <= 0) return alert("โปรดระบุสินค้าและเป้าหมายให้ถูกต้อง");
-        queue.push({ name, qty });
-        lastEvalData = null; // 🔧 FIX: invalidate eval when queue changes
-        renderQueue();
-        document.getElementById('resCard').style.display = 'none'; 
-    }
+function addQueue(){
+  const name=document.getElementById('pSelect').value,qty=parseInt(document.getElementById('tQty').value);
+  if(!name||!qty||qty<=0)return alert('โปรดระบุสินค้าและเป้าหมายให้ถูกต้อง');
+  queue.push({name,qty});lastEval=null;renderQ();
+  document.getElementById('resCard').style.display='none';
+  document.getElementById('resPlaceholder').style.display='flex';
+}
 
-    function renderQueue() {
-        const qList = document.getElementById('qList');
-        if(queue.length === 0) {
-            qList.innerHTML = '<div class="text-center py-4 text-muted small border rounded-3 bg-light">ยังไม่มีคำสั่งผลิต</div>';
-            document.getElementById('btnEval').classList.add('d-none');
-            return;
-        }
-        qList.innerHTML = queue.map((i, idx) => `
-            <div class="queue-item shadow-sm">
-                <div>
-                    <div class="fw-bold text-dark">${i.name}</div>
-                    <div class="small text-primary fw-bold">เป้าหมาย: ${i.qty} Units</div>
-                </div>
-                <button class="btn btn-sm btn-outline-danger" data-idx="${idx}" onclick="removeQueue(this)">ลบ</button>
-            </div>
-        `).join('');
-        document.getElementById('btnEval').classList.remove('d-none');
-    }
+function renderQ(){
+  const ql=document.getElementById('qList'),cnt=document.getElementById('qCount');
+  if(!queue.length){ql.innerHTML=EMPTY_Q;document.getElementById('btnEvalWrap').style.display='none';cnt.style.display='none';return;}
+  cnt.style.display='inline-block';cnt.textContent=`${queue.length} รายการ`;
+  ql.innerHTML=queue.map((i,idx)=>`
+    <div class="qi">
+      <div class="qi-info"><div class="qi-name">${i.name}</div><div class="qi-meta">เป้าหมาย: ${i.qty.toLocaleString()} Units</div></div>
+      <button class="btn btn-red-ghost" data-idx="${idx}" onclick="delQ(this)">${SVG_X} ลบ</button>
+    </div>`).join('');
+  document.getElementById('btnEvalWrap').style.display='block';
+}
 
-    function removeQueue(btn) {
-        const idx = parseInt(btn.getAttribute('data-idx'));
-        queue.splice(idx, 1);
-        lastEvalData = null; // 🔧 FIX: invalidate eval on queue change
-        document.getElementById('resCard').style.display = 'none';
-        renderQueue();
-    }
+function delQ(b){queue.splice(+b.dataset.idx,1);lastEval=null;document.getElementById('resCard').style.display='none';document.getElementById('resPlaceholder').style.display='flex';renderQ();}
 
-    async function evalStock() {
-        showLoader("กำลังคำนวณวัตถุดิบและแปลงหน่วย...");
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(queue))}`);
-            const json = await res.json();
-            
-            const tbody = document.getElementById('resBody'); 
-            tbody.innerHTML = ''; 
-            let isAllOk = true;
+async function evalStock(){
+  show('กำลังคำนวณวัตถุดิบและแปลงหน่วย...');
+  try{
+    const r=await fetch(`${URL_API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(queue))}`);
+    const j=await r.json();
+    const tb=document.getElementById('resBody');tb.innerHTML='';let ok=true;lastEval=j.data;
+    j.data.forEach(i=>{
+      if(i.status!=='OK')ok=false;
+      const pkg=i.packageType?`<div style="font-size:12px;color:var(--txt3)">(${(+i.availablePackages.toFixed(2))} ${i.packageType})</div>`:'';
+      const badge=i.status==='OK'
+        ?`<span class="bok">${SVG_CHECK}พอ</span>`
+        :`<span class="bout">${SVG_X}ขาด ${i.shortage} ${i.unit}</span>`;
+      tb.innerHTML+=`<tr><td><div style="font-weight:600">${i.name}</div><span class="bcode">${i.code}</span></td>
+        <td style="text-align:center;font-weight:700;color:var(--blue)">${i.required} ${i.unit}</td>
+        <td style="text-align:center"><div style="font-weight:600">${i.available} ${i.unit}</div>${pkg}</td>
+        <td style="text-align:center">${badge}</td></tr>`;
+    });
+    document.getElementById('resCard').style.display='block';
+    document.getElementById('resPlaceholder').style.display='none';
+    const b=document.getElementById('btnIss');
+    if(ok){b.disabled=false;b.className='btn btn-green btn-w';b.innerHTML=`${SVG_CHECK}ยืนยันตัดสต๊อก (Issue Stock)`;}
+    else{b.disabled=true;b.className='btn btn-blue btn-w';b.innerHTML=`${SVG_X}สต๊อกไม่พอเบิกจ่าย`;}
+  }catch(e){alert('ประเมินล้มเหลว');}hide();
+}
 
-            lastEvalData = json.data; // 🔧 FIX: store result
+async function issueStock(){
+  if(!lastEval)return alert("กรุณากด 'ประเมินการใช้วัตถุดิบ' ก่อนยืนยันการเบิก");
+  if(!confirm('ยืนยันการเบิกจ่ายวัตถุดิบ?\nระบบจะหักสต๊อกเป็น Unit และแปลงเศษกลับเป็น Package อัตโนมัติ (FIFO)'))return;
+  show('กำลังประมวลผลการตัดสต๊อก... ห้ามปิดหน้าต่าง');
+  try{
+    const op=document.getElementById('opName').value;
+    const r=await fetch(`${URL_API}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${op}`);
+    const j=await r.json();
+    if(j.status==='success'){alert(`เบิกจ่ายสำเร็จ (DocNo: ${j.docNo})`);location.reload();}
+    else alert('เกิดข้อผิดพลาด: '+j.message);
+  }catch(e){alert('ล้มเหลว');}hide();
+}
 
-            json.data.forEach(i => {
-                if(i.status !== 'OK') isAllOk = false;
-                let statusBadge = i.status === 'OK' 
-                    ? `<span class="badge status-ok px-3 py-2">OK (พอ)</span>` 
-                    : `<span class="badge status-out px-3 py-2">ขาด ${i.shortage} ${i.unit}</span>`;
-
-                let packageDisplay = i.packageType ? `(${Number(i.availablePackages.toFixed(2))} ${i.packageType})` : '';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="fw-bold" style="font-size:0.9rem;">${i.name}</div>
-                            <div class="small text-muted">${i.code}</div>
-                        </td>
-                        <td class="text-center text-primary fw-bold">${i.required} ${i.unit}</td>
-                        <td class="text-center">
-                            <div class="fw-bold">${i.available} ${i.unit}</div>
-                            <div class="small text-muted">${packageDisplay}</div>
-                        </td>
-                        <td class="text-center">${statusBadge}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('resCard').style.display = 'block';
-            
-            const btnIss = document.getElementById('btnIss');
-            if(isAllOk) {
-                btnIss.disabled = false; 
-                btnIss.innerHTML = "✅ ยืนยันตัดสต๊อก (Issue Stock)";
-                btnIss.className = 'btn btn-success btn-lg w-100 fw-bold rounded-3 shadow mt-2'; // 🔧 FIX: set full class instead of replace
-            } else {
-                btnIss.disabled = true; 
-                btnIss.innerHTML = "❌ สต๊อกไม่พอเบิกจ่าย";
-                btnIss.className = 'btn btn-secondary btn-lg w-100 fw-bold rounded-3 shadow mt-2'; // 🔧 FIX
-            }
-        } catch(e) { alert("ประเมินล้มเหลว"); }
-        hideLoader();
-    }
-
-    async function issueStock() {
-        // 🔧 FIX: Guard - must have valid eval before issuing
-        if(!lastEvalData) return alert("กรุณากด 'ประเมินการใช้วัตถุดิบ' ก่อนยืนยันการเบิก");
-        if(!confirm("⚠️ ยืนยันการเบิกจ่ายวัตถุดิบ?\nระบบจะหักสต๊อกเป็น Unit และบันทึกกลับเป็นเศษ Package ให้อัตโนมัติ (FIFO)")) return;
-        showLoader("กำลังประมวลผลการตัดสต๊อก... ห้ามปิดหน้าต่าง");
-        try {
-            const op = document.getElementById('opName').value;
-            const res = await fetch(`${SCRIPT_URL}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${op}`);
-            const json = await res.json();
-            if(json.status === 'success') { 
-                alert(`✅ เบิกจ่ายสำเร็จ! (DocNo: ${json.docNo})`); 
-                location.reload(); 
-            } else alert("เกิดข้อผิดพลาด: " + json.message);
-        } catch(e) { alert("ล้มเหลว"); }
-        hideLoader();
-    }
-
-    function showLoader(text) { document.getElementById('loaderText').innerText = text; document.getElementById('loader').classList.remove('d-none'); }
-    function hideLoader() { document.getElementById('loader').classList.add('d-none'); }
+function show(t){document.getElementById('loaderText').textContent=t;document.getElementById('loader').style.display='flex';}
+function hide(){document.getElementById('loader').style.display='none';}
 </script>
+
 </body>
 </html>
