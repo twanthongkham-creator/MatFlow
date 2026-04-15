@@ -9,37 +9,22 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <style>
-/* ── Email Report Modal ── */
-.rmod-overlay{
-  position:fixed;inset:0;z-index:9998;
-  background:rgba(0,28,80,.52);backdrop-filter:blur(10px);
-  display:flex;align-items:center;justify-content:center;padding:16px;
-}
-.rmod-box{
-  background:rgba(244,248,255,.97);
-  border:1px solid rgba(180,210,255,.40);
-  border-radius:28px;
-  box-shadow:0 24px 64px rgba(0,40,160,.22);
-  width:100%;max-width:660px;max-height:90vh;
-  display:flex;flex-direction:column;overflow:hidden;
-  animation:popIn .22s cubic-bezier(.34,1.56,.64,1);
-}
+/* ── Report Modal ── */
+.rmod-overlay{position:fixed;inset:0;z-index:9998;background:rgba(0,28,80,.55);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px}
+.rmod-box{background:rgba(244,248,255,.97);border:1px solid rgba(180,210,255,.40);border-radius:28px;box-shadow:0 24px 64px rgba(0,40,160,.22);width:100%;max-width:660px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;animation:popIn .22s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-.rmod-hd{
-  background:linear-gradient(125deg,#00225c,#0047bf 55%,#1a6cf5);
-  padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-}
+.rmod-hd{background:linear-gradient(125deg,#00225c,#0047bf 55%,#1a6cf5);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .rmod-hd-title{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px}
 .rmod-hd-title svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:1.8;opacity:.85}
-.rmod-xbtn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.rmod-xbtn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;flex-shrink:0}
 .rmod-xbtn:hover{background:rgba(255,255,255,.28)}
 .rmod-xbtn svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5}
-.rmod-body{padding:22px 24px;overflow-y:auto;flex:1}
-.rmod-foot{background:rgba(230,242,255,.55);border-top:1px solid rgba(180,210,255,.28);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+.rmod-body{padding:20px 24px;overflow-y:auto;flex:1}
+.rmod-foot{background:rgba(230,242,255,.55);border-top:1px solid rgba(180,210,255,.28);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap}
 
 /* Chips */
-.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-.chip{background:rgba(66,146,255,.10);border:1px solid rgba(66,146,255,.22);border-radius:10px;padding:10px 14px;text-align:center;flex:1;min-width:110px}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:rgba(66,146,255,.10);border:1px solid rgba(66,146,255,.22);border-radius:10px;padding:10px 14px;text-align:center;flex:1;min-width:100px}
 .chip-val{font-size:18px;font-weight:700;color:#0047bf;font-family:'IBM Plex Mono',monospace;line-height:1}
 .chip-lbl{font-size:11px;color:#5a7fa8;margin-top:3px;font-weight:500}
 .chip.c-ok{background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.22)}.chip.c-ok .chip-val{color:#059669}
@@ -47,16 +32,16 @@
 .chip.c-red{background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.22)}.chip.c-red .chip-val{color:#dc2626}
 
 /* Preview table */
-.prev-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:4px}
+.prev-tbl{width:100%;border-collapse:collapse;font-size:13px}
 .prev-tbl thead tr{background:rgba(0,52,148,.07)}
-.prev-tbl thead th{padding:9px 11px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4a6380;text-align:left;border-bottom:1.5px solid rgba(180,210,255,.40)}
+.prev-tbl thead th{padding:8px 11px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4a6380;text-align:left;border-bottom:1.5px solid rgba(180,210,255,.40)}
 .prev-tbl tbody tr{border-bottom:1px solid rgba(180,210,255,.22)}
 .prev-tbl tbody tr:last-child{border-bottom:none}
-.prev-tbl tbody td{padding:9px 11px;vertical-align:middle}
-.pbar-wrap{width:90px;height:7px;background:rgba(180,210,255,.30);border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}
+.prev-tbl tbody td{padding:8px 11px;vertical-align:middle}
+.pbar-wrap{width:80px;height:7px;background:rgba(180,210,255,.30);border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}
 .pbar-fill{height:100%;border-radius:4px}
 
-/* OOS preview */
+/* OOS */
 .oos-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .oos-tbl thead th{padding:7px 10px;background:rgba(220,38,38,.06);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#991b1b;border-bottom:1px solid rgba(220,38,38,.18);text-align:left}
 .oos-tbl tbody td{padding:8px 10px;border-bottom:1px solid rgba(220,38,38,.08)}
@@ -64,7 +49,7 @@
 .tag-out{background:#fee2e2;color:#991b1b;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700}
 
 /* Recipients */
-.rcpt-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.rcpt-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .rcpt-tag{background:rgba(66,146,255,.12);border:1px solid rgba(66,146,255,.28);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#0047bf;display:flex;align-items:center;gap:5px}
 .rcpt-tag svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
 
@@ -72,11 +57,23 @@
 .slbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a6380;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .slbl::before{content:'';display:inline-block;width:10px;height:3px;background:currentColor;border-radius:2px}
 
-/* Buttons */
-.btn-send{background:linear-gradient(135deg,#1a6cf5,#0047bf);color:#fff;border:none;border-radius:12px;padding:11px 24px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .15s;box-shadow:0 3px 14px rgba(26,108,245,.35)}
-.btn-send svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2}
-.btn-send:hover{box-shadow:0 5px 20px rgba(26,108,245,.50);transform:translateY(-1px)}
-.btn-send:active{transform:scale(.97)}
+/* ── Outlook Send Button ── */
+.btn-outlook{
+  background:linear-gradient(135deg,#0078d4,#005a9e);
+  color:#fff;border:none;border-radius:12px;padding:11px 22px;
+  font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:9px;
+  transition:all .15s;box-shadow:0 3px 14px rgba(0,120,212,.35);
+  position:relative;overflow:hidden;white-space:nowrap;
+}
+.btn-outlook::after{content:'';position:absolute;top:-50%;left:-60%;width:50%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);transition:left .5s}
+.btn-outlook:hover::after{left:120%}
+.btn-outlook:hover{box-shadow:0 5px 20px rgba(0,120,212,.50);transform:translateY(-1px)}
+.btn-outlook:active{transform:scale(.97)}
+.btn-outlook:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.btn-outlook svg{width:18px;height:18px;flex-shrink:0}
+
+/* Cancel */
 .btn-cancel{background:rgba(255,255,255,.65);color:#4a6380;border:1.5px solid rgba(180,210,255,.45);border-radius:12px;padding:10px 20px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;backdrop-filter:blur(8px);transition:.15s}
 .btn-cancel:hover{background:rgba(255,255,255,.92)}
 
@@ -84,18 +81,16 @@
 .btn-report{background:linear-gradient(135deg,#1a6cf5,#003494);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .15s;box-shadow:0 2px 10px rgba(26,108,245,.30)}
 .btn-report svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.8}
 .btn-report:hover{box-shadow:0 4px 16px rgba(26,108,245,.44);transform:translateY(-1px)}
-.btn-report:active{transform:scale(.97)}
 .btn-report:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 </style>
 </head>
 <body>
 
-<!-- Main loader -->
 <div id="loader" class="loader" style="display:none">
   <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด Dashboard...</div></div>
 </div>
 
-<!-- ══════════════ EMAIL REPORT MODAL ══════════════ -->
+<!-- ══════════════ REPORT MODAL ══════════════ -->
 <div id="reportModal" class="rmod-overlay" style="display:none">
   <div class="rmod-box">
     <div class="rmod-hd">
@@ -112,17 +107,17 @@
       <!-- Summary chips -->
       <div id="modalChips" class="chip-row"></div>
 
-      <!-- Production table -->
+      <!-- Prod table -->
       <div class="slbl">Production Capability (มากไปน้อย)</div>
-      <div style="border:1px solid rgba(180,210,255,.35);border-radius:12px;overflow:hidden;margin-bottom:18px">
+      <div style="border:1px solid rgba(180,210,255,.35);border-radius:12px;overflow:hidden;margin-bottom:16px">
         <table class="prev-tbl">
           <thead><tr><th style="width:28px"></th><th>Product Name</th><th style="text-align:center">ผลิตได้ (Unit)</th><th>ความสามารถ</th></tr></thead>
           <tbody id="modalProdBody"></tbody>
         </table>
       </div>
 
-      <!-- OOS section -->
-      <div id="modalOOSSection" style="display:none;margin-bottom:18px">
+      <!-- OOS -->
+      <div id="modalOOSSection" style="display:none;margin-bottom:16px">
         <div class="slbl" style="color:#dc2626">วัตถุดิบขาด Stock</div>
         <div style="border:1px solid rgba(220,38,38,.22);border-radius:12px;overflow:hidden">
           <table class="oos-tbl">
@@ -134,25 +129,31 @@
 
       <!-- Recipients -->
       <div class="slbl">ผู้รับ Email</div>
-      <div class="rcpt-row" style="margin-bottom:14px">
+      <div class="rcpt-row">
         <div class="rcpt-tag"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>theewant@sermsukplc.com</div>
         <div class="rcpt-tag"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>tonxperianeov@gmail.com</div>
       </div>
 
-      <div style="background:rgba(66,146,255,.07);border:1px solid rgba(66,146,255,.18);border-left:3px solid #3b82f6;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#1e40af">
-        กดปุ่ม "เปิด HTML Email" เพื่อเปิดไฟล์รายงานในรูปแบบสวยงาม — แล้วคัดลอกวางลงใน Gmail หรือ Outlook ได้ทันที หรือกด "เปิด Email Client" เพื่อเปิดแอปอีเมลพร้อมข้อมูล
+      <!-- Info note -->
+      <div style="background:rgba(0,120,212,.07);border:1px solid rgba(0,120,212,.20);border-left:3px solid #0078d4;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#003a6e">
+        กดปุ่ม <strong>ส่งผ่าน Outlook</strong> — ระบบจะเปิด Outlook Web พร้อม To, Subject และเนื้อหา Email สวยงามครบถ้วน กด Send ได้ทันที
       </div>
     </div>
 
     <div class="rmod-foot">
       <button class="btn-cancel" onclick="closeReportModal()">
-        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ยกเลิก
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        ยกเลิก
       </button>
-      <button class="btn-cancel" onclick="openEmailClient()" style="color:#0047bf;border-color:rgba(66,146,255,.35)">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>เปิด Email Client
-      </button>
-      <button class="btn-send" onclick="openHtmlReport()">
-        <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><path d="M10 14L21 3"/><path d="M21 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h6"/></svg>เปิด HTML Email
+      <!-- Outlook Send -->
+      <button class="btn-outlook" id="btnSendOutlook" onclick="sendViaOutlook()">
+        <!-- Outlook icon -->
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="5" width="13" height="14" rx="2" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/>
+          <rect x="7" y="2" width="15" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/>
+          <path d="M7 7h15M7 11h15M7 15h9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        ส่งผ่าน Outlook
       </button>
     </div>
   </div>
@@ -183,7 +184,7 @@
   </div>
 </header>
 
-<!-- ══════════════ PAGE SHELL ══════════════ -->
+<!-- ══════════════ SHELL ══════════════ -->
 <div class="shell">
 
   <!-- Page header + Report button -->
@@ -197,7 +198,7 @@
       </h1>
       <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">คลิกที่แท่งกราฟหรือรายการ เพื่อแก้ไขข้อมูล</p>
       <div style="display:flex;align-items:center;gap:7px;margin-top:6px;margin-left:50px;font-size:12.5px;color:var(--txt3);font-weight:500">
-        <div class="live-dot"></div><span id="lastUpdate">กำลังโหลดข้อมูล...</span>
+        <div class="live-dot"></div><span id="lastUpdate">กำลังโหลด...</span>
       </div>
     </div>
     <button class="btn-report" id="btnReport" onclick="openReportModal()" disabled>
@@ -352,7 +353,7 @@
       <div class="modal-ft">
         <button class="btn btn-outline" onclick="closeEdit()" style="padding:9px 20px">ยกเลิก</button>
         <button class="btn btn-blue" onclick="saveEdit()" style="padding:9px 24px">
-          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>บันทึกการเปลี่ยนแปลง
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>บันทึก
         </button>
       </div>
     </div>
@@ -363,433 +364,309 @@
 <script src="mf-shared.js"></script>
 <script>
 Chart.register(ChartDataLabels);
+const RECIPIENTS = ['theewant@sermsukplc.com','tonxperianeov@gmail.com'];
+let rawData=[], editIdx=null, listMdl, editMdl;
+let _capData={}, _oosData=[];
 
-const RECIPIENTS = ['theewant@sermsukplc.com', 'tonxperianeov@gmail.com'];
-
-let rawData = [], editIdx = null;
-let listMdl, editMdl;
-let _capData = {}, _oosData = [];
-
-window.onload = () => {
-  listMdl = new bootstrap.Modal(document.getElementById('listModal'));
-  editMdl  = new bootstrap.Modal(document.getElementById('editModal'));
+window.onload=()=>{
+  listMdl=new bootstrap.Modal(document.getElementById('listModal'));
+  editMdl=new bootstrap.Modal(document.getElementById('editModal'));
   loadAll();
 };
 
-/* ════════════════════════
-   LOAD DATA
-════════════════════════ */
-async function loadAll() {
+/* ── Load ── */
+async function loadAll(){
   mfShow('กำลังเชื่อมต่อฐานข้อมูล...');
-  try {
-    const [jd, jm] = await Promise.all([MF.getDashboardData(), MF.getMonitorData()]);
-    if (jd.status === 'success' && jm.status === 'success') {
-      rawData   = jm.data;
-      _capData  = jd.data.productionCapacity || {};
-      _oosData  = jd.data.outOfStock || [];
-      renderChart(_capData);
-      renderOOS(_oosData);
-      renderExpiry(jd.data.expiryTable);
-      document.getElementById('lastUpdate').textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleString('th-TH');
-      document.getElementById('btnReport').disabled = false;
-    } else throw new Error('API Error');
-  } catch(e) { alert('เกิดข้อผิดพลาดในการดึงข้อมูล'); }
+  try{
+    const[jd,jm]=await Promise.all([MF.getDashboardData(),MF.getMonitorData()]);
+    if(jd.status==='success'&&jm.status==='success'){
+      rawData=jm.data; _capData=jd.data.productionCapacity||{}; _oosData=jd.data.outOfStock||[];
+      renderChart(_capData); renderOOS(_oosData); renderExpiry(jd.data.expiryTable);
+      document.getElementById('lastUpdate').textContent='อัปเดตล่าสุด: '+new Date().toLocaleString('th-TH');
+      document.getElementById('btnReport').disabled=false;
+    }else throw new Error();
+  }catch(e){alert('เกิดข้อผิดพลาดในการดึงข้อมูล');}
   mfHide();
 }
 
-/* ════════════════════════
-   CHART
-════════════════════════ */
-function renderChart(data) {
-  const items = Object.keys(data).map(k => ({ n: k, v: data[k] }))
-    .filter(i => i.v > 0).sort((a, b) => b.v - a.v);
-  const h = Math.max(360, items.length * 46);
-  document.getElementById('canvasParent').style.height = h + 'px';
-  const ctx = document.getElementById('capacityChart').getContext('2d');
-  if (window._ch) window._ch.destroy();
-  window._ch = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: items.map(i => i.n),
-      datasets: [{ data: items.map(i => i.v), backgroundColor: items.map(i => i.v > 500 ? 'rgba(5,150,105,.72)' : i.v > 100 ? 'rgba(217,119,6,.72)' : 'rgba(220,38,38,.72)'), barThickness: 18, borderRadius: 6 }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      layout: { padding: { right: 80, left: 4 } },
-      onClick: (e, els) => { if (els.length) openList(window._ch.data.labels[els[0].index]); },
-      onHover: (e, els) => { e.native.target.style.cursor = els.length ? 'pointer' : 'default'; },
-      plugins: {
-        legend: { display: false },
-        datalabels: { anchor: 'end', align: 'right', color: '#0a1f44', font: { weight: 'bold', size: 11, family: 'IBM Plex Mono' }, formatter: v => v.toLocaleString() + ' U' }
-      },
-      scales: {
-        x: { display: false },
-        y: { grid: { display: false }, ticks: { font: { size: 12, family: 'IBM Plex Sans Thai', weight: '600' }, color: '#2d5280' } }
-      }
+/* ── Chart ── */
+function renderChart(data){
+  const items=Object.keys(data).map(k=>({n:k,v:data[k]})).filter(i=>i.v>0).sort((a,b)=>b.v-a.v);
+  const h=Math.max(360,items.length*46);
+  document.getElementById('canvasParent').style.height=h+'px';
+  const ctx=document.getElementById('capacityChart').getContext('2d');
+  if(window._ch)window._ch.destroy();
+  window._ch=new Chart(ctx,{
+    type:'bar',
+    data:{labels:items.map(i=>i.n),datasets:[{data:items.map(i=>i.v),backgroundColor:items.map(i=>i.v>500?'rgba(5,150,105,.72)':i.v>100?'rgba(217,119,6,.72)':'rgba(220,38,38,.72)'),barThickness:18,borderRadius:6}]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:80,left:4}},
+      onClick:(e,els)=>{if(els.length)openList(window._ch.data.labels[els[0].index]);},
+      onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
+      plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',color:'#0a1f44',font:{weight:'bold',size:11,family:'IBM Plex Mono'},formatter:v=>v.toLocaleString()+' U'}},
+      scales:{x:{display:false},y:{grid:{display:false},ticks:{font:{size:12,family:'IBM Plex Sans Thai',weight:'600'},color:'#2d5280'}}}
     }
   });
 }
 
-/* ════════════════════════
-   OOS
-════════════════════════ */
-function renderOOS(data) {
-  const c = document.getElementById('outOfStockBody');
-  if (!data || !data.length) {
-    c.innerHTML = `<div style="padding:44px;text-align:center">
-      <div style="width:44px;height:44px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:1.5px solid var(--gb)">
-        <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>
-      </div>
-      <div style="font-weight:700;color:var(--green);font-size:14px">วัตถุดิบพร้อมใช้งานทุกรายการ</div>
-    </div>`; return;
-  }
-  c.innerHTML = data.map(i => `
-    <div class="oos-item" onclick="openList('${String(i.rmName||'').replace(/'/g,"\\'")}','rm')">
-      <div>
-        <div class="oos-name">${i.rmName}</div>
-        <div class="oos-sub">${i.pName}</div>
-      </div>
-      <span class="oos-btn">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข
-      </span>
-    </div>`).join('');
+/* ── OOS ── */
+function renderOOS(data){
+  const c=document.getElementById('outOfStockBody');
+  if(!data||!data.length){c.innerHTML=`<div style="padding:44px;text-align:center"><div style="width:44px;height:44px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:1.5px solid var(--gb)"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg></div><div style="font-weight:700;color:var(--green);font-size:14px">วัตถุดิบพร้อมใช้งานทุกรายการ</div></div>`;return;}
+  c.innerHTML=data.map(i=>`<div class="oos-item" onclick="openList('${String(i.rmName||'').replace(/'/g,"\\'")}')"><div><div class="oos-name">${i.rmName}</div><div class="oos-sub">${i.pName}</div></div><span class="oos-btn"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</span></div>`).join('');
 }
 
-/* ════════════════════════
-   EXPIRY
-════════════════════════ */
-function renderExpiry(data) {
-  const tb = document.getElementById('expiryTableBody');
-  if (!data || !data.length) {
-    tb.innerHTML = `<tr><td colspan="4" style="padding:44px;text-align:center;color:var(--green);font-weight:700">ทุกรายการอยู่ในสถานะปลอดภัย (> 30 วัน)</td></tr>`; return;
-  }
-  tb.innerHTML = data.map(i => {
-    const exp  = i.days <= 0;
-    const safe = Math.max(0, Math.min(31, i.days));
-    const pos  = (safe / 31) * 100;
-    const col  = exp ? '#7c3aed' : i.days <= 7 ? '#dc2626' : i.days <= 15 ? '#d97706' : '#059669';
-    const bg   = exp ? 'rgba(245,243,255,.4)' : i.days <= 7 ? 'rgba(254,242,242,.4)' : i.days <= 15 ? 'rgba(255,251,235,.35)' : '';
-    const lbl  = exp
-      ? `<span style="color:#7c3aed;font-weight:700;font-size:13px">หมดอายุ ${Math.abs(i.days)} วัน</span>`
-      : `<span style="color:${col};font-weight:700;font-size:13px">${i.days} วัน</span>`;
-    return `<tr style="background:${bg};cursor:pointer" onclick="findByBatch('${String(i.batch||'').replace(/'/g,"\\'")}')">
-      <td style="font-weight:600">${i.name}</td>
-      <td><span class="bbatch">${i.batch}</span></td>
-      <td style="text-align:center">${lbl}</td>
-      <td style="text-align:center">
-        <div class="scale-wrap"><div class="sd"></div><div class="sw"></div><div class="ss"></div><div class="si" style="left:${pos}%;background:${col}"></div></div>
-      </td>
-    </tr>`;
+/* ── Expiry ── */
+function renderExpiry(data){
+  const tb=document.getElementById('expiryTableBody');
+  if(!data||!data.length){tb.innerHTML=`<tr><td colspan="4" style="padding:44px;text-align:center;color:var(--green);font-weight:700">ทุกรายการอยู่ในสถานะปลอดภัย (> 30 วัน)</td></tr>`;return;}
+  tb.innerHTML=data.map(i=>{
+    const exp=i.days<=0,safe=Math.max(0,Math.min(31,i.days)),pos=(safe/31)*100;
+    const col=exp?'#7c3aed':i.days<=7?'#dc2626':i.days<=15?'#d97706':'#059669';
+    const bg=exp?'rgba(245,243,255,.4)':i.days<=7?'rgba(254,242,242,.4)':i.days<=15?'rgba(255,251,235,.35)':'';
+    const lbl=exp?`<span style="color:#7c3aed;font-weight:700;font-size:13px">หมดอายุ ${Math.abs(i.days)} วัน</span>`:`<span style="color:${col};font-weight:700;font-size:13px">${i.days} วัน</span>`;
+    return`<tr style="background:${bg};cursor:pointer" onclick="findByBatch('${String(i.batch||'').replace(/'/g,"\\'")}')"><td style="font-weight:600">${i.name}</td><td><span class="bbatch">${i.batch}</span></td><td style="text-align:center">${lbl}</td><td style="text-align:center"><div class="scale-wrap"><div class="sd"></div><div class="sw"></div><div class="ss"></div><div class="si" style="left:${pos}%;background:${col}"></div></div></td></tr>`;
   }).join('');
 }
 
-/* ════════════════════════
-   LIST MODAL (Fixed: ใช้ name/code จาก schema ใหม่ ไม่ใช้ productName)
-   คลิกแท่งกราฟ → กรอง rawData ด้วย name ของ RM ที่ตรงกับ productName ใน master
-   แต่ใน schema ใหม่ rawData ไม่มี productName แล้ว
-   วิธีแก้: กรองด้วย code ที่อยู่ใน BOM ของ product นั้น
-════════════════════════ */
-function openList(productName) {
-  // หา RM codes ทั้งหมดที่เป็น BOM ของ product นี้ จาก _capData context
-  // เนื่องจาก rawData ไม่มี productName แล้ว ให้กรองจาก name ของ RM ที่มีในคลัง
-  // วิธีที่แม่นยำ: ดึงจาก rawData ทั้งหมดที่มี qty > 0
-  document.getElementById('listModalTitle').textContent = `วัตถุดิบในคลัง — สำหรับ: ${productName}`;
-
-  // กรอง: เอา rawData ที่มี qty > 0 ทั้งหมด (เพราะ schema ใหม่ไม่มี productName ใน monitoring)
-  // แสดงทุก RM ที่มีสต๊อก เพื่อให้ผู้ใช้แก้ไขได้
-  const filtered = rawData.filter(i => (parseFloat(i.qty) || 0) > 0);
-
-  const tb = document.getElementById('listModalBody');
-  if (!filtered.length) {
-    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">
-      ไม่มีสต๊อกวัตถุดิบในคลัง<br><br>
-      <a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>ไปที่หน้ารับเข้า
-      </a>
-    </td></tr>`;
-  } else {
-    tb.innerHTML = filtered.map(i => `
-      <tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer">
-        <td><span class="bcode">${i.code||'—'}</span></td>
-        <td style="font-weight:600">${i.name||'—'}</td>
-        <td><span class="bbatch">${i.batch||'—'}</span></td>
-        <td style="text-align:center;font-weight:700;color:var(--green);font-family:'IBM Plex Mono'">${i.qty}</td>
-        <td style="text-align:center">
-          <button class="btn btn-edit" style="font-size:12px;padding:5px 12px">
-            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข
-          </button>
-        </td>
-      </tr>`).join('');
+/* ── List Modal ── */
+function openList(label){
+  document.getElementById('listModalTitle').textContent=`วัตถุดิบในคลัง — ${label}`;
+  const filtered=rawData.filter(i=>(parseFloat(i.qty)||0)>0);
+  const tb=document.getElementById('listModalBody');
+  if(!filtered.length){
+    tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">ไม่มีสต๊อกในคลัง<br><br><a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>ไปที่หน้ารับเข้า</a></td></tr>`;
+  }else{
+    tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer"><td><span class="bcode">${i.code||'—'}</span></td><td style="font-weight:600">${i.name||'—'}</td><td><span class="bbatch">${i.batch||'—'}</span></td><td style="text-align:center;font-weight:700;color:var(--green);font-family:'IBM Plex Mono'">${i.qty}</td><td style="text-align:center"><button class="btn btn-edit" style="font-size:12px;padding:5px 12px"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</button></td></tr>`).join('');
   }
   listMdl.show();
 }
 
-function findByBatch(b) {
-  const it = rawData.find(i => String(i.batch) === String(b));
-  if (it) openEdit(it.rowIdx); else alert('ไม่พบข้อมูล Batch นี้');
-}
+function findByBatch(b){const it=rawData.find(i=>String(i.batch)===String(b));if(it)openEdit(it.rowIdx);else alert('ไม่พบ Batch นี้');}
 
-/* ════════════════════════
-   EDIT MODAL
-════════════════════════ */
-function openEdit(ri) {
-  const it = rawData.find(i => i.rowIdx === ri); if (!it) return;
-  listMdl.hide(); editIdx = ri;
-  document.getElementById('modalBatchTitle').textContent = '— ' + it.batch;
-  document.getElementById('modalRMName').textContent     = it.name || it.rmName || '—';
-  document.getElementById('modalSupplier').textContent   = it.supplier || '—';
-  document.getElementById('modalUnit').textContent       = it.unitPackage || 'Package';
-  document.getElementById('editBatch').value = it.batch;
-  document.getElementById('editQty').value   = it.qty;
-  document.getElementById('editMfg').value   = mfFmtInput(it.mfg);
-  document.getElementById('editExp').value   = mfFmtInput(it.exp);
-  const hasX = !!it.extExp;
-  document.getElementById('toggleExtend').checked = hasX;
-  document.getElementById('editExtExp').value      = hasX ? mfFmtInput(it.extExp) : '';
-  document.getElementById('extField').style.display = hasX ? 'block' : 'none';
+/* ── Edit Modal ── */
+function openEdit(ri){
+  const it=rawData.find(i=>i.rowIdx===ri);if(!it)return;
+  listMdl.hide();editIdx=ri;
+  document.getElementById('modalBatchTitle').textContent='— '+it.batch;
+  document.getElementById('modalRMName').textContent=it.name||it.rmName||'—';
+  document.getElementById('modalSupplier').textContent=it.supplier||'—';
+  document.getElementById('modalUnit').textContent=it.unitPackage||'Package';
+  document.getElementById('editBatch').value=it.batch;
+  document.getElementById('editQty').value=it.qty;
+  document.getElementById('editMfg').value=mfFmtInput(it.mfg);
+  document.getElementById('editExp').value=mfFmtInput(it.exp);
+  const hasX=!!it.extExp;
+  document.getElementById('toggleExtend').checked=hasX;
+  document.getElementById('editExtExp').value=hasX?mfFmtInput(it.extExp):'';
+  document.getElementById('extField').style.display=hasX?'block':'none';
   editMdl.show();
 }
-function closeEdit() { editMdl.hide(); }
-
-async function saveEdit() {
-  const qty   = parseFloat(document.getElementById('editQty').value);
-  const batch = document.getElementById('editBatch').value.trim();
-  const mfg   = document.getElementById('editMfg').value;
-  const exp   = document.getElementById('editExp').value;
-  if (isNaN(qty) || qty < 0) return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
-  if (!batch)   return alert('กรุณาระบุเลข Batch');
-  if (!mfg||!exp) return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
-  const isX = document.getElementById('toggleExtend').checked;
-  const it  = rawData.find(i => i.rowIdx === editIdx);
-  const updated = { ...it, batch, qty, mfg, exp, extExp: isX ? document.getElementById('editExtExp').value : '' };
-  editMdl.hide(); mfShow('กำลังบันทึกข้อมูล...');
-  try {
-    const j = await MF.updateMonitor(updated);
-    if (j.status === 'success') loadAll();
-    else { alert('เกิดข้อผิดพลาด: ' + (j.message || '')); mfHide(); }
-  } catch(e) { alert('บันทึกล้มเหลว'); mfHide(); }
+function closeEdit(){editMdl.hide();}
+async function saveEdit(){
+  const qty=parseFloat(document.getElementById('editQty').value);
+  const batch=document.getElementById('editBatch').value.trim();
+  const mfg=document.getElementById('editMfg').value,exp=document.getElementById('editExp').value;
+  if(isNaN(qty)||qty<0)return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
+  if(!batch)return alert('กรุณาระบุเลข Batch');
+  if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
+  const isX=document.getElementById('toggleExtend').checked;
+  const it=rawData.find(i=>i.rowIdx===editIdx);
+  const updated={...it,batch,qty,mfg,exp,extExp:isX?document.getElementById('editExtExp').value:''};
+  editMdl.hide();mfShow('กำลังบันทึก...');
+  try{const j=await MF.updateMonitor(updated);if(j.status==='success')loadAll();else{alert('เกิดข้อผิดพลาด: '+(j.message||''));mfHide();}}
+  catch(e){alert('บันทึกล้มเหลว');mfHide();}
 }
 
-/* ════════════════════════
-   EMAIL REPORT MODAL
-════════════════════════ */
-function openReportModal() {
-  const allItems = Object.keys(_capData)
-    .map(k => ({ name: k, val: _capData[k] }))
-    .sort((a, b) => b.val - a.val);
-  const maxVal   = Math.max(...allItems.map(i => i.val), 1);
-  const total    = allItems.length + _oosData.filter(o => !allItems.find(a => a.name === o.pName)).length;
+/* ════════════════════════════════════════
+   EMAIL REPORT
+════════════════════════════════════════ */
+function openReportModal(){
+  const items=Object.keys(_capData).map(k=>({name:k,val:_capData[k]})).sort((a,b)=>b.val-a.val);
+  const maxVal=Math.max(...items.map(i=>i.val),1);
+  const total=items.length+_oosData.filter(o=>!items.find(a=>a.name===o.pName)).length;
 
   // Chips
-  document.getElementById('modalChips').innerHTML = `
+  document.getElementById('modalChips').innerHTML=`
     <div class="chip"><div class="chip-val">${total}</div><div class="chip-lbl">สินค้าทั้งหมด</div></div>
-    <div class="chip c-ok"><div class="chip-val">${allItems.filter(i=>i.val>500).length}</div><div class="chip-lbl">ผลิตได้ &gt; 500U</div></div>
-    <div class="chip c-warn"><div class="chip-val">${allItems.filter(i=>i.val>0&&i.val<=500).length}</div><div class="chip-lbl">ผลิตได้น้อย</div></div>
+    <div class="chip c-ok"><div class="chip-val">${items.filter(i=>i.val>500).length}</div><div class="chip-lbl">ผลิตได้ &gt; 500U</div></div>
+    <div class="chip c-warn"><div class="chip-val">${items.filter(i=>i.val>0&&i.val<=500).length}</div><div class="chip-lbl">ผลิตได้น้อย</div></div>
     <div class="chip c-red"><div class="chip-val">${_oosData.length}</div><div class="chip-lbl">RM ขาด Stock</div></div>
   `;
 
-  // Production table rows
-  const rows = allItems.map((item, idx) => {
-    const pct   = Math.round(item.val / maxVal * 100);
-    const color = item.val > 500 ? '#059669' : item.val > 100 ? '#d97706' : '#dc2626';
-    const rBg   = idx===0?'#fef3c7':idx===1?'#e0f2fe':'#f1f5f9';
-    const rTxt  = idx===0?'#92400e':idx===1?'#0c4a6e':'#374151';
-    return `<tr>
-      <td><span style="width:22px;height:22px;border-radius:50%;background:${rBg};color:${rTxt};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${idx+1}</span></td>
-      <td style="font-weight:600">${item.name}</td>
-      <td style="text-align:center;font-weight:700;color:${color};font-size:14px;font-family:'IBM Plex Mono'">${item.val.toLocaleString()}</td>
-      <td><div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div></td>
-    </tr>`;
+  // Production rows
+  const rows=items.map((it,idx)=>{
+    const pct=Math.round(it.val/maxVal*100);
+    const col=it.val>500?'#059669':it.val>100?'#d97706':'#dc2626';
+    const rBg=idx===0?'#fef3c7':idx===1?'#e0f2fe':'#f1f5f9';
+    const rTxt=idx===0?'#92400e':idx===1?'#0c4a6e':'#374151';
+    return`<tr><td><span style="width:22px;height:22px;border-radius:50%;background:${rBg};color:${rTxt};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${idx+1}</span></td><td style="font-weight:600">${it.name}</td><td style="text-align:center;font-weight:700;color:${col};font-size:14px;font-family:'IBM Plex Mono'">${it.val.toLocaleString()}</td><td><div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%;background:${col}"></div></div></td></tr>`;
   });
-  // OOS-only items
-  _oosData.filter(o => !allItems.find(a => a.name === o.pName)).forEach((o, idx) => {
-    rows.push(`<tr>
-      <td><span style="width:22px;height:22px;border-radius:50%;background:#f1f5f9;color:#374151;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${allItems.length+idx+1}</span></td>
-      <td style="font-weight:600;color:#64748b">${o.pName}</td>
-      <td style="text-align:center;font-weight:700;color:#dc2626;font-size:14px;font-family:'IBM Plex Mono'">0</td>
-      <td><div class="pbar-wrap"><div class="pbar-fill" style="width:0%;background:#dc2626"></div></div></td>
-    </tr>`);
-  });
-  document.getElementById('modalProdBody').innerHTML = rows.join('') || `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--txt3)">ไม่มีข้อมูล</td></tr>`;
+  _oosData.filter(o=>!items.find(a=>a.name===o.pName)).forEach((o,i)=>rows.push(`<tr><td><span style="width:22px;height:22px;border-radius:50%;background:#f1f5f9;color:#374151;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${items.length+i+1}</span></td><td style="font-weight:600;color:#64748b">${o.pName}</td><td style="text-align:center;font-weight:700;color:#dc2626;font-size:14px;font-family:'IBM Plex Mono'">0</td><td><div class="pbar-wrap"></div></td></tr>`));
+  document.getElementById('modalProdBody').innerHTML=rows.join('')||`<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--txt3)">ไม่มีข้อมูล</td></tr>`;
 
-  // OOS table
-  if (_oosData.length) {
-    document.getElementById('modalOOSSection').style.display = 'block';
-    document.getElementById('modalOOSBody').innerHTML = _oosData.map(o => `
-      <tr>
-        <td><strong>${o.rmName}</strong></td>
-        <td style="color:#64748b">${o.pName}</td>
-        <td style="text-align:center"><span class="tag-out">OUT</span></td>
-      </tr>`).join('');
-  } else {
-    document.getElementById('modalOOSSection').style.display = 'none';
-  }
+  // OOS
+  if(_oosData.length){
+    document.getElementById('modalOOSSection').style.display='block';
+    document.getElementById('modalOOSBody').innerHTML=_oosData.map(o=>`<tr><td><strong>${o.rmName}</strong></td><td style="color:#64748b">${o.pName}</td><td style="text-align:center"><span class="tag-out">OUT</span></td></tr>`).join('');
+  }else{document.getElementById('modalOOSSection').style.display='none';}
 
-  document.getElementById('reportModal').style.display = 'flex';
+  document.getElementById('reportModal').style.display='flex';
 }
-function closeReportModal() { document.getElementById('reportModal').style.display = 'none'; }
+function closeReportModal(){document.getElementById('reportModal').style.display='none';}
 
-/* ════════════════════════
-   BUILD HTML EMAIL BODY
-════════════════════════ */
-function buildHtmlEmail() {
-  const allItems = Object.keys(_capData)
-    .map(k => ({ name: k, val: _capData[k] }))
-    .sort((a, b) => b.val - a.val);
-  const maxVal  = Math.max(...allItems.map(i => i.val), 1);
-  const now     = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
-  const dateStr = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
-  const total   = allItems.length + _oosData.filter(o => !allItems.find(a => a.name === o.pName)).length;
+/* ── Build HTML Email body ── */
+function buildEmailHtml(){
+  const items=Object.keys(_capData).map(k=>({name:k,val:_capData[k]})).sort((a,b)=>b.val-a.val);
+  const maxVal=Math.max(...items.map(i=>i.val),1);
+  const now=new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
+  const dateStr=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  const total=items.length+_oosData.filter(o=>!items.find(a=>a.name===o.pName)).length;
 
-  const prodRows = allItems.map((item, idx) => {
-    const color  = item.val > 500 ? '#059669' : item.val > 100 ? '#d97706' : '#dc2626';
-    const barPct = Math.round(item.val / maxVal * 100);
-    return `<tr style="border-bottom:1px solid #f0f4f8;">
+  const prodRows=items.map((it,idx)=>{
+    const col=it.val>500?'#059669':it.val>100?'#d97706':'#dc2626';
+    const pct=Math.round(it.val/maxVal*100);
+    return`<tr style="border-bottom:1px solid #f0f4f8">
       <td style="padding:10px 12px;text-align:center;color:#94a3b8;font-size:12px;width:32px">${idx+1}</td>
-      <td style="padding:10px 12px;font-weight:600;font-size:13px;color:#0a1f44">${item.name}</td>
-      <td style="padding:10px 12px;text-align:center;font-weight:700;font-size:15px;color:${color};font-family:monospace">${item.val.toLocaleString()}</td>
-      <td style="padding:10px 12px;">
+      <td style="padding:10px 12px;font-weight:600;font-size:13px;color:#0a1f44">${it.name}</td>
+      <td style="padding:10px 12px;text-align:center;font-weight:700;font-size:15px;color:${col};font-family:monospace">${it.val.toLocaleString()}</td>
+      <td style="padding:10px 12px">
         <div style="width:120px;height:8px;background:#e8f0f8;border-radius:4px;overflow:hidden">
-          <div style="width:${barPct}%;height:100%;background:${color};border-radius:4px"></div>
+          <div style="width:${pct}%;height:100%;background:${col};border-radius:4px"></div>
         </div>
       </td>
     </tr>`;
   }).join('');
 
-  // OOS-only
-  const oosOnlyRows = _oosData.filter(o => !allItems.find(a => a.name === o.pName))
-    .map((o, idx) => `<tr style="border-bottom:1px solid #f0f4f8;">
-      <td style="padding:10px 12px;text-align:center;color:#94a3b8;font-size:12px">${allItems.length+idx+1}</td>
+  const oosOnlyRows=_oosData.filter(o=>!items.find(a=>a.name===o.pName)).map((o,i)=>`
+    <tr style="border-bottom:1px solid #f0f4f8">
+      <td style="padding:10px 12px;text-align:center;color:#94a3b8;font-size:12px">${items.length+i+1}</td>
       <td style="padding:10px 12px;font-weight:600;font-size:13px;color:#64748b">${o.pName}</td>
       <td style="padding:10px 12px;text-align:center;font-weight:700;font-size:15px;color:#dc2626;font-family:monospace">0</td>
-      <td style="padding:10px 12px;"><div style="width:120px;height:8px;background:#e8f0f8;border-radius:4px"></div></td>
+      <td style="padding:10px 12px"><div style="width:120px;height:8px;background:#e8f0f8;border-radius:4px"></div></td>
     </tr>`).join('');
 
-  const oosSection = _oosData.length ? `
-    <div style="margin-bottom:22px;">
-      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#dc2626;margin:0 0 8px 0;">วัตถุดิบขาด Stock — ต้องดำเนินการ</p>
-      <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;">
-        <thead>
-          <tr style="background:#fff0f0;">
-            <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca;">RM Name</th>
-            <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca;">สินค้าที่ได้รับผลกระทบ</th>
-            <th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca;">สถานะ</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${_oosData.map(o => `<tr style="border-bottom:1px solid #fff5f5;">
-            <td style="padding:9px 12px;font-weight:600;color:#0a1f44;font-size:13px">${o.rmName}</td>
-            <td style="padding:9px 12px;color:#64748b;font-size:12.5px">${o.pName}</td>
-            <td style="padding:9px 12px;text-align:center"><span style="background:#fee2e2;color:#991b1b;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">OUT</span></td>
-          </tr>`).join('')}
-        </tbody>
+  const oosSection=_oosData.length?`
+    <div style="margin-bottom:22px">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#dc2626;margin:0 0 8px">วัตถุดิบขาด Stock — ต้องดำเนินการ</p>
+      <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif">
+        <thead><tr style="background:#fff0f0">
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca">RM Name</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca">สินค้าที่ได้รับผลกระทบ</th>
+          <th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca">สถานะ</th>
+        </tr></thead>
+        <tbody>${_oosData.map(o=>`<tr style="border-bottom:1px solid #fff5f5">
+          <td style="padding:9px 12px;font-weight:600;font-size:13px;color:#0a1f44">${o.rmName}</td>
+          <td style="padding:9px 12px;color:#64748b;font-size:12.5px">${o.pName}</td>
+          <td style="padding:9px 12px;text-align:center"><span style="background:#fee2e2;color:#991b1b;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">OUT</span></td>
+        </tr>`).join('')}</tbody>
       </table>
-    </div>` : '';
+    </div>`:'';
 
-  return `<!DOCTYPE html>
-<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>MatFlow Production Report</title></head>
-<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,Helvetica,sans-serif;">
-<div style="max-width:640px;margin:24px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,40,120,.10);">
+  return`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,Helvetica,sans-serif">
+<div style="max-width:640px;margin:24px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,40,120,.10)">
 
-  <div style="background:linear-gradient(135deg,#003494,#0047bf 50%,#1a6cf5);padding:28px 32px;">
+  <div style="background:linear-gradient(135deg,#003494,#0047bf 50%,#1a6cf5);padding:28px 32px">
     <p style="color:rgba(255,255,255,.65);font-size:11px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">MatFlow Inventory System · Sermsuk PLC</p>
     <h1 style="color:#fff;font-size:22px;font-weight:700;margin:0 0 4px">Production Capacity Report</h1>
     <p style="color:rgba(255,255,255,.70);font-size:13px;margin:0 0 18px">รายงานสรุปความสามารถการผลิตจากสต๊อกวัตถุดิบ On Floor</p>
-    <div style="display:inline-flex;gap:10px;flex-wrap:wrap;">
-      <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;color:#fff;display:inline-block;">
-        <div style="font-size:18px;font-weight:700;line-height:1">${total}</div>
-        <div style="font-size:11px;opacity:.75;margin-top:2px">สินค้าทั้งหมด</div>
-      </div>
-      <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;color:#fff;display:inline-block;">
-        <div style="font-size:18px;font-weight:700;line-height:1">${allItems.filter(i=>i.val>500).length}</div>
-        <div style="font-size:11px;opacity:.75;margin-top:2px">ผลิตได้ดี (&gt;500U)</div>
-      </div>
-      <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;color:#fff;display:inline-block;">
-        <div style="font-size:18px;font-weight:700;line-height:1">${_oosData.length}</div>
-        <div style="font-size:11px;opacity:.75;margin-top:2px">RM ขาด Stock</div>
-      </div>
-      <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;color:#fff;display:inline-block;">
-        <div style="font-size:15px;font-weight:700;line-height:1">${dateStr}</div>
-        <div style="font-size:11px;opacity:.75;margin-top:2px">วันที่รายงาน</div>
-      </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      ${[
+        [total,'สินค้าทั้งหมด'],
+        [items.filter(i=>i.val>500).length,'ผลิตได้ดี (>500U)'],
+        [_oosData.length,'RM ขาด Stock'],
+        [dateStr,'วันที่รายงาน']
+      ].map(([v,l])=>`<div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;color:#fff;display:inline-block"><div style="font-size:17px;font-weight:700;line-height:1">${v}</div><div style="font-size:11px;opacity:.75;margin-top:2px">${l}</div></div>`).join('')}
     </div>
   </div>
 
-  <div style="padding:24px 32px;">
-
-    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #3b82f6;border-radius:8px;padding:12px 14px;margin-bottom:20px;">
-      <p style="font-size:12.5px;color:#1e40af;margin:0;">รายงานนี้สร้างอัตโนมัติจากระบบ MatFlow สะท้อนสต๊อกวัตถุดิบ On Floor จริง ณ ${now}</p>
+  <div style="padding:24px 32px">
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #3b82f6;border-radius:8px;padding:12px 14px;margin-bottom:20px">
+      <p style="font-size:12.5px;color:#1e40af;margin:0">รายงานอัตโนมัติจาก MatFlow — สะท้อนสต๊อก On Floor จริง ณ ${now}</p>
     </div>
 
-    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a6380;margin:0 0 8px;">Production Capability (เรียงมากสุด → น้อยสุด)</p>
-    <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;margin-bottom:20px;">
-      <thead>
-        <tr style="background:#f0f4f8;">
-          <th style="padding:9px 12px;text-align:center;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #dce8f5;width:32px">#</th>
-          <th style="padding:9px 12px;text-align:left;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #dce8f5;">Product Name</th>
-          <th style="padding:9px 12px;text-align:center;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #dce8f5;">ผลิตได้ (Unit)</th>
-          <th style="padding:9px 12px;text-align:left;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #dce8f5;">ความสามารถ</th>
-        </tr>
-      </thead>
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a6380;margin:0 0 8px">Production Capability (เรียงมากสุด → น้อยสุด)</p>
+    <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;margin-bottom:20px">
+      <thead><tr style="background:#f0f4f8">
+        <th style="padding:9px 12px;text-align:center;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;border-bottom:2px solid #dce8f5;width:32px">#</th>
+        <th style="padding:9px 12px;text-align:left;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;border-bottom:2px solid #dce8f5">Product Name</th>
+        <th style="padding:9px 12px;text-align:center;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;border-bottom:2px solid #dce8f5">ผลิตได้ (Unit)</th>
+        <th style="padding:9px 12px;text-align:left;font-size:10.5px;font-weight:700;color:#4a6380;text-transform:uppercase;border-bottom:2px solid #dce8f5">ความสามารถ</th>
+      </tr></thead>
       <tbody>${prodRows}${oosOnlyRows}</tbody>
     </table>
 
     ${oosSection}
 
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 16px;margin-bottom:4px;">
-      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin:0 0 8px;">คำอธิบายสี</p>
-      <table style="width:100%;font-size:12px;color:#334155;border-collapse:collapse;">
-        <tr>
-          <td style="padding:3px 0;width:50%"><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:6px;vertical-align:middle"></span>สีเขียว = ผลิตได้ &gt; 500 Unit</td>
-          <td style="padding:3px 0"><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:6px;vertical-align:middle"></span>สีเหลือง = 100–500 Unit</td>
-        </tr>
-        <tr>
-          <td style="padding:3px 0"><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:6px;vertical-align:middle"></span>สีแดง = &lt; 100 Unit / ขาดวัตถุดิบ</td>
-          <td style="padding:3px 0"></td>
-        </tr>
-      </table>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin:0 0 6px">คำอธิบายสี</p>
+      <div style="font-size:12px;color:#334155;display:flex;gap:16px;flex-wrap:wrap">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:5px;vertical-align:middle"></span>เขียว = &gt;500 Unit</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:5px;vertical-align:middle"></span>เหลือง = 100–500 Unit</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:5px;vertical-align:middle"></span>แดง = &lt;100 Unit / ขาดวัตถุดิบ</span>
+      </div>
     </div>
-
   </div>
 
-  <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;">
+  <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:14px 32px;display:flex;justify-content:space-between;align-items:center">
     <div>
       <p style="font-size:12px;color:#64748b;margin:0;font-weight:600">MatFlow Inventory System</p>
       <p style="font-size:11px;color:#94a3b8;margin:0">แผนกคลังวัตถุดิบ · Sermsuk PLC</p>
     </div>
-    <p style="font-size:11px;color:#94a3b8;margin:0">ส่งเมื่อ ${now}</p>
+    <p style="font-size:11px;color:#94a3b8;margin:0">${now}</p>
   </div>
 
-</div>
-</body></html>`;
+</div></body></html>`;
 }
 
-/* ── เปิด HTML Email ใน Tab ใหม่ ── */
-function openHtmlReport() {
-  const html = buildHtmlEmail();
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const url  = URL.createObjectURL(blob);
-  window.open(url, '_blank');
+/* ════════════════════════════════════════
+   ส่งผ่าน Outlook Web Compose
+   URL: https://outlook.office.com/mail/deeplink/compose
+   Parameters: to, subject, body (HTML supported)
+════════════════════════════════════════ */
+function sendViaOutlook(){
+  const btn=document.getElementById('btnSendOutlook');
+  btn.disabled=true;
+  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;flex-shrink:0"><rect x="2" y="5" width="13" height="14" rx="2" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><rect x="7" y="2" width="15" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/></svg><span style="margin-left:6px">กำลังเปิด Outlook...</span>`;
+
+  try{
+    const items=Object.keys(_capData).map(k=>({name:k,val:_capData[k]})).sort((a,b)=>b.val-a.val);
+    const dateStr=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+    const goodCount=items.filter(i=>i.val>500).length;
+    const subject=`[MatFlow] รายงานสรุปการผลิต ${dateStr} — ผลิตได้ดี ${goodCount}/${items.length} รายการ`;
+    const htmlBody=buildEmailHtml();
+
+    /*
+     * Outlook Web Compose URL รองรับ parameter:
+     * - to    : comma-separated recipients
+     * - subject: email subject
+     * - body  : HTML body (Outlook Web ใช้ HTML ได้โดยตรง)
+     *
+     * ใช้ outlook.office.com สำหรับ Office 365
+     * หรือ outlook.live.com สำหรับ Personal Outlook
+     */
+    const params=new URLSearchParams({
+      to: RECIPIENTS.join(';'),
+      subject: subject,
+      body: htmlBody
+    });
+
+    const outlookUrl=`https://outlook.office.com/mail/deeplink/compose?${params.toString()}`;
+    window.open(outlookUrl,'_blank','noopener,noreferrer');
+
+  }catch(err){
+    console.error(err);
+    alert('เกิดข้อผิดพลาดในการเปิด Outlook');
+  }
+
+  // Re-enable button after short delay
+  setTimeout(()=>{
+    btn.disabled=false;
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;flex-shrink:0"><rect x="2" y="5" width="13" height="14" rx="2" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><rect x="7" y="2" width="15" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><path d="M7 7h15M7 11h15M7 15h9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg> ส่งผ่าน Outlook`;
+  },2000);
+
   closeReportModal();
-}
-
-/* ── เปิด Email Client (mailto) ── */
-function openEmailClient() {
-  const allItems = Object.keys(_capData)
-    .map(k => ({ name: k, val: _capData[k] }))
-    .sort((a, b) => b.val - a.val);
-  const now     = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
-  const dateStr = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
-  const subject = encodeURIComponent(`[MatFlow] รายงานสรุปการผลิต ${dateStr} — ผลิตได้ดี ${allItems.filter(i=>i.val>500).length}/${allItems.length} รายการ`);
-  const to      = encodeURIComponent(RECIPIENTS.join(','));
-  const body    = encodeURIComponent(
-    `สวัสดีครับ/ค่ะ\n\nรายงานสรุปความสามารถการผลิต ณ ${now}\n\n` +
-    allItems.map((i,idx)=>`${idx+1}. ${i.name}: ${i.val.toLocaleString()} Unit`).join('\n') +
-    (_oosData.length ? `\n\n[วัตถุดิบขาด Stock]\n`+_oosData.map(o=>`- ${o.rmName} (${o.pName})`).join('\n') : '') +
-    `\n\n--\nMatFlow Inventory System · Sermsuk PLC`
-  );
-  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
 }
 </script>
 </body>
