@@ -447,7 +447,7 @@ function generateEmailHTML() {
   const now = new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
   
   // 🚩 จำกัดจำนวนแถวไม่ให้เกิน 25 แถวต่อตาราง ป้องกันปัญหาข้อมูลใหญ่เกิน 50KB (EmailJS Limit)
-  const maxRows = 25;
+  const maxRows = 90;
   const topCap = _capDetails.slice(0, maxRows);
   const topExp = _expData.slice(0, maxRows);
 
