@@ -559,11 +559,11 @@ async function sendEmailNow(){
       setTimeout(()=>closeSendModal(),2000);
     }else{ throw new Error('Status: '+result.status); }
   }catch(err){
-    alert('ส่งล้มเหลว กรุณาลองใหม่');
+    console.error('EmailJS Error:', err);
+    alert('ส่งล้มเหลว สาเหตุ: ' + (err.text || err.message || JSON.stringify(err)));
     btnSend.disabled=false;
     btnSend.innerHTML=`ลองส่งอีกครั้ง`;
   }
-}
 
 function showToast(type,msg){
   const t=document.getElementById('toast');
