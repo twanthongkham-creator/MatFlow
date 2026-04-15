@@ -20,16 +20,16 @@
 .rmod-xbtn:hover{background:rgba(255,255,255,.28)}
 .rmod-xbtn svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5}
 .rmod-body{padding:20px 24px;overflow-y:auto;flex:1}
-.rmod-foot{background:rgba(230,242,255,.55);border-top:1px solid rgba(180,210,255,.28);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap}
+.rmod-foot{background:rgba(230,242,255,.55);border-top:1px solid rgba(180,210,255,.28);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap;align-items:center}
 
 /* Chips */
 .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .chip{background:rgba(66,146,255,.10);border:1px solid rgba(66,146,255,.22);border-radius:10px;padding:10px 14px;text-align:center;flex:1;min-width:100px}
 .chip-val{font-size:18px;font-weight:700;color:#0047bf;font-family:'IBM Plex Mono',monospace;line-height:1}
 .chip-lbl{font-size:11px;color:#5a7fa8;margin-top:3px;font-weight:500}
-.chip.c-ok{background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.22)}.chip.c-ok .chip-val{color:#059669}
-.chip.c-warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25)}.chip.c-warn .chip-val{color:#d97706}
-.chip.c-red{background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.22)}.chip.c-red .chip-val{color:#dc2626}
+.chip.c-ok .chip-val{color:#059669}.chip.c-ok{background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.22)}
+.chip.c-warn .chip-val{color:#d97706}.chip.c-warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25)}
+.chip.c-red .chip-val{color:#dc2626}.chip.c-red{background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.22)}
 
 /* Preview table */
 .prev-tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -57,24 +57,41 @@
 .slbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a6380;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .slbl::before{content:'';display:inline-block;width:10px;height:3px;background:currentColor;border-radius:2px}
 
-/* ── Outlook Send Button ── */
-.btn-outlook{
+/* Step guide */
+.step-guide{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.step-row{display:flex;align-items:flex-start;gap:10px}
+.step-num{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#1a6cf5,#0047bf);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-txt{font-size:13px;color:#334155;line-height:1.5}
+.step-txt strong{color:#0047bf}
+.step-txt kbd{background:#f1f5f9;border:1px solid #cbd5e1;border-bottom:2px solid #94a3b8;border-radius:4px;padding:1px 6px;font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:#334155}
+
+/* Primary action button */
+.btn-primary-action{
   background:linear-gradient(135deg,#0078d4,#005a9e);
   color:#fff;border:none;border-radius:12px;padding:11px 22px;
   font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:700;
-  cursor:pointer;display:inline-flex;align-items:center;gap:9px;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
   transition:all .15s;box-shadow:0 3px 14px rgba(0,120,212,.35);
   position:relative;overflow:hidden;white-space:nowrap;
 }
-.btn-outlook::after{content:'';position:absolute;top:-50%;left:-60%;width:50%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);transition:left .5s}
-.btn-outlook:hover::after{left:120%}
-.btn-outlook:hover{box-shadow:0 5px 20px rgba(0,120,212,.50);transform:translateY(-1px)}
-.btn-outlook:active{transform:scale(.97)}
-.btn-outlook:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
-.btn-outlook svg{width:18px;height:18px;flex-shrink:0}
+.btn-primary-action::after{content:'';position:absolute;top:-50%;left:-60%;width:50%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);transition:left .5s}
+.btn-primary-action:hover::after{left:120%}
+.btn-primary-action:hover{box-shadow:0 5px 20px rgba(0,120,212,.50);transform:translateY(-1px)}
+.btn-primary-action:active{transform:scale(.97)}
+.btn-primary-action svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;flex-shrink:0}
 
-/* Cancel */
-.btn-cancel{background:rgba(255,255,255,.65);color:#4a6380;border:1.5px solid rgba(180,210,255,.45);border-radius:12px;padding:10px 20px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;backdrop-filter:blur(8px);transition:.15s}
+/* Secondary action */
+.btn-secondary-action{
+  background:rgba(0,120,212,.08);color:#0047bf;
+  border:1.5px solid rgba(0,120,212,.25);border-radius:12px;
+  padding:10px 18px;font-family:'IBM Plex Sans Thai',sans-serif;
+  font-size:13.5px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.15s;
+}
+.btn-secondary-action:hover{background:rgba(0,120,212,.14);border-color:rgba(0,120,212,.40)}
+.btn-secondary-action svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+
+.btn-cancel{background:rgba(255,255,255,.65);color:#4a6380;border:1.5px solid rgba(180,210,255,.45);border-radius:12px;padding:10px 18px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;backdrop-filter:blur(8px);transition:.15s}
 .btn-cancel:hover{background:rgba(255,255,255,.92)}
 
 /* Dashboard report button */
@@ -82,9 +99,28 @@
 .btn-report svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.8}
 .btn-report:hover{box-shadow:0 4px 16px rgba(26,108,245,.44);transform:translateY(-1px)}
 .btn-report:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* Copied toast */
+.toast-copied{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:#0f172a;color:#fff;border-radius:10px;
+  padding:10px 20px;font-size:13.5px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.20);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  opacity:0;z-index:99999;pointer-events:none;
+}
+.toast-copied.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast-copied svg{width:15px;height:15px;stroke:#4ade80;fill:none;stroke-width:2.5}
 </style>
 </head>
 <body>
+
+<!-- Toast -->
+<div id="toastCopied" class="toast-copied">
+  <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+  คัดลอก Email สำเร็จ — วางใน Outlook ได้เลย
+</div>
 
 <div id="loader" class="loader" style="display:none">
   <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด Dashboard...</div></div>
@@ -107,7 +143,7 @@
       <!-- Summary chips -->
       <div id="modalChips" class="chip-row"></div>
 
-      <!-- Prod table -->
+      <!-- Prod table preview -->
       <div class="slbl">Production Capability (มากไปน้อย)</div>
       <div style="border:1px solid rgba(180,210,255,.35);border-radius:12px;overflow:hidden;margin-bottom:16px">
         <table class="prev-tbl">
@@ -134,26 +170,44 @@
         <div class="rcpt-tag"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>tonxperianeov@gmail.com</div>
       </div>
 
-      <!-- Info note -->
-      <div style="background:rgba(0,120,212,.07);border:1px solid rgba(0,120,212,.20);border-left:3px solid #0078d4;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#003a6e">
-        กดปุ่ม <strong>ส่งผ่าน Outlook</strong> — ระบบจะเปิด Outlook Web พร้อม To, Subject และเนื้อหา Email สวยงามครบถ้วน กด Send ได้ทันที
+      <!-- Step guide -->
+      <div style="background:rgba(0,120,212,.06);border:1px solid rgba(0,120,212,.18);border-radius:12px;padding:14px 16px;margin-bottom:4px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#0047bf;margin-bottom:10px">วิธีส่ง Email ใน Outlook</div>
+        <div class="step-guide">
+          <div class="step-row">
+            <div class="step-num">1</div>
+            <div class="step-txt">กดปุ่ม <strong>คัดลอก Email</strong> ด้านล่าง — ระบบจะ copy เนื้อหา HTML ไว้ใน Clipboard</div>
+          </div>
+          <div class="step-row">
+            <div class="step-num">2</div>
+            <div class="step-txt">เปิด <strong>Outlook</strong> → กด <strong>New Email</strong> → คลิกในช่อง Body</div>
+          </div>
+          <div class="step-row">
+            <div class="step-num">3</div>
+            <div class="step-txt">กด <kbd>Ctrl</kbd> + <kbd>V</kbd> → ตาราง Email สวยงามจะปรากฏทันที</div>
+          </div>
+          <div class="step-row">
+            <div class="step-num">4</div>
+            <div class="step-txt">ใส่ To: <strong>theewant@sermsukplc.com; tonxperianeov@gmail.com</strong> แล้วกด Send</div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="rmod-foot">
       <button class="btn-cancel" onclick="closeReportModal()">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        ยกเลิก
+        ปิด
       </button>
-      <!-- Outlook Send -->
-      <button class="btn-outlook" id="btnSendOutlook" onclick="sendViaOutlook()">
-        <!-- Outlook icon -->
-        <svg viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="5" width="13" height="14" rx="2" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/>
-          <rect x="7" y="2" width="15" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/>
-          <path d="M7 7h15M7 11h15M7 15h9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>
-        </svg>
-        ส่งผ่าน Outlook
+      <!-- Preview button -->
+      <button class="btn-secondary-action" onclick="previewEmail()">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        ดูตัวอย่าง
+      </button>
+      <!-- Copy button — main action -->
+      <button class="btn-primary-action" id="btnCopyEmail" onclick="copyEmailToClipboard()">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        คัดลอก Email
       </button>
     </div>
   </div>
@@ -186,8 +240,6 @@
 
 <!-- ══════════════ SHELL ══════════════ -->
 <div class="shell">
-
-  <!-- Page header + Report button -->
   <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px" class="a1">
     <div class="ph" style="margin-bottom:0">
       <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
@@ -208,47 +260,27 @@
   </div>
 
   <div class="row g-3">
-    <!-- Chart -->
     <div class="col-lg-8 a2">
       <div class="card-mf">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div class="ctitle" style="margin-bottom:0">
-            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Production Capability
-          </div>
+          <div class="ctitle" style="margin-bottom:0"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Production Capability</div>
           <span style="font-size:10.5px;color:var(--txt3);font-weight:500">คลิกแท่งเพื่อดูรายละเอียด</span>
         </div>
         <div style="overflow-y:auto;max-height:430px;padding-right:6px">
-          <div id="canvasParent" style="position:relative;cursor:pointer">
-            <canvas id="capacityChart"></canvas>
-          </div>
+          <div id="canvasParent" style="position:relative;cursor:pointer"><canvas id="capacityChart"></canvas></div>
         </div>
       </div>
     </div>
-
-    <!-- OOS -->
     <div class="col-lg-4 a3">
       <div class="card-mf h-100">
-        <div class="ctitle c-red">
-          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          วัตถุดิบขาด Stock
-        </div>
-        <div class="oos-scroll" id="outOfStockBody">
-          <div style="text-align:center;padding:40px;color:var(--txt3)">
-            <div class="spinner" style="margin:0 auto 12px;width:28px;height:28px;border-width:2.5px"></div>กำลังโหลด...
-          </div>
-        </div>
+        <div class="ctitle c-red"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>วัตถุดิบขาด Stock</div>
+        <div class="oos-scroll" id="outOfStockBody"><div style="text-align:center;padding:40px;color:var(--txt3)"><div class="spinner" style="margin:0 auto 12px;width:28px;height:28px;border-width:2.5px"></div>กำลังโหลด...</div></div>
       </div>
     </div>
-
-    <!-- Expiry -->
     <div class="col-12 a4">
       <div class="card-mf">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-          <div class="ctitle c-amb" style="margin-bottom:0">
-            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Expiry Timeline (31-Day)
-            <span style="font-size:10px;color:var(--txt3);text-transform:none;font-weight:500;margin-left:4px">คลิกแถวเพื่อแก้ไข</span>
-          </div>
+          <div class="ctitle c-amb" style="margin-bottom:0"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Expiry Timeline (31-Day)<span style="font-size:10px;color:var(--txt3);text-transform:none;font-weight:500;margin-left:4px">คลิกแถวเพื่อแก้ไข</span></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <div class="leg"><div class="ld" style="background:#fca5a5"></div>1–7 วัน</div>
             <div class="leg"><div class="ld" style="background:#fde68a"></div>8–15 วัน</div>
@@ -256,18 +288,10 @@
           </div>
         </div>
         <div style="overflow-y:auto;max-height:360px">
-          <div class="tw">
-            <table class="mt">
-              <thead><tr>
-                <th>RM Name</th><th>Batch</th>
-                <th style="text-align:center">คงเหลือ (วัน)</th>
-                <th style="text-align:center;min-width:170px">Risk Scale</th>
-              </tr></thead>
-              <tbody id="expiryTableBody">
-                <tr><td colspan="4" style="padding:40px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="tw"><table class="mt">
+            <thead><tr><th>RM Name</th><th>Batch</th><th style="text-align:center">คงเหลือ (วัน)</th><th style="text-align:center;min-width:170px">Risk Scale</th></tr></thead>
+            <tbody id="expiryTableBody"><tr><td colspan="4" style="padding:40px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr></tbody>
+          </table></div>
         </div>
       </div>
     </div>
@@ -279,10 +303,7 @@
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-hd">
-        <div class="modal-hd-title">
-          <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-          <span id="listModalTitle">วัตถุดิบในคลัง</span>
-        </div>
+        <div class="modal-hd-title"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span id="listModalTitle">วัตถุดิบในคลัง</span></div>
         <button class="btn-xw" data-bs-dismiss="modal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div style="max-height:480px;overflow-y:auto">
@@ -302,10 +323,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-hd">
-        <div class="modal-hd-title">
-          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          แก้ไขรายการ — <span class="btitle" id="modalBatchTitle"></span>
-        </div>
+        <div class="modal-hd-title"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไขรายการ — <span class="btitle" id="modalBatchTitle"></span></div>
         <button class="btn-xw" onclick="closeEdit()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="modal-bd">
@@ -319,26 +337,13 @@
           <div class="qty-unit" id="modalUnit">Package</div>
         </div>
         <div class="row g-2" style="margin-bottom:12px">
-          <div class="col-6">
-            <div class="date-fw">
-              <label style="color:var(--b3)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>วันผลิต (MFG)</label>
-              <input type="date" id="editMfg">
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="date-fw">
-              <label style="color:var(--red)"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>วันหมดอายุ (BBF)</label>
-              <input type="date" id="editExp">
-            </div>
-          </div>
+          <div class="col-6"><div class="date-fw"><label style="color:var(--b3)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>วันผลิต (MFG)</label><input type="date" id="editMfg"></div></div>
+          <div class="col-6"><div class="date-fw"><label style="color:var(--red)"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>วันหมดอายุ (BBF)</label><input type="date" id="editExp"></div></div>
         </div>
         <div class="ext-wrap">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:13.5px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:7px">
-              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>ต่ออายุวัตถุดิบ (Extended BBF)
-            </span>
-            <input class="form-check-input" type="checkbox" id="toggleExtend" style="width:18px;height:18px;margin:0;cursor:pointer;accent-color:var(--b3)"
-              onchange="document.getElementById('extField').style.display=this.checked?'block':'none'">
+            <span style="font-size:13.5px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:7px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>ต่ออายุวัตถุดิบ (Extended BBF)</span>
+            <input class="form-check-input" type="checkbox" id="toggleExtend" style="width:18px;height:18px;margin:0;cursor:pointer;accent-color:var(--b3)" onchange="document.getElementById('extField').style.display=this.checked?'block':'none'">
           </div>
           <div id="extField" class="ext-inner">
             <label style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px">วันที่ต่ออายุใหม่</label>
@@ -352,9 +357,7 @@
       </div>
       <div class="modal-ft">
         <button class="btn btn-outline" onclick="closeEdit()" style="padding:9px 20px">ยกเลิก</button>
-        <button class="btn btn-blue" onclick="saveEdit()" style="padding:9px 24px">
-          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>บันทึก
-        </button>
+        <button class="btn btn-blue" onclick="saveEdit()" style="padding:9px 24px"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>บันทึก</button>
       </div>
     </div>
   </div>
@@ -364,9 +367,9 @@
 <script src="mf-shared.js"></script>
 <script>
 Chart.register(ChartDataLabels);
-const RECIPIENTS = ['theewant@sermsukplc.com','tonxperianeov@gmail.com'];
-let rawData=[], editIdx=null, listMdl, editMdl;
-let _capData={}, _oosData=[];
+const RECIPIENTS=['theewant@sermsukplc.com','tonxperianeov@gmail.com'];
+let rawData=[],editIdx=null,listMdl,editMdl;
+let _capData={},_oosData=[];
 
 window.onload=()=>{
   listMdl=new bootstrap.Modal(document.getElementById('listModal'));
@@ -374,14 +377,13 @@ window.onload=()=>{
   loadAll();
 };
 
-/* ── Load ── */
 async function loadAll(){
   mfShow('กำลังเชื่อมต่อฐานข้อมูล...');
   try{
     const[jd,jm]=await Promise.all([MF.getDashboardData(),MF.getMonitorData()]);
     if(jd.status==='success'&&jm.status==='success'){
-      rawData=jm.data; _capData=jd.data.productionCapacity||{}; _oosData=jd.data.outOfStock||[];
-      renderChart(_capData); renderOOS(_oosData); renderExpiry(jd.data.expiryTable);
+      rawData=jm.data;_capData=jd.data.productionCapacity||{};_oosData=jd.data.outOfStock||[];
+      renderChart(_capData);renderOOS(_oosData);renderExpiry(jd.data.expiryTable);
       document.getElementById('lastUpdate').textContent='อัปเดตล่าสุด: '+new Date().toLocaleString('th-TH');
       document.getElementById('btnReport').disabled=false;
     }else throw new Error();
@@ -389,7 +391,6 @@ async function loadAll(){
   mfHide();
 }
 
-/* ── Chart ── */
 function renderChart(data){
   const items=Object.keys(data).map(k=>({n:k,v:data[k]})).filter(i=>i.v>0).sort((a,b)=>b.v-a.v);
   const h=Math.max(360,items.length*46);
@@ -399,24 +400,20 @@ function renderChart(data){
   window._ch=new Chart(ctx,{
     type:'bar',
     data:{labels:items.map(i=>i.n),datasets:[{data:items.map(i=>i.v),backgroundColor:items.map(i=>i.v>500?'rgba(5,150,105,.72)':i.v>100?'rgba(217,119,6,.72)':'rgba(220,38,38,.72)'),barThickness:18,borderRadius:6}]},
-    options:{
-      indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:80,left:4}},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:80,left:4}},
       onClick:(e,els)=>{if(els.length)openList(window._ch.data.labels[els[0].index]);},
       onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',color:'#0a1f44',font:{weight:'bold',size:11,family:'IBM Plex Mono'},formatter:v=>v.toLocaleString()+' U'}},
-      scales:{x:{display:false},y:{grid:{display:false},ticks:{font:{size:12,family:'IBM Plex Sans Thai',weight:'600'},color:'#2d5280'}}}
-    }
+      scales:{x:{display:false},y:{grid:{display:false},ticks:{font:{size:12,family:'IBM Plex Sans Thai',weight:'600'},color:'#2d5280'}}}}
   });
 }
 
-/* ── OOS ── */
 function renderOOS(data){
   const c=document.getElementById('outOfStockBody');
   if(!data||!data.length){c.innerHTML=`<div style="padding:44px;text-align:center"><div style="width:44px;height:44px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:1.5px solid var(--gb)"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg></div><div style="font-weight:700;color:var(--green);font-size:14px">วัตถุดิบพร้อมใช้งานทุกรายการ</div></div>`;return;}
   c.innerHTML=data.map(i=>`<div class="oos-item" onclick="openList('${String(i.rmName||'').replace(/'/g,"\\'")}')"><div><div class="oos-name">${i.rmName}</div><div class="oos-sub">${i.pName}</div></div><span class="oos-btn"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</span></div>`).join('');
 }
 
-/* ── Expiry ── */
 function renderExpiry(data){
   const tb=document.getElementById('expiryTableBody');
   if(!data||!data.length){tb.innerHTML=`<tr><td colspan="4" style="padding:44px;text-align:center;color:var(--green);font-weight:700">ทุกรายการอยู่ในสถานะปลอดภัย (> 30 วัน)</td></tr>`;return;}
@@ -429,22 +426,17 @@ function renderExpiry(data){
   }).join('');
 }
 
-/* ── List Modal ── */
 function openList(label){
   document.getElementById('listModalTitle').textContent=`วัตถุดิบในคลัง — ${label}`;
   const filtered=rawData.filter(i=>(parseFloat(i.qty)||0)>0);
   const tb=document.getElementById('listModalBody');
-  if(!filtered.length){
-    tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">ไม่มีสต๊อกในคลัง<br><br><a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>ไปที่หน้ารับเข้า</a></td></tr>`;
-  }else{
-    tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer"><td><span class="bcode">${i.code||'—'}</span></td><td style="font-weight:600">${i.name||'—'}</td><td><span class="bbatch">${i.batch||'—'}</span></td><td style="text-align:center;font-weight:700;color:var(--green);font-family:'IBM Plex Mono'">${i.qty}</td><td style="text-align:center"><button class="btn btn-edit" style="font-size:12px;padding:5px 12px"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</button></td></tr>`).join('');
-  }
+  if(!filtered.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">ไม่มีสต๊อกในคลัง<br><br><a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>ไปที่หน้ารับเข้า</a></td></tr>`;}
+  else{tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer"><td><span class="bcode">${i.code||'—'}</span></td><td style="font-weight:600">${i.name||'—'}</td><td><span class="bbatch">${i.batch||'—'}</span></td><td style="text-align:center;font-weight:700;color:var(--green);font-family:'IBM Plex Mono'">${i.qty}</td><td style="text-align:center"><button class="btn btn-edit" style="font-size:12px;padding:5px 12px"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</button></td></tr>`).join('');}
   listMdl.show();
 }
 
 function findByBatch(b){const it=rawData.find(i=>String(i.batch)===String(b));if(it)openEdit(it.rowIdx);else alert('ไม่พบ Batch นี้');}
 
-/* ── Edit Modal ── */
 function openEdit(ri){
   const it=rawData.find(i=>i.rowIdx===ri);if(!it)return;
   listMdl.hide();editIdx=ri;
@@ -452,12 +444,9 @@ function openEdit(ri){
   document.getElementById('modalRMName').textContent=it.name||it.rmName||'—';
   document.getElementById('modalSupplier').textContent=it.supplier||'—';
   document.getElementById('modalUnit').textContent=it.unitPackage||'Package';
-  document.getElementById('editBatch').value=it.batch;
-  document.getElementById('editQty').value=it.qty;
-  document.getElementById('editMfg').value=mfFmtInput(it.mfg);
-  document.getElementById('editExp').value=mfFmtInput(it.exp);
-  const hasX=!!it.extExp;
-  document.getElementById('toggleExtend').checked=hasX;
+  document.getElementById('editBatch').value=it.batch;document.getElementById('editQty').value=it.qty;
+  document.getElementById('editMfg').value=mfFmtInput(it.mfg);document.getElementById('editExp').value=mfFmtInput(it.exp);
+  const hasX=!!it.extExp;document.getElementById('toggleExtend').checked=hasX;
   document.getElementById('editExtExp').value=hasX?mfFmtInput(it.extExp):'';
   document.getElementById('extField').style.display=hasX?'block':'none';
   editMdl.show();
@@ -468,8 +457,7 @@ async function saveEdit(){
   const batch=document.getElementById('editBatch').value.trim();
   const mfg=document.getElementById('editMfg').value,exp=document.getElementById('editExp').value;
   if(isNaN(qty)||qty<0)return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
-  if(!batch)return alert('กรุณาระบุเลข Batch');
-  if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
+  if(!batch)return alert('กรุณาระบุเลข Batch');if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
   const isX=document.getElementById('toggleExtend').checked;
   const it=rawData.find(i=>i.rowIdx===editIdx);
   const updated={...it,batch,qty,mfg,exp,extExp:isX?document.getElementById('editExtExp').value:''};
@@ -479,43 +467,39 @@ async function saveEdit(){
 }
 
 /* ════════════════════════════════════════
-   EMAIL REPORT
+   REPORT MODAL
 ════════════════════════════════════════ */
 function openReportModal(){
   const items=Object.keys(_capData).map(k=>({name:k,val:_capData[k]})).sort((a,b)=>b.val-a.val);
   const maxVal=Math.max(...items.map(i=>i.val),1);
   const total=items.length+_oosData.filter(o=>!items.find(a=>a.name===o.pName)).length;
 
-  // Chips
   document.getElementById('modalChips').innerHTML=`
     <div class="chip"><div class="chip-val">${total}</div><div class="chip-lbl">สินค้าทั้งหมด</div></div>
-    <div class="chip c-ok"><div class="chip-val">${items.filter(i=>i.val>500).length}</div><div class="chip-lbl">ผลิตได้ &gt; 500U</div></div>
+    <div class="chip c-ok"><div class="chip-val">${items.filter(i=>i.val>500).length}</div><div class="chip-lbl">ผลิตได้ &gt;500U</div></div>
     <div class="chip c-warn"><div class="chip-val">${items.filter(i=>i.val>0&&i.val<=500).length}</div><div class="chip-lbl">ผลิตได้น้อย</div></div>
-    <div class="chip c-red"><div class="chip-val">${_oosData.length}</div><div class="chip-lbl">RM ขาด Stock</div></div>
-  `;
+    <div class="chip c-red"><div class="chip-val">${_oosData.length}</div><div class="chip-lbl">RM ขาด Stock</div></div>`;
 
-  // Production rows
   const rows=items.map((it,idx)=>{
-    const pct=Math.round(it.val/maxVal*100);
-    const col=it.val>500?'#059669':it.val>100?'#d97706':'#dc2626';
-    const rBg=idx===0?'#fef3c7':idx===1?'#e0f2fe':'#f1f5f9';
-    const rTxt=idx===0?'#92400e':idx===1?'#0c4a6e':'#374151';
+    const pct=Math.round(it.val/maxVal*100),col=it.val>500?'#059669':it.val>100?'#d97706':'#dc2626';
+    const rBg=idx===0?'#fef3c7':idx===1?'#e0f2fe':'#f1f5f9',rTxt=idx===0?'#92400e':idx===1?'#0c4a6e':'#374151';
     return`<tr><td><span style="width:22px;height:22px;border-radius:50%;background:${rBg};color:${rTxt};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${idx+1}</span></td><td style="font-weight:600">${it.name}</td><td style="text-align:center;font-weight:700;color:${col};font-size:14px;font-family:'IBM Plex Mono'">${it.val.toLocaleString()}</td><td><div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%;background:${col}"></div></div></td></tr>`;
   });
   _oosData.filter(o=>!items.find(a=>a.name===o.pName)).forEach((o,i)=>rows.push(`<tr><td><span style="width:22px;height:22px;border-radius:50%;background:#f1f5f9;color:#374151;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${items.length+i+1}</span></td><td style="font-weight:600;color:#64748b">${o.pName}</td><td style="text-align:center;font-weight:700;color:#dc2626;font-size:14px;font-family:'IBM Plex Mono'">0</td><td><div class="pbar-wrap"></div></td></tr>`));
   document.getElementById('modalProdBody').innerHTML=rows.join('')||`<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--txt3)">ไม่มีข้อมูล</td></tr>`;
 
-  // OOS
   if(_oosData.length){
     document.getElementById('modalOOSSection').style.display='block';
     document.getElementById('modalOOSBody').innerHTML=_oosData.map(o=>`<tr><td><strong>${o.rmName}</strong></td><td style="color:#64748b">${o.pName}</td><td style="text-align:center"><span class="tag-out">OUT</span></td></tr>`).join('');
-  }else{document.getElementById('modalOOSSection').style.display='none';}
+  }else document.getElementById('modalOOSSection').style.display='none';
 
   document.getElementById('reportModal').style.display='flex';
 }
 function closeReportModal(){document.getElementById('reportModal').style.display='none';}
 
-/* ── Build HTML Email body ── */
+/* ════════════════════════════════════════
+   BUILD HTML EMAIL
+════════════════════════════════════════ */
 function buildEmailHtml(){
   const items=Object.keys(_capData).map(k=>({name:k,val:_capData[k]})).sort((a,b)=>b.val-a.val);
   const maxVal=Math.max(...items.map(i=>i.val),1);
@@ -551,9 +535,9 @@ function buildEmailHtml(){
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#dc2626;margin:0 0 8px">วัตถุดิบขาด Stock — ต้องดำเนินการ</p>
       <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif">
         <thead><tr style="background:#fff0f0">
-          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca">RM Name</th>
-          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca">สินค้าที่ได้รับผลกระทบ</th>
-          <th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #fecaca">สถานะ</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;border-bottom:1px solid #fecaca">RM Name</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;border-bottom:1px solid #fecaca">สินค้าที่ได้รับผลกระทบ</th>
+          <th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;border-bottom:1px solid #fecaca">สถานะ</th>
         </tr></thead>
         <tbody>${_oosData.map(o=>`<tr style="border-bottom:1px solid #fff5f5">
           <td style="padding:9px 12px;font-weight:600;font-size:13px;color:#0a1f44">${o.rmName}</td>
@@ -566,26 +550,18 @@ function buildEmailHtml(){
   return`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,Helvetica,sans-serif">
 <div style="max-width:640px;margin:24px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,40,120,.10)">
-
   <div style="background:linear-gradient(135deg,#003494,#0047bf 50%,#1a6cf5);padding:28px 32px">
     <p style="color:rgba(255,255,255,.65);font-size:11px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">MatFlow Inventory System · Sermsuk PLC</p>
     <h1 style="color:#fff;font-size:22px;font-weight:700;margin:0 0 4px">Production Capacity Report</h1>
     <p style="color:rgba(255,255,255,.70);font-size:13px;margin:0 0 18px">รายงานสรุปความสามารถการผลิตจากสต๊อกวัตถุดิบ On Floor</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      ${[
-        [total,'สินค้าทั้งหมด'],
-        [items.filter(i=>i.val>500).length,'ผลิตได้ดี (>500U)'],
-        [_oosData.length,'RM ขาด Stock'],
-        [dateStr,'วันที่รายงาน']
-      ].map(([v,l])=>`<div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;color:#fff;display:inline-block"><div style="font-size:17px;font-weight:700;line-height:1">${v}</div><div style="font-size:11px;opacity:.75;margin-top:2px">${l}</div></div>`).join('')}
+      ${[[total,'สินค้าทั้งหมด'],[items.filter(i=>i.val>500).length,'ผลิตได้ดี (>500U)'],[_oosData.length,'RM ขาด Stock'],[dateStr,'วันที่รายงาน']].map(([v,l])=>`<div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;color:#fff;display:inline-block"><div style="font-size:17px;font-weight:700;line-height:1">${v}</div><div style="font-size:11px;opacity:.75;margin-top:2px">${l}</div></div>`).join('')}
     </div>
   </div>
-
   <div style="padding:24px 32px">
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #3b82f6;border-radius:8px;padding:12px 14px;margin-bottom:20px">
       <p style="font-size:12.5px;color:#1e40af;margin:0">รายงานอัตโนมัติจาก MatFlow — สะท้อนสต๊อก On Floor จริง ณ ${now}</p>
     </div>
-
     <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4a6380;margin:0 0 8px">Production Capability (เรียงมากสุด → น้อยสุด)</p>
     <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;margin-bottom:20px">
       <thead><tr style="background:#f0f4f8">
@@ -596,77 +572,75 @@ function buildEmailHtml(){
       </tr></thead>
       <tbody>${prodRows}${oosOnlyRows}</tbody>
     </table>
-
     ${oosSection}
-
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px">
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin:0 0 6px">คำอธิบายสี</p>
-      <div style="font-size:12px;color:#334155;display:flex;gap:16px;flex-wrap:wrap">
-        <span><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:5px;vertical-align:middle"></span>เขียว = &gt;500 Unit</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:5px;vertical-align:middle"></span>เหลือง = 100–500 Unit</span>
-        <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:5px;vertical-align:middle"></span>แดง = &lt;100 Unit / ขาดวัตถุดิบ</span>
+      <div style="font-size:12px;color:#334155">
+        <span style="margin-right:14px"><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:5px;vertical-align:middle"></span>เขียว = &gt;500 Unit</span>
+        <span style="margin-right:14px"><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:5px;vertical-align:middle"></span>เหลือง = 100–500</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:5px;vertical-align:middle"></span>แดง = &lt;100 / ขาด</span>
       </div>
     </div>
   </div>
-
   <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:14px 32px;display:flex;justify-content:space-between;align-items:center">
-    <div>
-      <p style="font-size:12px;color:#64748b;margin:0;font-weight:600">MatFlow Inventory System</p>
-      <p style="font-size:11px;color:#94a3b8;margin:0">แผนกคลังวัตถุดิบ · Sermsuk PLC</p>
-    </div>
+    <div><p style="font-size:12px;color:#64748b;margin:0;font-weight:600">MatFlow Inventory System</p><p style="font-size:11px;color:#94a3b8;margin:0">แผนกคลังวัตถุดิบ · Sermsuk PLC</p></div>
     <p style="font-size:11px;color:#94a3b8;margin:0">${now}</p>
   </div>
-
 </div></body></html>`;
 }
 
 /* ════════════════════════════════════════
-   ส่งผ่าน Outlook Web Compose
-   URL: https://outlook.office.com/mail/deeplink/compose
-   Parameters: to, subject, body (HTML supported)
+   COPY HTML TO CLIPBOARD
+   Clipboard API รองรับ text/html — Outlook จะ paste เป็น rich HTML ได้ทันที
 ════════════════════════════════════════ */
-function sendViaOutlook(){
-  const btn=document.getElementById('btnSendOutlook');
-  btn.disabled=true;
-  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;flex-shrink:0"><rect x="2" y="5" width="13" height="14" rx="2" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><rect x="7" y="2" width="15" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/></svg><span style="margin-left:6px">กำลังเปิด Outlook...</span>`;
+async function copyEmailToClipboard(){
+  const btn=document.getElementById('btnCopyEmail');
+  const html=buildEmailHtml();
 
   try{
-    const items=Object.keys(_capData).map(k=>({name:k,val:_capData[k]})).sort((a,b)=>b.val-a.val);
-    const dateStr=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-    const goodCount=items.filter(i=>i.val>500).length;
-    const subject=`[MatFlow] รายงานสรุปการผลิต ${dateStr} — ผลิตได้ดี ${goodCount}/${items.length} รายการ`;
-    const htmlBody=buildEmailHtml();
+    // ClipboardItem API — ส่ง HTML ไปยัง clipboard โดยตรง
+    // เมื่อวางใน Outlook body จะแสดงเป็น HTML สวยงามทันที
+    const blob=new Blob([html],{type:'text/html'});
+    const item=new ClipboardItem({'text/html':blob});
+    await navigator.clipboard.write([item]);
 
-    /*
-     * Outlook Web Compose URL รองรับ parameter:
-     * - to    : comma-separated recipients
-     * - subject: email subject
-     * - body  : HTML body (Outlook Web ใช้ HTML ได้โดยตรง)
-     *
-     * ใช้ outlook.office.com สำหรับ Office 365
-     * หรือ outlook.live.com สำหรับ Personal Outlook
-     */
-    const params=new URLSearchParams({
-      to: RECIPIENTS.join(';'),
-      subject: subject,
-      body: htmlBody
-    });
-
-    const outlookUrl=`https://outlook.office.com/mail/deeplink/compose?${params.toString()}`;
-    window.open(outlookUrl,'_blank','noopener,noreferrer');
+    // Success feedback
+    showToast();
+    btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg> คัดลอกแล้ว!`;
+    btn.style.background='linear-gradient(135deg,#059669,#047857)';
+    setTimeout(()=>{
+      btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> คัดลอก Email`;
+      btn.style.background='';
+    },3000);
 
   }catch(err){
-    console.error(err);
-    alert('เกิดข้อผิดพลาดในการเปิด Outlook');
+    // Fallback: เปิด HTML ใน Tab ใหม่ให้ Ctrl+A, Ctrl+C เอง
+    console.warn('ClipboardItem API failed, falling back to preview:',err);
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const w=window.open(url,'_blank');
+    if(w){
+      // Auto-select all content in preview window after load
+      w.addEventListener('load',()=>{
+        try{w.document.execCommand('selectAll');}catch(e){}
+      });
+      alert('กด Ctrl+A แล้ว Ctrl+C ในหน้าต่างที่เปิดขึ้น จากนั้นวางใน Outlook');
+    }
   }
+}
 
-  // Re-enable button after short delay
-  setTimeout(()=>{
-    btn.disabled=false;
-    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;flex-shrink:0"><rect x="2" y="5" width="13" height="14" rx="2" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.6)" stroke-width="1.2"/><rect x="7" y="2" width="15" height="14" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><path d="M7 7h15M7 11h15M7 15h9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg> ส่งผ่าน Outlook`;
-  },2000);
+/* ── Preview in new tab ── */
+function previewEmail(){
+  const html=buildEmailHtml();
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  window.open(URL.createObjectURL(blob),'_blank');
+}
 
-  closeReportModal();
+/* ── Toast notification ── */
+function showToast(){
+  const t=document.getElementById('toastCopied');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 </body>
