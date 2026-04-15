@@ -11,7 +11,10 @@
 :root{
   --ocean-deep:#0a1628;--ocean-mid:#0d2548;--ocean-blue:#1a4a8c;
   --sky:#2171e5;--sky-bright:#3b8ef8;--sky-lt:#5ba4ff;
-  --glass-white:rgba(255,255,255,0.72);
+  --ice:#e8f3ff;--ice-pure:#f0f7ff;
+  --glass-white:rgba(255,255,255,0.72);--glass-white-hover:rgba(255,255,255,0.85);
+  --glass-blue:rgba(59,142,248,0.15);--glass-dark:rgba(10,22,40,0.45);
+  --glass-border:rgba(255,255,255,0.55);--glass-border-dark:rgba(59,142,248,0.25);
   --glass-shadow:0 8px 32px rgba(10,22,40,0.12),0 2px 8px rgba(10,22,40,0.08);
   --glass-shadow-lg:0 20px 60px rgba(10,22,40,0.18),0 4px 16px rgba(10,22,40,0.10);
   --glass-inset:inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -1px 0 rgba(255,255,255,0.2);
@@ -72,7 +75,30 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
 .bcode{display:inline-block;background:rgba(255,255,255,0.55);color:var(--txt2);border:1px solid rgba(255,255,255,0.50);border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:600;font-family:'JetBrains Mono',monospace;}
 .empty{text-align:center;padding:40px 20px;background:rgba(255,255,255,0.25);border:2px dashed rgba(59,142,248,0.30);border-radius:var(--r-lg)}
 .empty svg{width:34px;height:34px;stroke:rgba(59,142,248,0.35);fill:none;stroke-width:1.2;margin-bottom:10px}
-.info-box{background:rgba(59,142,248,0.10);border:1px solid rgba(59,142,248,0.22);border-left:3px solid var(--sky-bright);border-radius:var(--r);padding:11px 14px;font-size:13px;color:var(--txt2);display:flex;gap:8px}
+/* 🚩 สไตล์แก้ไขใหม่ของ Info Box แก้ปัญหาวงกลมสีดำทึบ */
+.info-box {
+    background: rgba(59, 142, 248, 0.08); 
+    border: 1px solid rgba(59, 142, 248, 0.15); 
+    border-left: 3px solid var(--sky-bright); 
+    border-radius: var(--r);
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: var(--txt2);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.info-box svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--sky-bright); 
+    fill: none !important; 
+    stroke-width: 2;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.info-box b, .info-box strong { color: var(--sky); font-weight: 700; }
 .op-box{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.55);border-radius:var(--r);padding:9px 14px;min-width:110px;}
 .op-box input{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--ocean-mid);background:transparent;border:none;outline:none;text-align:center;width:100%}
 .op-lbl{font-size:10px;color:var(--txt3);text-transform:uppercase;font-weight:600}
@@ -162,8 +188,8 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
             </table>
           </div>
         </div>
-        <div class="info-box" style="margin-bottom:14px">
-          <svg viewBox="0 0 24 24" style="margin-top:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div class="info-box">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           <span>ระบบจะทำการ <b>หักลบเป็น Unit</b> โดยอัตโนมัติตามหลัก FIFO (เข้าก่อน-ออกก่อน)</span>
         </div>
         <button id="btnIss" class="btn btn-green btn-w" onclick="issueStock()">
@@ -255,7 +281,6 @@ async function evalStock() {
       
       const badge = i.status==='OK' ? `<span class="bok">${SVG_CHECK}พร้อม</span>` : `<span class="bout">${SVG_X}ขาด ${i.shortage} ${i.unit}</span>`;
       
-      // 🚩 ปรับการแสดงผล: แสดง "กี่แพ็คเกจ" เด่นๆ ให้คนเตรียมของ และ "กี่ Unit" ให้คนคีย์ระบบ
       tb.innerHTML+=`
         <tr>
             <td>
