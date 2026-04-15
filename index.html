@@ -2,111 +2,63 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MatFlow — Production Planning</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mf-theme.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --ocean-deep:#0a1628;--ocean-mid:#0d2548;--ocean-blue:#1a4a8c;
-  --sky:#2171e5;--sky-bright:#3b8ef8;--sky-lt:#5ba4ff;
-  --glass-white:rgba(255,255,255,0.72);
-  --glass-shadow:0 8px 32px rgba(10,22,40,0.12),0 2px 8px rgba(10,22,40,0.08);
-  --glass-inset:inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -1px 0 rgba(255,255,255,0.2);
-  --txt:#0d2548;--txt2:#2d5a8e;--txt3:#7aa3cc;
-  --green:#05a06a;--green-lt:rgba(5,160,106,0.12);--green-br:rgba(5,160,106,0.3);
-  --red:#e0334c;--red-lt:rgba(224,51,76,0.10);--red-br:rgba(224,51,76,0.28);
-  --amber:#e09305;
-  --r:12px;--r-lg:18px;--r-xl:24px;
-}
-body{font-family:'Outfit',sans-serif;background:var(--ocean-deep);color:var(--txt);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 10% 10%,rgba(33,113,229,0.55) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 20%,rgba(59,142,248,0.35) 0%,transparent 55%),radial-gradient(ellipse 70% 50% at 50% 90%,rgba(91,164,255,0.28) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(26,74,140,0.45) 0%,transparent 50%);background-color:var(--ocean-deep);animation:meshFloat 18s ease-in-out infinite alternate}
-@keyframes meshFloat{0%{opacity:1}50%{opacity:.85}100%{opacity:1}}
-body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
-.topbar{position:sticky;top:0;z-index:200;height:64px;background:rgba(10,22,40,0.55);backdrop-filter:blur(28px);border-bottom:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;padding:0 24px;gap:16px;}
-.brand{display:flex;align-items:center;gap:11px;text-decoration:none}
-.brand-ico{width:34px;height:34px;background:linear-gradient(135deg,rgba(59,142,248,0.9),rgba(33,113,229,0.9));border:1px solid rgba(255,255,255,0.30);border-radius:10px;display:flex;align-items:center;justify-content:center;}
-.brand-ico svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:1.8}
-.brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.3px}
-.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.40);font-weight:400;border-left:1px solid rgba(255,255,255,0.2);padding-left:8px;margin-left:8px;}
-.topnav{display:flex;align-items:center;gap:2px;margin-left:auto}
-.nav-a{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:500;color:rgba(255,255,255,0.50);transition:all .2s;}
-.nav-a svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;}
-.nav-a:hover{background:rgba(255,255,255,0.10);color:rgba(255,255,255,0.85)}
-.nav-a.active{background:rgba(255,255,255,0.16);color:#fff;font-weight:600;border:1px solid rgba(255,255,255,0.18);}
-.shell{position:relative;z-index:10;max-width:1400px;margin:0 auto;padding:24px 24px 64px}
-.ph{margin-bottom:22px}
-.ph h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px;display:flex;align-items:center;gap:12px;}
-.ph-ico{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,rgba(59,142,248,0.85),rgba(33,113,229,0.85));border:1px solid rgba(255,255,255,0.35);display:flex;align-items:center;justify-content:center;}
-.ph-ico svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
-.card-mf{background:var(--glass-white);backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.55);border-radius:var(--r-xl);box-shadow:var(--glass-shadow),var(--glass-inset);padding:20px;position:relative;overflow:hidden}
-.card-ttl{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--sky);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.step-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:linear-gradient(135deg,var(--sky-bright),var(--sky));color:#fff;border-radius:50%;font-size:11.5px;font-weight:700;}
-.fl{display:block;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.fc{width:100%;font-family:'Outfit',sans-serif;font-size:13.5px;color:var(--txt);background:rgba(255,255,255,0.65);border:1.5px solid rgba(255,255,255,0.60);border-radius:8px;padding:8px 12px;outline:none;transition:0.2s;}
-.fc:focus{background:rgba(255,255,255,0.88);border-color:var(--sky-bright);}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;border-radius:8px;padding:9px 18px;cursor:pointer;transition:all .18s;white-space:nowrap;}
-.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
-.btn-w{width:100%}
-.btn-blue{background:linear-gradient(135deg,var(--sky-bright),var(--sky));color:#fff;box-shadow:0 3px 14px rgba(59,142,248,0.38);}
-.btn-blue:hover{box-shadow:0 6px 24px rgba(59,142,248,0.50);transform:translateY(-1px)}
-.btn-green{background:linear-gradient(135deg,#06c484,var(--green));color:#fff;box-shadow:0 3px 14px rgba(5,160,106,0.36);}
-.btn-green:hover{box-shadow:0 6px 22px rgba(5,160,106,0.48);transform:translateY(-1px)}
-.btn-outline{background:rgba(255,255,255,0.55);color:var(--sky);border:1.5px solid rgba(59,142,248,0.35);}
-.btn-outline:hover{background:rgba(255,255,255,0.80);}
-.btn-red-ghost{background:rgba(224,51,76,0.08);color:var(--red);border:1px solid rgba(224,51,76,0.25);font-size:11px;padding:4px 10px; border-radius:6px;}
-.qi{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.50);border:1px solid rgba(255,255,255,0.55);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
-.qi-name{font-size:13px;font-weight:600;color:var(--txt);}
-.tw{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.40)}
-.mt{width:100%;border-collapse:collapse}
-.mt thead tr{background:linear-gradient(135deg,rgba(10,22,40,0.75),rgba(26,74,140,0.65));backdrop-filter:blur(20px)}
-.mt thead th{padding:10px 12px;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,0.60);text-align:left;}
-.mt tbody tr{border-bottom:1px solid rgba(255,255,255,0.20);background:rgba(255,255,255,0.45)}
-.mt tbody td{padding:10px 12px;font-size:13px;color:var(--txt)}
-.bok{display:inline-flex;align-items:center;gap:4px;background:var(--green-lt);color:#065f46;border:1px solid var(--green-br);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600}
-.bout{display:inline-flex;align-items:center;gap:4px;background:var(--red-lt);color:#991b1b;border:1px solid var(--red-br);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600}
-.bcode{display:inline-block;background:rgba(255,255,255,0.55);color:var(--txt2);border:1px solid rgba(255,255,255,0.50);border-radius:6px;padding:2px 6px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;}
-.empty{text-align:center;padding:30px 20px;background:rgba(255,255,255,0.25);border:2px dashed rgba(59,142,248,0.30);border-radius:12px}
-.empty svg{width:30px;height:30px;stroke:rgba(59,142,248,0.35);fill:none;stroke-width:1.2;margin-bottom:10px}
-.info-box { background: rgba(59, 142, 248, 0.08); border: 1px solid rgba(59, 142, 248, 0.15); border-left: 3px solid var(--sky-bright); border-radius: 10px; padding: 10px 14px; font-size: 12.5px; color: var(--txt2); display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
-.info-box svg { width: 16px; height: 16px; stroke: var(--sky-bright); fill: none !important; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
-.op-box{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.55);border-radius:8px;padding:6px 12px;min-width:100px;}
-.op-box input{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--ocean-mid);background:transparent;border:none;outline:none;text-align:center;width:100%}
-.op-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;font-weight:600}
-.loader{position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.60);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center}
-.loader-box{background:rgba(255,255,255,0.82);border-radius:24px;padding:32px 48px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
-.spinner{width:38px;height:38px;border:3px solid rgba(59,142,248,0.25);border-top-color:var(--sky-bright);border-radius:50%;animation:spin .65s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:rgba(255,255,255,0.15)}::-webkit-scrollbar-thumb{background:rgba(59,142,248,0.40);border-radius:99px}
+.batch-select{font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;padding:6px 9px;background:rgba(255,255,255,.72);border:1.5px solid rgba(180,210,255,.45);border-radius:8px;color:var(--txt);outline:none;width:100%}
+.batch-select:focus{border-color:var(--b4);box-shadow:0 0 0 3px rgba(66,146,255,.12)}
 </style>
 </head>
 <body>
+
+<!-- Loader -->
 <div id="loader" class="loader" style="display:none">
-  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText" style="color:var(--ocean-deep); font-weight:700;">กำลังประมวลผล...</div></div>
+  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังประมวลผล...</div></div>
 </div>
+
+<!-- Topbar -->
 <header class="topbar">
-  <a href="index.html" class="brand">
-    <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
-    <span class="brand-name">MatFlow</span><div class="brand-sub">Inventory System</div>
-  </a>
-  <nav class="topnav">
-    <a href="index.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg><span>Planning</span></a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg><span>Receiving</span></a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Management</span></a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg><span>Dashboard</span></a>
-  </nav>
+  <div class="topbar-inner">
+    <a href="index.html" class="brand">
+      <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
+      <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
+    </a>
+    <nav class="topnav">
+      <a href="index.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Planning</a>
+      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
+      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
+      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+    </nav>
+    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู">
+      <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="navDrawer" class="nav-drawer">
+    <a href="index.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Planning</a>
+    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
+    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
+    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+  </div>
 </header>
 
 <div class="shell">
-  <div class="ph">
-    <h1 style="font-size:20px;"><span class="ph-ico" style="width:36px;height:36px;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Production Planning</h1>
-    <p style="font-size:12px; margin-left:48px;">ระบบประเมินเบิกจ่าย — รองรับการเบิกแบบเจาะจง Batch (Manual Select)</p>
+  <div class="ph a1">
+    <h1>
+      <span class="ph-ico" style="background:linear-gradient(135deg,var(--b3),var(--b1))">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      </span>
+      Production Planning
+    </h1>
+    <p>ระบบประเมินเบิกจ่าย — รองรับการเบิกแบบเจาะจง Batch (Manual Select)</p>
   </div>
+
   <div class="row g-3">
-    <div class="col-lg-3">
+    <!-- Queue builder -->
+    <div class="col-lg-3 a2">
       <div class="card-mf h-100">
-        <div class="card-ttl"><span class="step-dot">1</span> สร้างคำสั่งผลิต</div>
+        <div class="ctitle"><span class="step-dot">1</span> สร้างคำสั่งผลิต</div>
         <div style="margin-bottom:12px">
           <label class="fl">Product Name</label>
           <select id="pSelect" class="fc"></select>
@@ -119,35 +71,35 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>เพิ่มลงคิว
         </button>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--txt2)">คิวเตรียมประเมิน</span>
+          <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--txt2)">คิวประเมิน</span>
         </div>
         <div id="qList">
-          <div class="empty"><p style="font-size:12px; margin-bottom:0;">ยังไม่มีคำสั่งผลิต</p></div>
+          <div class="empty"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p>ยังไม่มีคำสั่งผลิต</p></div>
         </div>
         <div id="btnEvalWrap" style="margin-top:12px;display:none">
           <button class="btn btn-outline btn-w" onclick="evalStock()">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>ประเมินสต๊อก
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>ประเมินสต๊อก (BOM Check)
           </button>
         </div>
       </div>
     </div>
-    
-    <div class="col-lg-9">
-      <div class="card-mf h-100" id="resCard" style="display:none;border:1px solid rgba(59,142,248,0.5); padding:16px;">
+
+    <!-- Result -->
+    <div class="col-lg-9 a3">
+      <div class="card-mf h-100" id="resCard" style="display:none;border-color:rgba(66,146,255,.45);padding:16px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
-          <div class="card-ttl" style="margin-bottom:0"><span class="step-dot">2</span> ผลประเมินและเลือก Batch</div>
+          <div class="ctitle" style="margin-bottom:0"><span class="step-dot">2</span> ผลประเมินและเลือก Batch</div>
           <div class="op-box"><input type="text" id="opName" value="Admin" readonly><span class="op-lbl">Operator ID</span></div>
         </div>
-        
         <div style="overflow-y:auto;max-height:420px;margin-bottom:12px">
           <div class="tw">
             <table class="mt">
               <thead>
                 <tr>
                   <th>RM Name</th>
-                  <th style="text-align:center; color:#f59e0b;">ต้องเตรียม</th>
-                  <th style="text-align:center; color:#3b8ef8;">ตัดระบบ</th>
-                  <th style="width:220px;">เลือก Batch สำหรับเบิกจ่าย</th>
+                  <th style="text-align:center;color:#fbbf24">ต้องเตรียม</th>
+                  <th style="text-align:center;color:#78b4ff">ตัดระบบ (Unit)</th>
+                  <th>เลือก Batch เบิก</th>
                   <th style="text-align:center">สถานะ</th>
                 </tr>
               </thead>
@@ -155,43 +107,43 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
             </table>
           </div>
         </div>
-        
         <div class="info-box">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <span><b>AUTO (FIFO):</b> ระบบจะหักยอดคลังจาก Batch ที่เก่าที่สุดก่อนเสมอ | <b>หรือเลือก Batch เอง</b> เพื่อเบิกแบบเฉพาะเจาะจง</span>
+          <span><strong>AUTO (FIFO):</strong> ระบบหักจาก Batch เก่าที่สุดก่อน | หรือเลือก Batch เองเพื่อเบิกแบบเจาะจง</span>
         </div>
         <button id="btnIss" class="btn btn-green btn-w" onclick="issueStock()">
-          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>ยืนยันตัดสต๊อกตามรายการด้านบน
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>ยืนยันตัดสต๊อกตามรายการ
         </button>
       </div>
-      
-      <div id="resPlaceholder" class="card-mf h-100" style="display:flex; align-items:center; justify-content:center; flex-direction:column; min-height:300px; gap:10px; background:rgba(255,255,255,0.25);">
-        <p style="font-size:14px; font-weight:700; color:rgba(10,22,40,0.4); margin:0;">รอการประเมินเบิกจ่าย</p>
+      <div id="resPlaceholder" class="card-mf h-100 cph">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p>รอการประเมินเบิกจ่าย</p>
+        <span>เพิ่มคำสั่งผลิตและกด BOM Check</span>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="mf-shared.js"></script>
 <script>
-const URL_API='https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
 let queue=[], lastEval=null;
-const SVG_CHECK=`<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
+const SVG_CHK=`<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
 const SVG_X=`<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
 window.onload=async()=>{
-  show('โหลดฐานข้อมูล...');
-  try {
-      const r=await fetch(`${URL_API}?action=getProducts`);
-      const j=await r.json();
-      const s=document.getElementById('pSelect');
-      s.innerHTML='<option value="">— เลือกสินค้า —</option>';
-      j.data.forEach(p=>s.innerHTML+=`<option value="${p}">${p}</option>`);
-  } catch(e) { alert('เชื่อมต่อล้มเหลว'); }
-  hide();
+  mfShow('โหลดฐานข้อมูล...');
+  try{
+    // ✅ Cached — ไม่โหลดซ้ำถ้าเปลี่ยนหน้ากลับมา
+    const j=await MF.getProducts();
+    const s=document.getElementById('pSelect');
+    s.innerHTML='<option value="">— เลือกสินค้า —</option>';
+    j.data.forEach(p=>s.innerHTML+=`<option value="${p}">${p}</option>`);
+  }catch(e){alert('เชื่อมต่อล้มเหลว');}
+  mfHide();
 };
 
-function addQueue() {
+function addQueue(){
   const name=document.getElementById('pSelect').value, qty=parseInt(document.getElementById('tQty').value);
   if(!name||!qty||qty<=0) return alert('โปรดระบุสินค้าและเป้าหมายให้ถูกต้อง');
   queue.push({name,qty}); lastEval=null; renderQ();
@@ -199,133 +151,87 @@ function addQueue() {
   document.getElementById('resPlaceholder').style.display='flex';
 }
 
-function renderQ() {
+function renderQ(){
   const ql=document.getElementById('qList');
-  if(!queue.length) {
-      ql.innerHTML=`<div class="empty"><p style="font-size:12px; margin:0;">ยังไม่มีคำสั่งผลิต</p></div>`;
-      document.getElementById('btnEvalWrap').style.display='none';
-      return;
+  if(!queue.length){
+    ql.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p>ยังไม่มีคำสั่งผลิต</p></div>`;
+    document.getElementById('btnEvalWrap').style.display='none'; return;
   }
   ql.innerHTML=queue.map((i,idx)=>`
     <div class="qi">
-        <div class="qi-info">
-            <div class="qi-name">${i.name}</div>
-            <div class="qi-meta">${i.qty.toLocaleString()} U</div>
-        </div>
-        <button class="btn btn-red-ghost" data-idx="${idx}" onclick="delQ(this)">${SVG_X}</button>
+      <div style="flex:1;min-width:0">
+        <div class="qi-name">${i.name}</div>
+        <div class="qi-meta">${i.qty.toLocaleString()} Unit</div>
+      </div>
+      <button class="btn btn-ghost-red" data-idx="${idx}" onclick="delQ(this)">${SVG_X}</button>
     </div>`).join('');
   document.getElementById('btnEvalWrap').style.display='block';
 }
 
-function delQ(b) {
-    queue.splice(+b.dataset.idx,1); 
-    lastEval=null; 
-    document.getElementById('resCard').style.display='none';
-    document.getElementById('resPlaceholder').style.display='flex'; 
-    renderQ();
+function delQ(b){
+  queue.splice(+b.dataset.idx,1); lastEval=null;
+  document.getElementById('resCard').style.display='none';
+  document.getElementById('resPlaceholder').style.display='flex';
+  renderQ();
 }
 
-async function evalStock() {
-  show('ประเมินสต๊อก...');
-  try {
-    const r=await fetch(`${URL_API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(queue))}`);
-    const j=await r.json();
+async function evalStock(){
+  mfShow('ประเมินสต๊อก...');
+  try{
+    // ✅ evaluateMulti ไม่ cache (ต้อง fresh เสมอ)
+    const j=await MF.evaluateMulti(queue);
     const tb=document.getElementById('resBody');
-    tb.innerHTML='';
-    let ok=true; lastEval=j.data;
-    
+    tb.innerHTML=''; let ok=true; lastEval=j.data;
     j.data.forEach(i=>{
       if(i.status!=='OK') ok=false;
-      
-      const reqPacks = Number(i.requiredPacks.toFixed(2));
-      const pkgName = i.packageType || 'แพ็คเกจ';
-      const badge = i.status==='OK' ? `<span class="bok">${SVG_CHECK}พอ</span>` : `<span class="bout">${SVG_X}ขาด</span>`;
-      
-      // 🚩 สร้าง Dropdown เลือก Batch (มีวันที่และสต๊อกคงเหลือให้ดู)
-      let batchOptions = `<option value="FIFO">⚡ หักอัตโนมัติ (AUTO FIFO)</option>`;
-      if (i.batches && i.batches.length > 0) {
-          // เรียงคิว Batch จากเก่าไปใหม่
-          i.batches.forEach(b => {
-              batchOptions += `<option value="${b.batch}">Lot: ${b.batch} | มี: ${b.qty} | EXP: ${b.exp}</option>`;
-          });
-      } else {
-          batchOptions = `<option value="">ไม่มีสต๊อกในระบบ</option>`;
-      }
-      
-      // Select input พิเศษสำหรับเลือก Batch
-      let batchSelect = `<select class="fc batch-select" data-code="${i.code}" data-target="${i.productTarget||''}" style="padding:6px; font-size:11.5px;">${batchOptions}</select>`;
-
-      tb.innerHTML+=`
-        <tr>
-            <td>
-                <div style="font-weight:700; color:var(--ocean-deep); font-size:13px;">${i.name}</div>
-                <span class="bcode" style="margin-top:2px;">${i.code}</span>
-            </td>
-            <td style="text-align:center; vertical-align:middle;">
-                <div style="font-weight:800; font-size:14px; color:var(--amber)">${reqPacks}</div>
-                <div style="font-size:10px; color:var(--txt2); font-weight:600;">${pkgName}</div>
-            </td>
-            <td style="text-align:center; vertical-align:middle; background:rgba(59,142,248,0.05);">
-                <div style="font-weight:700; font-size:14px; color:var(--sky); font-family:'JetBrains Mono';">${i.required}</div>
-                <div style="font-size:10px; color:var(--txt3); text-transform:uppercase;">${i.unit}</div>
-            </td>
-            <td style="vertical-align:middle;">${batchSelect}</td>
-            <td style="text-align:center; vertical-align:middle;">${badge}</td>
-        </tr>`;
+      const reqPacks=Number(i.requiredPacks.toFixed(2));
+      const badge=i.status==='OK'
+        ?`<span class="bok">${SVG_CHK}พอ</span>`
+        :`<span class="bout">${SVG_X}ขาด</span>`;
+      let opts=`<option value="FIFO">หักอัตโนมัติ (FIFO)</option>`;
+      (i.batches||[]).forEach(b=>opts+=`<option value="${b.batch}">Lot: ${b.batch} | มี: ${b.qty} | EXP: ${b.exp}</option>`);
+      if(!i.batches||!i.batches.length) opts=`<option value="">ไม่มีสต๊อก</option>`;
+      tb.innerHTML+=`<tr>
+        <td><div style="font-weight:700;font-size:13px">${i.name}</div><span class="bcode">${i.code}</span></td>
+        <td style="text-align:center">
+          <div style="font-weight:800;font-size:14px;color:var(--amber)">${reqPacks}</div>
+          <div style="font-size:10px;color:var(--txt2);font-weight:600">${i.packageType}</div>
+        </td>
+        <td style="text-align:center;background:rgba(66,146,255,.05)">
+          <div style="font-weight:700;font-size:14px;color:var(--b3);font-family:'IBM Plex Mono'">${i.required}</div>
+          <div style="font-size:10px;color:var(--txt3);text-transform:uppercase">${i.unit}</div>
+        </td>
+        <td><select class="batch-select" data-code="${i.code}" data-target="${i.productTarget||''}">${opts}</select></td>
+        <td style="text-align:center">${badge}</td>
+      </tr>`;
     });
-    
     document.getElementById('resCard').style.display='block';
     document.getElementById('resPlaceholder').style.display='none';
-    
     const b=document.getElementById('btnIss');
-    if(ok){
-        b.disabled=false; b.className='btn btn-green btn-w'; b.innerHTML=`${SVG_CHECK}ยืนยันตัดสต๊อก`;
-    } else {
-        b.disabled=true; b.className='btn btn-blue btn-w'; b.innerHTML=`${SVG_X}สต๊อกไม่พอเบิก`;
-    }
-  } catch(e) { alert('ประเมินล้มเหลว'); }
-  hide();
+    if(ok){b.disabled=false;b.className='btn btn-green btn-w';b.innerHTML=`${SVG_CHK}ยืนยันตัดสต๊อกตามรายการ`;}
+    else{b.disabled=true;b.className='btn btn-blue btn-w';b.innerHTML=`${SVG_X}สต๊อกไม่พอเบิก`;}
+  }catch(e){alert('ประเมินล้มเหลว');}
+  mfHide();
 }
 
-async function issueStock() {
-  if(!lastEval) return;
-  if(!confirm('ยืนยันการเบิกจ่ายวัตถุดิบ?\n\nระบบจะทำการตัดสต๊อกตาม Batch ที่เลือกไว้ทันที')) return;
-  
-  // 🚩 รวบรวมค่า Batch ที่ผู้ใช้เลือกจากหน้าจอ
-  let issueItems = [];
-  const selects = document.querySelectorAll('.batch-select');
-  
-  lastEval.forEach(evalItem => {
-      // หา Dropdown ที่ตรงกับรหัส RM นี้
-      let sel = Array.from(selects).find(el => el.dataset.code === evalItem.code);
-      let selectedBatch = sel ? sel.value : "FIFO";
-      
-      issueItems.push({
-          code: evalItem.code,
-          name: evalItem.name,
-          cutQty: evalItem.required, // หักเป็น Unit เสมอ
-          unit: evalItem.unit,
-          batch: selectedBatch, // ค่าที่เลือก (FIFO หรือ เลข Lot)
-          productTarget: evalItem.productTarget || "Issue"
-      });
+async function issueStock(){
+  if(!lastEval)return;
+  if(!confirm('ยืนยันการเบิกจ่ายวัตถุดิบ?\n\nระบบจะตัดสต๊อกตาม Batch ที่เลือกทันที'))return;
+  let issueItems=[];
+  const selects=document.querySelectorAll('.batch-select');
+  lastEval.forEach(ev=>{
+    let sel=Array.from(selects).find(el=>el.dataset.code===ev.code);
+    issueItems.push({code:ev.code,name:ev.name,cutQty:ev.required,unit:ev.unit,batch:sel?sel.value:'FIFO',productTarget:ev.productTarget||'Issue'});
   });
-
-  show('กำลังบันทึกการตัดสต๊อก...');
-  try {
+  mfShow('กำลังบันทึกการตัดสต๊อก...');
+  try{
     const op=document.getElementById('opName').value;
-    const r=await fetch(`${URL_API}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(issueItems))}&operator=${op}`);
-    const j=await r.json();
-    
-    if(j.status==='success') {
-        alert(`✅ ตัดสต๊อกสำเร็จ (Doc: ${j.docNo})`);
-        location.reload();
-    } else { alert('ผิดพลาด: ' + j.message); }
-  } catch(e) { alert('บันทึกล้มเหลว'); }
-  hide();
+    const j=await MF.issueMulti(issueItems,op); // ✅ invalidates cache
+    if(j.status==='success'){alert(`ตัดสต๊อกสำเร็จ (Doc: ${j.docNo})`);location.reload();}
+    else alert('ผิดพลาด: '+j.message);
+  }catch(e){alert('บันทึกล้มเหลว');}
+  mfHide();
 }
-
-function show(t){document.getElementById('loaderText').textContent=t;document.getElementById('loader').style.display='flex';}
-function hide(){document.getElementById('loader').style.display='none';}
 </script>
 </body>
 </html>
