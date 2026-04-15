@@ -11,12 +11,8 @@
 :root{
   --ocean-deep:#0a1628;--ocean-mid:#0d2548;--ocean-blue:#1a4a8c;
   --sky:#2171e5;--sky-bright:#3b8ef8;--sky-lt:#5ba4ff;
-  --ice:#e8f3ff;--ice-pure:#f0f7ff;
-  --glass-white:rgba(255,255,255,0.72);--glass-white-hover:rgba(255,255,255,0.85);
-  --glass-blue:rgba(59,142,248,0.15);--glass-dark:rgba(10,22,40,0.45);
-  --glass-border:rgba(255,255,255,0.55);--glass-border-dark:rgba(59,142,248,0.25);
+  --glass-white:rgba(255,255,255,0.72);
   --glass-shadow:0 8px 32px rgba(10,22,40,0.12),0 2px 8px rgba(10,22,40,0.08);
-  --glass-shadow-lg:0 20px 60px rgba(10,22,40,0.18),0 4px 16px rgba(10,22,40,0.10);
   --glass-inset:inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -1px 0 rgba(255,255,255,0.2);
   --txt:#0d2548;--txt2:#2d5a8e;--txt3:#7aa3cc;
   --green:#05a06a;--green-lt:rgba(5,160,106,0.12);--green-br:rgba(5,160,106,0.3);
@@ -24,7 +20,7 @@
   --amber:#e09305;
   --r:12px;--r-lg:18px;--r-xl:24px;
 }
-body{font-family:'Outfit',sans-serif;background:var(--ocean-deep);color:var(--txt);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body{font-family:'Outfit',sans-serif;background:var(--ocean-deep);color:var(--txt);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 10% 10%,rgba(33,113,229,0.55) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 20%,rgba(59,142,248,0.35) 0%,transparent 55%),radial-gradient(ellipse 70% 50% at 50% 90%,rgba(91,164,255,0.28) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(26,74,140,0.45) 0%,transparent 50%);background-color:var(--ocean-deep);animation:meshFloat 18s ease-in-out infinite alternate}
 @keyframes meshFloat{0%{opacity:1}50%{opacity:.85}100%{opacity:1}}
 body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
@@ -44,14 +40,13 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
 .ph h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px;display:flex;align-items:center;gap:12px;}
 .ph-ico{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,rgba(59,142,248,0.85),rgba(33,113,229,0.85));border:1px solid rgba(255,255,255,0.35);display:flex;align-items:center;justify-content:center;}
 .ph-ico svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
-.ph p{font-size:13px;color:rgba(255,255,255,0.48);margin-top:4px;margin-left:54px;}
-.card-mf{background:var(--glass-white);backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.55);border-radius:var(--r-xl);box-shadow:var(--glass-shadow),var(--glass-inset);padding:22px;position:relative;overflow:hidden}
-.card-ttl{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--sky);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-mf{background:var(--glass-white);backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.55);border-radius:var(--r-xl);box-shadow:var(--glass-shadow),var(--glass-inset);padding:20px;position:relative;overflow:hidden}
+.card-ttl{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--sky);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .step-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:linear-gradient(135deg,var(--sky-bright),var(--sky));color:#fff;border-radius:50%;font-size:11.5px;font-weight:700;}
-.fl{display:block;font-size:11.5px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.fc{width:100%;font-family:'Outfit',sans-serif;font-size:14.5px;color:var(--txt);background:rgba(255,255,255,0.65);border:1.5px solid rgba(255,255,255,0.60);border-radius:var(--r);padding:10px 14px;outline:none;transition:0.2s;}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.fc{width:100%;font-family:'Outfit',sans-serif;font-size:13.5px;color:var(--txt);background:rgba(255,255,255,0.65);border:1.5px solid rgba(255,255,255,0.60);border-radius:8px;padding:8px 12px;outline:none;transition:0.2s;}
 .fc:focus{background:rgba(255,255,255,0.88);border-color:var(--sky-bright);}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:var(--r);padding:10px 20px;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;border-radius:8px;padding:9px 18px;cursor:pointer;transition:all .18s;white-space:nowrap;}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
 .btn-w{width:100%}
 .btn-blue{background:linear-gradient(135deg,var(--sky-bright),var(--sky));color:#fff;box-shadow:0 3px 14px rgba(59,142,248,0.38);}
@@ -60,51 +55,27 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
 .btn-green:hover{box-shadow:0 6px 22px rgba(5,160,106,0.48);transform:translateY(-1px)}
 .btn-outline{background:rgba(255,255,255,0.55);color:var(--sky);border:1.5px solid rgba(59,142,248,0.35);}
 .btn-outline:hover{background:rgba(255,255,255,0.80);}
-.btn-red-ghost{background:rgba(224,51,76,0.08);color:var(--red);border:1.5px solid rgba(224,51,76,0.25);font-size:12.5px;padding:7px 12px;}
-.qi{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.50);border:1px solid rgba(255,255,255,0.55);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;}
-.qi-name{font-size:14px;font-weight:600;color:var(--txt);}
-.qi-meta{font-size:12.5px;color:var(--sky);font-weight:500;margin-top:2px}
-.tw{border-radius:var(--r-lg);overflow:hidden;border:1px solid rgba(255,255,255,0.40)}
+.btn-red-ghost{background:rgba(224,51,76,0.08);color:var(--red);border:1px solid rgba(224,51,76,0.25);font-size:11px;padding:4px 10px; border-radius:6px;}
+.qi{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.50);border:1px solid rgba(255,255,255,0.55);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.qi-name{font-size:13px;font-weight:600;color:var(--txt);}
+.tw{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.40)}
 .mt{width:100%;border-collapse:collapse}
 .mt thead tr{background:linear-gradient(135deg,rgba(10,22,40,0.75),rgba(26,74,140,0.65));backdrop-filter:blur(20px)}
-.mt thead th{padding:11px 14px;font-size:10.5px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,0.60);text-align:left;}
-.mt tbody tr{border-bottom:1px solid rgba(255,255,255,0.20);background:rgba(255,255,255,0.55)}
-.mt tbody td{padding:12px 14px;font-size:14px;color:var(--txt)}
-.bok{display:inline-flex;align-items:center;gap:4px;background:var(--green-lt);color:#065f46;border:1px solid var(--green-br);border-radius:999px;padding:3px 11px;font-size:12px;font-weight:600}
-.bout{display:inline-flex;align-items:center;gap:4px;background:var(--red-lt);color:#991b1b;border:1px solid var(--red-br);border-radius:999px;padding:3px 11px;font-size:12px;font-weight:600}
-.bcode{display:inline-block;background:rgba(255,255,255,0.55);color:var(--txt2);border:1px solid rgba(255,255,255,0.50);border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:600;font-family:'JetBrains Mono',monospace;}
-.empty{text-align:center;padding:40px 20px;background:rgba(255,255,255,0.25);border:2px dashed rgba(59,142,248,0.30);border-radius:var(--r-lg)}
-.empty svg{width:34px;height:34px;stroke:rgba(59,142,248,0.35);fill:none;stroke-width:1.2;margin-bottom:10px}
-/* 🚩 สไตล์แก้ไขใหม่ของ Info Box แก้ปัญหาวงกลมสีดำทึบ */
-.info-box {
-    background: rgba(59, 142, 248, 0.08); 
-    border: 1px solid rgba(59, 142, 248, 0.15); 
-    border-left: 3px solid var(--sky-bright); 
-    border-radius: var(--r);
-    padding: 12px 16px;
-    font-size: 13.5px;
-    color: var(--txt2);
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 16px;
-}
-.info-box svg {
-    width: 18px;
-    height: 18px;
-    stroke: var(--sky-bright); 
-    fill: none !important; 
-    stroke-width: 2;
-    flex-shrink: 0;
-    margin-top: 2px;
-}
-.info-box b, .info-box strong { color: var(--sky); font-weight: 700; }
-.op-box{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.55);border-radius:var(--r);padding:9px 14px;min-width:110px;}
-.op-box input{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--ocean-mid);background:transparent;border:none;outline:none;text-align:center;width:100%}
-.op-lbl{font-size:10px;color:var(--txt3);text-transform:uppercase;font-weight:600}
-.divider{border:none;border-top:1px solid rgba(255,255,255,0.30);margin:18px 0}
+.mt thead th{padding:10px 12px;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,0.60);text-align:left;}
+.mt tbody tr{border-bottom:1px solid rgba(255,255,255,0.20);background:rgba(255,255,255,0.45)}
+.mt tbody td{padding:10px 12px;font-size:13px;color:var(--txt)}
+.bok{display:inline-flex;align-items:center;gap:4px;background:var(--green-lt);color:#065f46;border:1px solid var(--green-br);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600}
+.bout{display:inline-flex;align-items:center;gap:4px;background:var(--red-lt);color:#991b1b;border:1px solid var(--red-br);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600}
+.bcode{display:inline-block;background:rgba(255,255,255,0.55);color:var(--txt2);border:1px solid rgba(255,255,255,0.50);border-radius:6px;padding:2px 6px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;}
+.empty{text-align:center;padding:30px 20px;background:rgba(255,255,255,0.25);border:2px dashed rgba(59,142,248,0.30);border-radius:12px}
+.empty svg{width:30px;height:30px;stroke:rgba(59,142,248,0.35);fill:none;stroke-width:1.2;margin-bottom:10px}
+.info-box { background: rgba(59, 142, 248, 0.08); border: 1px solid rgba(59, 142, 248, 0.15); border-left: 3px solid var(--sky-bright); border-radius: 10px; padding: 10px 14px; font-size: 12.5px; color: var(--txt2); display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+.info-box svg { width: 16px; height: 16px; stroke: var(--sky-bright); fill: none !important; stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
+.op-box{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.55);border-radius:8px;padding:6px 12px;min-width:100px;}
+.op-box input{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--ocean-mid);background:transparent;border:none;outline:none;text-align:center;width:100%}
+.op-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;font-weight:600}
 .loader{position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.60);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center}
-.loader-box{background:rgba(255,255,255,0.82);border-radius:var(--r-2xl);padding:32px 48px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
+.loader-box{background:rgba(255,255,255,0.82);border-radius:24px;padding:32px 48px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
 .spinner{width:38px;height:38px;border:3px solid rgba(59,142,248,0.25);border-top-color:var(--sky-bright);border-radius:50%;animation:spin .65s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:rgba(255,255,255,0.15)}::-webkit-scrollbar-thumb{background:rgba(59,142,248,0.40);border-radius:99px}
@@ -129,58 +100,54 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
 
 <div class="shell">
   <div class="ph">
-    <h1><span class="ph-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Production Planning</h1>
-    <p>ระบบประเมินเบิกจ่าย — แยกหน่วยสำหรับเบิก (Unit) และหน่วยเตรียมหน้างาน (Package)</p>
+    <h1 style="font-size:20px;"><span class="ph-ico" style="width:36px;height:36px;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>Production Planning</h1>
+    <p style="font-size:12px; margin-left:48px;">ระบบประเมินเบิกจ่าย — รองรับการเบิกแบบเจาะจง Batch (Manual Select)</p>
   </div>
-  <div class="row g-4">
-    <div class="col-lg-4">
+  <div class="row g-3">
+    <div class="col-lg-3">
       <div class="card-mf h-100">
         <div class="card-ttl"><span class="step-dot">1</span> สร้างคำสั่งผลิต</div>
-        <div style="margin-bottom:14px">
+        <div style="margin-bottom:12px">
           <label class="fl">Product Name</label>
           <select id="pSelect" class="fc"></select>
         </div>
-        <div style="margin-bottom:14px">
+        <div style="margin-bottom:12px">
           <label class="fl">เป้าหมายการผลิต (Unit)</label>
-          <input type="number" id="tQty" class="fc" placeholder="ระบุจำนวน Unit...">
+          <input type="number" id="tQty" class="fc" placeholder="จำนวน Unit...">
         </div>
-        <button class="btn btn-blue btn-w" onclick="addQueue()" style="margin-bottom:20px">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>เพิ่มลงคิวผลิต
+        <button class="btn btn-blue btn-w" onclick="addQueue()" style="margin-bottom:16px">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>เพิ่มลงคิว
         </button>
-        <div class="divider"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <span style="font-size:11.5px;font-weight:700;text-transform:uppercase;color:var(--txt2)">คิวเตรียมประเมิน</span>
-          <span id="qCount" class="bcode" style="display:none">0 รายการ</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:var(--txt2)">คิวเตรียมประเมิน</span>
         </div>
         <div id="qList">
-          <div class="empty">
-            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            <p style="color:var(--ocean-mid);">ยังไม่มีคำสั่งผลิต</p><span>เลือกสินค้าและเพิ่มคิวด้านบน</span>
-          </div>
+          <div class="empty"><p style="font-size:12px; margin-bottom:0;">ยังไม่มีคำสั่งผลิต</p></div>
         </div>
-        <div id="btnEvalWrap" style="margin-top:14px;display:none">
-          <button class="btn btn-outline btn-w" style="padding:11px 20px" onclick="evalStock()">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>ประเมินการใช้วัตถุดิบ (BOM Check)
+        <div id="btnEvalWrap" style="margin-top:12px;display:none">
+          <button class="btn btn-outline btn-w" onclick="evalStock()">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>ประเมินสต๊อก
           </button>
         </div>
       </div>
     </div>
     
-    <div class="col-lg-8">
-      <div class="card-mf h-100" id="resCard" style="display:none;border:2px solid rgba(59,142,248,0.5)">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px">
-          <div class="card-ttl" style="margin-bottom:0"><span class="step-dot">2</span> ผลประเมินและเบิกจ่าย</div>
+    <div class="col-lg-9">
+      <div class="card-mf h-100" id="resCard" style="display:none;border:1px solid rgba(59,142,248,0.5); padding:16px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
+          <div class="card-ttl" style="margin-bottom:0"><span class="step-dot">2</span> ผลประเมินและเลือก Batch</div>
           <div class="op-box"><input type="text" id="opName" value="Admin" readonly><span class="op-lbl">Operator ID</span></div>
         </div>
-        <div style="overflow-y:auto;max-height:400px;margin-bottom:14px">
+        
+        <div style="overflow-y:auto;max-height:420px;margin-bottom:12px">
           <div class="tw">
             <table class="mt">
               <thead>
                 <tr>
-                  <th>RM Name / Code</th>
-                  <th style="text-align:center; color:#f59e0b;">ต้องเตรียม (หน้างาน)</th>
-                  <th style="text-align:center; color:#3b8ef8;">ตัดระบบ (Unit)</th>
-                  <th style="text-align:center">มีในคลัง (รวม)</th>
+                  <th>RM Name</th>
+                  <th style="text-align:center; color:#f59e0b;">ต้องเตรียม</th>
+                  <th style="text-align:center; color:#3b8ef8;">ตัดระบบ</th>
+                  <th style="width:220px;">เลือก Batch สำหรับเบิกจ่าย</th>
                   <th style="text-align:center">สถานะ</th>
                 </tr>
               </thead>
@@ -188,19 +155,18 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
             </table>
           </div>
         </div>
+        
         <div class="info-box">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <span>ระบบจะทำการ <b>หักลบเป็น Unit</b> โดยอัตโนมัติตามหลัก FIFO (เข้าก่อน-ออกก่อน)</span>
+          <span><b>AUTO (FIFO):</b> ระบบจะหักยอดคลังจาก Batch ที่เก่าที่สุดก่อนเสมอ | <b>หรือเลือก Batch เอง</b> เพื่อเบิกแบบเฉพาะเจาะจง</span>
         </div>
         <button id="btnIss" class="btn btn-green btn-w" onclick="issueStock()">
-          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>ยืนยันตัดสต๊อก (Issue Stock)
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>ยืนยันตัดสต๊อกตามรายการด้านบน
         </button>
       </div>
       
-      <div id="resPlaceholder" class="card-mf h-100" style="display:flex; align-items:center; justify-content:center; flex-direction:column; min-height:400px; gap:12px; background:rgba(255,255,255,0.25);">
-        <svg viewBox="0 0 24 24" style="width:50px; height:50px; stroke:rgba(10,22,40,0.15); fill:none; stroke-width:1.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <p style="font-size:16px; font-weight:700; color:rgba(10,22,40,0.4);">รอการประเมินเบิกจ่าย</p>
-        <span style="font-size:13px; color:rgba(10,22,40,0.3);">เพิ่มคำสั่งผลิตและกด BOM Check เพื่อดูรายการวัตถุดิบ</span>
+      <div id="resPlaceholder" class="card-mf h-100" style="display:flex; align-items:center; justify-content:center; flex-direction:column; min-height:300px; gap:10px; background:rgba(255,255,255,0.25);">
+        <p style="font-size:14px; font-weight:700; color:rgba(10,22,40,0.4); margin:0;">รอการประเมินเบิกจ่าย</p>
       </div>
     </div>
   </div>
@@ -210,20 +176,18 @@ body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-eve
 <script>
 const URL_API='https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
 let queue=[], lastEval=null;
-const SVG_CHECK=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
-const SVG_X=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+const SVG_CHECK=`<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
+const SVG_X=`<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
 window.onload=async()=>{
-  show('กำลังโหลดฐานข้อมูลสินค้า...');
+  show('โหลดฐานข้อมูล...');
   try {
       const r=await fetch(`${URL_API}?action=getProducts`);
       const j=await r.json();
       const s=document.getElementById('pSelect');
-      s.innerHTML='<option value="">— กรุณาเลือกสินค้า —</option>';
+      s.innerHTML='<option value="">— เลือกสินค้า —</option>';
       j.data.forEach(p=>s.innerHTML+=`<option value="${p}">${p}</option>`);
-  } catch(e) {
-      alert('เชื่อมต่อ API ล้มเหลว');
-  }
+  } catch(e) { alert('เชื่อมต่อล้มเหลว'); }
   hide();
 };
 
@@ -236,21 +200,19 @@ function addQueue() {
 }
 
 function renderQ() {
-  const ql=document.getElementById('qList'), cnt=document.getElementById('qCount');
+  const ql=document.getElementById('qList');
   if(!queue.length) {
-      ql.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><p style="color:var(--ocean-mid);">ยังไม่มีคำสั่งผลิต</p><span>เลือกสินค้าและเพิ่มคิวด้านบน</span></div>`;
+      ql.innerHTML=`<div class="empty"><p style="font-size:12px; margin:0;">ยังไม่มีคำสั่งผลิต</p></div>`;
       document.getElementById('btnEvalWrap').style.display='none';
-      cnt.style.display='none';
       return;
   }
-  cnt.style.display='inline-block'; cnt.textContent=`${queue.length} รายการ`;
   ql.innerHTML=queue.map((i,idx)=>`
     <div class="qi">
         <div class="qi-info">
             <div class="qi-name">${i.name}</div>
-            <div class="qi-meta">เป้าหมาย: ${i.qty.toLocaleString()} Units</div>
+            <div class="qi-meta">${i.qty.toLocaleString()} U</div>
         </div>
-        <button class="btn btn-red-ghost" data-idx="${idx}" onclick="delQ(this)">${SVG_X} ลบ</button>
+        <button class="btn btn-red-ghost" data-idx="${idx}" onclick="delQ(this)">${SVG_X}</button>
     </div>`).join('');
   document.getElementById('btnEvalWrap').style.display='block';
 }
@@ -264,7 +226,7 @@ function delQ(b) {
 }
 
 async function evalStock() {
-  show('กำลังประมวลผลการคำนวณ...');
+  show('ประเมินสต๊อก...');
   try {
     const r=await fetch(`${URL_API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(queue))}`);
     const j=await r.json();
@@ -276,29 +238,38 @@ async function evalStock() {
       if(i.status!=='OK') ok=false;
       
       const reqPacks = Number(i.requiredPacks.toFixed(2));
-      const availPacks = Number(i.availablePacks.toFixed(2));
       const pkgName = i.packageType || 'แพ็คเกจ';
+      const badge = i.status==='OK' ? `<span class="bok">${SVG_CHECK}พอ</span>` : `<span class="bout">${SVG_X}ขาด</span>`;
       
-      const badge = i.status==='OK' ? `<span class="bok">${SVG_CHECK}พร้อม</span>` : `<span class="bout">${SVG_X}ขาด ${i.shortage} ${i.unit}</span>`;
+      // 🚩 สร้าง Dropdown เลือก Batch (มีวันที่และสต๊อกคงเหลือให้ดู)
+      let batchOptions = `<option value="FIFO">⚡ หักอัตโนมัติ (AUTO FIFO)</option>`;
+      if (i.batches && i.batches.length > 0) {
+          // เรียงคิว Batch จากเก่าไปใหม่
+          i.batches.forEach(b => {
+              batchOptions += `<option value="${b.batch}">Lot: ${b.batch} | มี: ${b.qty} | EXP: ${b.exp}</option>`;
+          });
+      } else {
+          batchOptions = `<option value="">ไม่มีสต๊อกในระบบ</option>`;
+      }
       
+      // Select input พิเศษสำหรับเลือก Batch
+      let batchSelect = `<select class="fc batch-select" data-code="${i.code}" data-target="${i.productTarget||''}" style="padding:6px; font-size:11.5px;">${batchOptions}</select>`;
+
       tb.innerHTML+=`
         <tr>
             <td>
-                <div style="font-weight:700; color:var(--ocean-deep); font-size:15px;">${i.name}</div>
-                <span class="bcode" style="margin-top:4px;">${i.code}</span>
+                <div style="font-weight:700; color:var(--ocean-deep); font-size:13px;">${i.name}</div>
+                <span class="bcode" style="margin-top:2px;">${i.code}</span>
             </td>
             <td style="text-align:center; vertical-align:middle;">
-                <div style="font-weight:800; font-size:17px; color:var(--amber)">${reqPacks}</div>
-                <div style="font-size:12px; color:var(--txt2); font-weight:600;">${pkgName}</div>
+                <div style="font-weight:800; font-size:14px; color:var(--amber)">${reqPacks}</div>
+                <div style="font-size:10px; color:var(--txt2); font-weight:600;">${pkgName}</div>
             </td>
             <td style="text-align:center; vertical-align:middle; background:rgba(59,142,248,0.05);">
-                <div style="font-weight:700; font-size:16px; color:var(--sky); font-family:'JetBrains Mono';">${i.required}</div>
-                <div style="font-size:11px; color:var(--txt3); text-transform:uppercase;">${i.unit}</div>
+                <div style="font-weight:700; font-size:14px; color:var(--sky); font-family:'JetBrains Mono';">${i.required}</div>
+                <div style="font-size:10px; color:var(--txt3); text-transform:uppercase;">${i.unit}</div>
             </td>
-            <td style="text-align:center; vertical-align:middle;">
-                <div style="font-weight:700; font-size:15px; color:var(--txt);">${i.available} ${i.unit}</div>
-                <div style="font-size:12px; color:var(--txt3); font-weight:500;">(มี ${availPacks} ${pkgName})</div>
-            </td>
+            <td style="vertical-align:middle;">${batchSelect}</td>
             <td style="text-align:center; vertical-align:middle;">${badge}</td>
         </tr>`;
     });
@@ -308,35 +279,48 @@ async function evalStock() {
     
     const b=document.getElementById('btnIss');
     if(ok){
-        b.disabled=false; b.className='btn btn-green btn-w'; b.innerHTML=`${SVG_CHECK}ยืนยันตัดสต๊อก (Issue Stock)`;
+        b.disabled=false; b.className='btn btn-green btn-w'; b.innerHTML=`${SVG_CHECK}ยืนยันตัดสต๊อก`;
     } else {
-        b.disabled=true; b.className='btn btn-blue btn-w'; b.innerHTML=`${SVG_X}สต๊อกในระบบไม่พอตัดจ่าย`;
+        b.disabled=true; b.className='btn btn-blue btn-w'; b.innerHTML=`${SVG_X}สต๊อกไม่พอเบิก`;
     }
-  } catch(e) {
-      alert('การประเมินล้มเหลว กรุณาลองอีกครั้ง');
-  }
+  } catch(e) { alert('ประเมินล้มเหลว'); }
   hide();
 }
 
 async function issueStock() {
-  if(!lastEval) return alert("กรุณากด 'ประเมินการใช้วัตถุดิบ' ก่อนยืนยันการเบิก");
-  if(!confirm('ยืนยันการเบิกจ่ายวัตถุดิบ?\n\nระบบจะหักยอดคงเหลือ (Unit) ออกจากคลังทันที โดยใช้หลักการเข้าก่อน-ออกก่อน (FIFO)')) return;
+  if(!lastEval) return;
+  if(!confirm('ยืนยันการเบิกจ่ายวัตถุดิบ?\n\nระบบจะทำการตัดสต๊อกตาม Batch ที่เลือกไว้ทันที')) return;
   
-  show('กำลังบันทึกการตัดสต๊อก... กรุณาอย่าปิดหน้าต่างนี้');
+  // 🚩 รวบรวมค่า Batch ที่ผู้ใช้เลือกจากหน้าจอ
+  let issueItems = [];
+  const selects = document.querySelectorAll('.batch-select');
+  
+  lastEval.forEach(evalItem => {
+      // หา Dropdown ที่ตรงกับรหัส RM นี้
+      let sel = Array.from(selects).find(el => el.dataset.code === evalItem.code);
+      let selectedBatch = sel ? sel.value : "FIFO";
+      
+      issueItems.push({
+          code: evalItem.code,
+          name: evalItem.name,
+          cutQty: evalItem.required, // หักเป็น Unit เสมอ
+          unit: evalItem.unit,
+          batch: selectedBatch, // ค่าที่เลือก (FIFO หรือ เลข Lot)
+          productTarget: evalItem.productTarget || "Issue"
+      });
+  });
+
+  show('กำลังบันทึกการตัดสต๊อก...');
   try {
     const op=document.getElementById('opName').value;
-    const r=await fetch(`${URL_API}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(queue))}&operator=${op}`);
+    const r=await fetch(`${URL_API}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(issueItems))}&operator=${op}`);
     const j=await r.json();
     
     if(j.status==='success') {
-        alert(`✅ ตัดสต๊อกสำเร็จเรียบร้อย\nหมายเลขเอกสาร: ${j.docNo}`);
+        alert(`✅ ตัดสต๊อกสำเร็จ (Doc: ${j.docNo})`);
         location.reload();
-    } else {
-        alert('เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ' + j.message);
-    }
-  } catch(e) {
-      alert('การบันทึกล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ต');
-  }
+    } else { alert('ผิดพลาด: ' + j.message); }
+  } catch(e) { alert('บันทึกล้มเหลว'); }
   hide();
 }
 
