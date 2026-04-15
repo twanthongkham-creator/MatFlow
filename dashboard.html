@@ -99,16 +99,27 @@ window.onload = loadAll;
 async function loadAll(){
   mfShow('กำลังดึงข้อมูลทั้งหมด...');
   try {
-    const r = await fetch(`${URL_API}?action=getDashboardData`);
-    const jd = await r.json();
-    if(jd.status==='success'){
-      _capDetails = jd.capDetailsList; _expData = jd.expiryTable;
-      renderChart(jd.capDetailsList);
+    // 🚩 เปลี่ยนมาใช้คำสั่งเดิมของระบบ (mf-shared.js) ที่เสถียรกว่า
+    const res = await MF.getDashboardData(); 
+    
+    if(res.status === 'success'){
+      // 🚩 แก้บั๊กตรงนี้: เพิ่ม .data เข้าไปให้ชี้ข้อมูลถูกจุด
+      _capDetails = res.data.capDetailsList || []; 
+      _expData = res.data.expiryTable || [];
+      
+      renderChart(_capDetails);
       renderTable('capDetailsBody', 'webCapHead', _capDetails, ['ลำดับ','สำหรับสินค้า','วัตถุดิบ (ตัวคอขวด)','ผลิตได้ (Unit)']);
       renderTable('expiryTableBody', 'webExpHead', _expData, ['ลำดับ','RM Name','Batch','คงเหลือ (วัน)']);
+      
       document.getElementById('btnReport').disabled = false;
+    } else {
+      throw new Error("ข้อมูลตอบกลับไม่สมบูรณ์");
     }
-  } catch(e) { alert('โหลดข้อมูลล้มเหลว'); }
+  } catch(e) { 
+    console.error(e);
+    // 🚩 เปลี่ยนแจ้งเตือนให้บอกสาเหตุที่แท้จริง
+    alert('โหลดข้อมูลล้มเหลว สาเหตุ: ' + e.message); 
+  }
   mfHide();
 }
 
@@ -126,11 +137,19 @@ function renderTable(bodyId, headId, data, cols){
   const head = document.getElementById(headId);
   head.innerHTML = `<tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>`;
   const body = document.getElementById(bodyId);
+  
+  if(!data || data.length === 0) {
+      body.innerHTML = `<tr><td colspan="${cols.length}" style="text-align:center; padding:30px; color:#94a3b8;">ไม่มีข้อมูล</td></tr>`;
+      return;
+  }
+
   body.innerHTML = data.map((i,idx)=>`<tr>
     <td style="text-align:center;">${idx+1}</td>
     <td>${i.pName || i.name}</td>
     <td>${i.bottleneck || i.batch}</td>
-    <td style="text-align:center; font-weight:700;">${(i.potential !== undefined ? i.potential : i.days).toLocaleString()}</td>
+    <td style="text-align:center; font-weight:700; color:${(i.potential !== undefined && i.potential <= 0) || (i.days !== undefined && i.days <= 7) ? '#dc2626' : '#059669'};">
+        ${(i.potential !== undefined ? i.potential : i.days).toLocaleString()} ${i.potential !== undefined ? '' : 'วัน'}
+    </td>
   </tr>`).join('');
 }
 
@@ -139,13 +158,13 @@ function openSendModal() {
   const subject = `รายงานสรุปแผนการผลิต ประจำวันที่ ${now}`;
   document.getElementById('fieldSubject').value = subject;
 
-  // 🚩 สร้าง HTML ด้วย Cordia New และ Ultra Compact (แสดงทุกรายการ)
+  // 🚩 สร้างตาราง Email เป็น Cordia New และ Ultra Compact
   let capRows = _capDetails.map((i,idx)=>`
     <tr style="height:20px;">
       <td style="border:1px solid #cbd5e1; padding:2px 5px; text-align:center;">${idx+1}</td>
       <td style="border:1px solid #cbd5e1; padding:2px 5px;">${i.pName}</td>
-      <td style="border:1px solid #cbd5e1; padding:2px 5px;">${i.bottleneck}</td>
-      <td style="border:1px solid #cbd5e1; padding:2px 5px; text-align:center; font-weight:bold;">${i.potential.toLocaleString()}</td>
+      <td style="border:1px solid #cbd5e1; padding:2px 5px; color:${i.potential <= 0 ? '#dc2626' : '#0f172a'};">${i.bottleneck || 'N/A'}</td>
+      <td style="border:1px solid #cbd5e1; padding:2px 5px; text-align:center; font-weight:bold; color:${i.potential <= 0 ? '#dc2626' : '#059669'};">${i.potential.toLocaleString()}</td>
     </tr>`).join('');
 
   let expRows = _expData.map((i,idx)=>`
@@ -153,7 +172,7 @@ function openSendModal() {
       <td style="border:1px solid #cbd5e1; padding:2px 5px; text-align:center;">${idx+1}</td>
       <td style="border:1px solid #cbd5e1; padding:2px 5px;">${i.name}</td>
       <td style="border:1px solid #cbd5e1; padding:2px 5px; text-align:center;">${i.batch}</td>
-      <td style="border:1px solid #cbd5e1; padding:2px 5px; text-align:center; color:${i.days<=7?'red':'black'}; font-weight:bold;">${i.days} วัน</td>
+      <td style="border:1px solid #cbd5e1; padding:2px 5px; text-align:center; color:${i.days<=7?'#dc2626':'#059669'}; font-weight:bold;">${i.days} วัน</td>
     </tr>`).join('');
 
   cachedEmailHTML = `
@@ -161,21 +180,21 @@ function openSendModal() {
       <h2 style="font-size:16pt; font-weight:bold; margin:0 0 10px; color:#1a6cf5;">${subject}</h2>
       
       <h3 style="font-size:14pt; font-weight:bold; margin:15px 0 5px;">📊 รายละเอียดความสามารถการผลิต (ทุกรายการ)</h3>
-      <table style="width:100%; border-collapse:collapse; font-size:12pt;">
+      <table style="width:100%; border-collapse:collapse; font-size:12pt; white-space:nowrap;">
         <thead><tr style="background:#f1f5f9; font-size:14pt; font-weight:bold;">
           <th style="border:1px solid #cbd5e1; padding:2px 5px;">ลำดับ</th>
-          <th style="border:1px solid #cbd5e1; padding:2px 5px;">สินค้า</th>
-          <th style="border:1px solid #cbd5e1; padding:2px 5px;">RM ที่เป็นข้อจำกัด</th>
+          <th style="border:1px solid #cbd5e1; padding:2px 5px; text-align:left;">สินค้า</th>
+          <th style="border:1px solid #cbd5e1; padding:2px 5px; text-align:left;">RM ที่เป็นข้อจำกัด</th>
           <th style="border:1px solid #cbd5e1; padding:2px 5px;">ผลิตได้ (Unit)</th>
         </tr></thead>
         <tbody>${capRows}</tbody>
       </table>
 
       <h3 style="font-size:14pt; font-weight:bold; margin:20px 0 5px;">📅 วัตถุดิบใกล้หมดอายุ (Timeline 31 วัน)</h3>
-      <table style="width:100%; border-collapse:collapse; font-size:12pt;">
+      <table style="width:100%; border-collapse:collapse; font-size:12pt; white-space:nowrap;">
         <thead><tr style="background:#fef3c7; font-size:14pt; font-weight:bold;">
           <th style="border:1px solid #cbd5e1; padding:2px 5px;">ลำดับ</th>
-          <th style="border:1px solid #cbd5e1; padding:2px 5px;">RM Name</th>
+          <th style="border:1px solid #cbd5e1; padding:2px 5px; text-align:left;">RM Name</th>
           <th style="border:1px solid #cbd5e1; padding:2px 5px;">Batch</th>
           <th style="border:1px solid #cbd5e1; padding:2px 5px;">คงเหลือ</th>
         </tr></thead>
@@ -206,10 +225,15 @@ async function sendEmailNow(){
     });
     const j = await res.json();
     if(j.status==='success'){ 
-      alert('✅ ส่ง Email สำเร็จ (ส่งครบทุกรายการ)'); 
-      closeSendModal(); 
-    } else { throw new Error(); }
-  } catch(e) { alert('❌ ส่งล้มเหลว ตรวจสอบสิทธิ์การส่ง Email ใน Apps Script'); }
+      const t=document.getElementById('toast');
+      document.getElementById('toastMsg').textContent='ส่ง Email สำเร็จ (ครบทุกรายการ)';
+      t.classList.add('show');
+      setTimeout(()=>{t.classList.remove('show'); closeSendModal();}, 3000);
+    } else { throw new Error(j.message || 'ระบบหลังบ้านปฏิเสธการส่ง'); }
+  } catch(e) { 
+    console.error(e);
+    alert('❌ ส่งล้มเหลว: ' + e.message); 
+  }
   btn.disabled = false; btn.innerHTML = "🚀 ส่ง Email ทั้งหมด";
 }
 
