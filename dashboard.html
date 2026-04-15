@@ -8,9 +8,6 @@
 <link rel="stylesheet" href="mf-theme.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-<!-- html2canvas for screen capture -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<!-- EmailJS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <style>
@@ -41,18 +38,6 @@
 .email-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4a6380;margin-bottom:5px;display:block}
 .email-input{width:100%;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13.5px;color:#0a1f44;background:rgba(255,255,255,.75);border:1.5px solid rgba(180,210,255,.45);border-radius:10px;padding:9px 13px;outline:none;transition:border-color .15s,box-shadow .15s}
 .email-input:focus{border-color:#1a6cf5;box-shadow:0 0 0 3px rgba(26,108,245,.10)}
-
-/* Capture preview */
-.preview-wrap{background:rgba(0,40,120,.05);border:1.5px solid rgba(180,210,255,.35);border-radius:14px;overflow:hidden;margin-bottom:14px;max-height:240px;overflow-y:auto;position:relative}
-.preview-wrap img{width:100%;display:block;border-radius:0}
-.preview-placeholder{height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#7a9ab8}
-.preview-placeholder svg{width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:1.2;opacity:.5}
-.preview-placeholder p{font-size:13px;font-weight:500;margin:0}
-
-/* Progress bar */
-.prog-wrap{background:rgba(180,210,255,.25);border-radius:99px;height:6px;overflow:hidden;margin-bottom:8px;display:none}
-.prog-bar{height:100%;background:linear-gradient(90deg,#1a6cf5,#00b4d8);border-radius:99px;width:0%;transition:width .4s ease}
-.prog-text{font-size:12px;color:#4a6380;font-weight:500;text-align:center;display:none}
 
 /* Status badge */
 .status-badge{border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:12px}
@@ -86,7 +71,6 @@
 </head>
 <body>
 
-<!-- Toast -->
 <div id="toast" class="toast-mf">
   <svg id="toastIcon" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
   <span id="toastMsg">ส่ง Email สำเร็จ</span>
@@ -96,9 +80,6 @@
   <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
 </div>
 
-<!-- ══════════════════════════════════
-     SEND EMAIL MODAL
-══════════════════════════════════ -->
 <div id="sendModal" class="smod-overlay" style="display:none">
   <div class="smod-box">
     <div class="smod-hd">
@@ -112,10 +93,8 @@
     </div>
 
     <div class="smod-body">
-      <!-- Status (hidden by default) -->
       <div id="sendStatus" style="display:none"></div>
 
-      <!-- Email fields -->
       <div class="email-field">
         <label class="email-label">To</label>
         <input type="text" class="email-input" id="fieldTo" value="theewant@sermsukplc.com">
@@ -129,38 +108,23 @@
         <input type="text" class="email-input" id="fieldSubject" readonly style="background:rgba(240,246,255,.70);color:#2d5280">
       </div>
 
-      <!-- Capture preview -->
-      <label class="email-label">ภาพ Dashboard ที่จะแนบใน Email</label>
-      <div class="preview-wrap">
-        <div id="previewPlaceholder" class="preview-placeholder">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <p>กด "Capture" เพื่อดูตัวอย่างภาพ</p>
-        </div>
-        <img id="capturePreview" style="display:none">
+      <div style="background:rgba(26,108,245,.08); border-left:3px solid #1a6cf5; padding:10px 14px; border-radius:8px; margin-bottom:8px;">
+          <p style="font-size:12px; color:#1a6cf5; margin:0; font-weight:600;">
+              💡 ระบบจะสร้าง "รายงานสรุปแบบตาราง (Summary Report)" จากข้อมูลแดชบอร์ด ณ ปัจจุบัน เพื่อส่งแนบไปกับอีเมลโดยอัตโนมัติ
+          </p>
       </div>
-
-      <!-- Progress -->
-      <div class="prog-wrap" id="progWrap"><div class="prog-bar" id="progBar"></div></div>
-      <div class="prog-text" id="progText"></div>
     </div>
 
     <div class="smod-foot">
       <button class="btn-cancel-email" onclick="closeSendModal()">ยกเลิก</button>
-      <button class="btn-send-email" id="btnCapture" onclick="captureAndPreview()">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        Capture ภาพ
-      </button>
-      <button class="btn-send-email" id="btnSend" onclick="sendEmailNow()" disabled style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 3px 14px rgba(5,150,105,.30)">
+      <button class="btn-send-email" id="btnSend" onclick="sendEmailNow()" style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 3px 14px rgba(5,150,105,.30)">
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        ส่ง Email
+        ส่งตารางสรุป (Email)
       </button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     TOPBAR
-══════════════════════════════════ -->
 <header class="topbar">
   <div class="topbar-inner">
     <a href="index.html" class="brand">
@@ -185,10 +149,7 @@
   </div>
 </header>
 
-<!-- ══════════════════════════════════
-     PAGE SHELL  (id="dashboardCapture" สำหรับ html2canvas)
-══════════════════════════════════ -->
-<div class="shell" id="dashboardCapture">
+<div class="shell">
 
   <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px" class="a1">
     <div class="ph" style="margin-bottom:0">
@@ -203,16 +164,12 @@
         <div class="live-dot"></div><span id="lastUpdate">กำลังโหลด...</span>
       </div>
     </div>
-    <!-- ปุ่มส่ง Email — ไม่ถูก capture (อยู่นอก section ที่ capture) -->
     <button class="btn-report" id="btnReport" onclick="openSendModal()" disabled>
       <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       ส่งรายงาน Email
     </button>
   </div>
 
-  <!-- ────────────────────────────────
-       CHARTS SECTION (id="chartsSection" จะ capture เฉพาะส่วนนี้)
-  ──────────────────────────────────── -->
   <div id="chartsSection">
     <div class="row g-3">
       <div class="col-lg-8 a2">
@@ -254,7 +211,6 @@
   </div>
 </div>
 
-<!-- LIST MODAL -->
 <div class="modal fade mf-modal" id="listModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -274,7 +230,6 @@
   </div>
 </div>
 
-<!-- EDIT MODAL -->
 <div class="modal fade mf-modal" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -326,28 +281,19 @@ const EMAILJS_PUBLIC_KEY  = 'gYNAX5IlLeqDebuDi';    // จาก EmailJS → Acc
 const EMAILJS_SERVICE_ID  = 'service_ofpsdk6';   // จาก EmailJS → Email Services
 const EMAILJS_TEMPLATE_ID = 'template_rjnzopj';  // จาก EmailJS → Email Templates
 
-/* ══════════════════════════════════════════════════
-   EMAIL CONFIG
-══════════════════════════════════════════════════ */
-const DEFAULT_TO = 'theewant@sermsukplc.com';
-const DEFAULT_CC = 'tonxperianeov@gmail.com';
 const DASHBOARD_LINK = 'https://twanthongkham-creator.github.io/MatFlow/dashboard.html';
 
 /* ════ State ════ */
 Chart.register(ChartDataLabels);
 let rawData=[], editIdx=null, listMdl, editMdl;
-let _capData={}, _oosData=[];
-let capturedDataUrl = null; // เก็บ base64 image จาก html2canvas
+let _capData={}, _oosData=[], _expData=[];
 
 /* ════ Init ════ */
 window.onload = () => {
-  // Init EmailJS
   emailjs.init(EMAILJS_PUBLIC_KEY);
-
   listMdl = new bootstrap.Modal(document.getElementById('listModal'));
   editMdl  = new bootstrap.Modal(document.getElementById('editModal'));
 
-  // Set subject อัตโนมัติ
   const today = new Date();
   const dd = String(today.getDate()).padStart(2,'0');
   const mm = String(today.getMonth()+1).padStart(2,'0');
@@ -363,8 +309,15 @@ async function loadAll(){
   try{
     const[jd,jm]=await Promise.all([MF.getDashboardData(),MF.getMonitorData()]);
     if(jd.status==='success'&&jm.status==='success'){
-      rawData=jm.data;_capData=jd.data.productionCapacity||{};_oosData=jd.data.outOfStock||[];
-      renderChart(_capData);renderOOS(_oosData);renderExpiry(jd.data.expiryTable);
+      rawData=jm.data;
+      _capData=jd.data.productionCapacity||{};
+      _oosData=jd.data.outOfStock||[];
+      _expData=jd.data.expiryTable||[];
+      
+      renderChart(_capData);
+      renderOOS(_oosData);
+      renderExpiry(_expData);
+      
       document.getElementById('lastUpdate').textContent='อัปเดตล่าสุด: '+new Date().toLocaleString('th-TH');
       document.getElementById('btnReport').disabled=false;
     }else throw new Error();
@@ -450,90 +403,84 @@ async function saveEdit(){
 }
 
 /* ══════════════════════════════════════════════════
-   📧  EMAIL MODAL — CAPTURE + SEND
+   📧  EMAIL MODAL — SEND HTML TABLE
 ══════════════════════════════════════════════════ */
 function openSendModal(){
-  capturedDataUrl = null;
-  document.getElementById('capturePreview').style.display='none';
-  document.getElementById('previewPlaceholder').style.display='flex';
   document.getElementById('sendStatus').style.display='none';
-  document.getElementById('btnSend').disabled=true;
-  document.getElementById('progWrap').style.display='none';
-  document.getElementById('progText').style.display='none';
+  document.getElementById('btnSend').disabled=false;
   document.getElementById('sendModal').style.display='flex';
 }
 function closeSendModal(){document.getElementById('sendModal').style.display='none';}
 
-/* ── Step 1: Capture dashboard → base64 ── */
-async function captureAndPreview(){
-  const btnCap=document.getElementById('btnCapture');
-  const progWrap=document.getElementById('progWrap');
-  const progBar=document.getElementById('progBar');
-  const progText=document.getElementById('progText');
-
-  btnCap.disabled=true;
-  btnCap.innerHTML=`<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> กำลัง Capture...`;
-  progWrap.style.display='block'; progText.style.display='block';
-  progBar.style.width='10%'; progText.textContent='กำลังโหลดหน้าจอ...';
-
-  try{
-    const target = document.getElementById('chartsSection');
-    progBar.style.width='40%'; progText.textContent='กำลัง render กราฟ...';
-
-    const canvas = await html2canvas(target,{
-      scale:1.5,
-      useCORS:true,
-      allowTaint:true,
-      backgroundColor:'#f2f6fc',
-      logging:false,
-      onclone:(doc)=>{
-        // ซ่อน scroll bar ใน clone
-        doc.querySelectorAll('*').forEach(el=>{
-          if(el.scrollHeight>el.clientHeight) el.style.overflow='visible';
-        });
-      }
-    });
-
-    progBar.style.width='80%'; progText.textContent='กำลังสร้างภาพ...';
-    capturedDataUrl = canvas.toDataURL('image/png',0.92);
-
-    // Show preview
-    const img=document.getElementById('capturePreview');
-    img.src=capturedDataUrl;img.style.display='block';
-    document.getElementById('previewPlaceholder').style.display='none';
-
-    progBar.style.width='100%'; progText.textContent='Capture สำเร็จ — พร้อมส่ง Email';
-    document.getElementById('btnSend').disabled=false;
-
-  }catch(err){
-    console.error(err);
-    progText.textContent='Capture ล้มเหลว: '+err.message;
-    progBar.style.background='#dc2626';
-  }finally{
-    btnCap.disabled=false;
-    btnCap.innerHTML=`<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Capture อีกครั้ง`;
-  }
-}
-
-/* ── Step 2: Send via EmailJS ── */
 async function sendEmailNow(){
-  if(!capturedDataUrl){alert('กรุณา Capture ภาพก่อน');return;}
-
   const to      = document.getElementById('fieldTo').value.trim();
   const cc      = document.getElementById('fieldCc').value.trim();
   const subject = document.getElementById('fieldSubject').value.trim();
 
   if(!to){alert('กรุณาระบุ To email');return;}
   if(EMAILJS_PUBLIC_KEY==='YOUR_PUBLIC_KEY'){
-    alert('กรุณาตั้งค่า EMAILJS_PUBLIC_KEY, SERVICE_ID และ TEMPLATE_ID ก่อนใช้งาน\n\nดูวิธีตั้งค่าได้ที่ emailjs.com');return;
+    alert('กรุณาตั้งค่า EMAILJS_PUBLIC_KEY, SERVICE_ID และ TEMPLATE_ID ก่อนใช้งาน');return;
   }
 
   const btnSend=document.getElementById('btnSend');
   btnSend.disabled=true;
   btnSend.innerHTML=`<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> กำลังส่ง...`;
 
-  // สร้าง HTML email body ที่มีรูป + link
   const now=new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
+  
+  // 1. สร้างตารางของขาดสต๊อก (Out of Stock)
+  let oosHtml = '';
+  if (_oosData.length > 0) {
+      let oosRows = _oosData.map(i => `
+        <tr>
+          <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:#b91c1c; font-weight:bold;">${i.rmName}</td>
+          <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:#64748b;">${i.pName}</td>
+        </tr>
+      `).join('');
+      
+      oosHtml = `
+      <h3 style="color:#b91c1c; font-size:16px; margin-top:20px; border-left:4px solid #ef4444; padding-left:10px;">⚠️ วัตถุดิบขาด Stock (รอรับเข้า)</h3>
+      <table style="width:100%; border-collapse:collapse; background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+        <thead style="background:#fee2e2;">
+          <tr>
+            <th style="padding:10px; text-align:left; color:#991b1b; font-size:13px;">Raw Material</th>
+            <th style="padding:10px; text-align:left; color:#991b1b; font-size:13px;">สำหรับสินค้า</th>
+          </tr>
+        </thead>
+        <tbody>${oosRows}</tbody>
+      </table>`;
+  } else {
+      oosHtml = `<p style="color:#059669; font-weight:bold;">✅ ไม่มีวัตถุดิบขาดสต๊อก</p>`;
+  }
+
+  // 2. สร้างตารางของใกล้หมดอายุ (Expiry)
+  let expHtml = '';
+  if (_expData.length > 0) {
+      let expRows = _expData.map(i => {
+          let color = i.days <= 7 ? '#dc2626' : (i.days <= 15 ? '#d97706' : '#059669');
+          return `
+            <tr>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0; font-weight:bold;">${i.name}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:#64748b; font-family:monospace;">${i.batch}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:${color}; font-weight:bold; text-align:center;">${i.days} วัน</td>
+            </tr>`;
+      }).join('');
+      
+      expHtml = `
+      <h3 style="color:#b45309; font-size:16px; margin-top:24px; border-left:4px solid #f59e0b; padding-left:10px;">📅 วัตถุดิบใกล้หมดอายุ (ภายใน 30 วัน)</h3>
+      <table style="width:100%; border-collapse:collapse; background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+        <thead style="background:#fef3c7;">
+          <tr>
+            <th style="padding:10px; text-align:left; color:#b45309; font-size:13px;">Raw Material</th>
+            <th style="padding:10px; text-align:left; color:#b45309; font-size:13px;">Batch / Lot</th>
+            <th style="padding:10px; text-align:center; color:#b45309; font-size:13px;">วันหมดอายุ</th>
+          </tr>
+        </thead>
+        <tbody>${expRows}</tbody>
+      </table>`;
+  }
+
+  // 3. ประกอบร่าง HTML (ไม่ใช้ Base64 รูปภาพแล้ว)
   const emailBodyHtml=`
 <!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,sans-serif">
@@ -541,18 +488,21 @@ async function sendEmailNow(){
   <div style="background:linear-gradient(135deg,#003494,#0047bf 50%,#1a6cf5);padding:24px 32px">
     <p style="color:rgba(255,255,255,.65);font-size:11px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">MatFlow Inventory System · Sermsuk PLC</p>
     <h1 style="color:#fff;font-size:20px;font-weight:700;margin:0 0 4px">${subject}</h1>
-    <p style="color:rgba(255,255,255,.70);font-size:12px;margin:0">สร้างอัตโนมัติ ณ ${now}</p>
+    <p style="color:rgba(255,255,255,.70);font-size:12px;margin:0">ข้อมูลสรุปอัตโนมัติ ณ ${now}</p>
   </div>
+  
   <div style="padding:20px 32px">
-    <p style="font-size:13px;color:#334155;margin:0 0 16px">ด้านล่างคือภาพสรุปสถานะวัตถุดิบคงเหลือ ณ ปัจจุบัน</p>
-    <img src="${capturedDataUrl}" style="width:100%;border-radius:10px;border:1px solid #e2e8f0;display:block" alt="Dashboard Screenshot">
-    <div style="margin-top:20px;padding:14px 16px;background:#eff6ff;border-radius:8px;border-left:4px solid #3b82f6">
+    ${oosHtml}
+    ${expHtml}
+    
+    <div style="margin-top:24px;padding:14px 16px;background:#eff6ff;border-radius:8px;border-left:4px solid #3b82f6">
       <p style="font-size:12.5px;color:#1e40af;margin:0">
-        ดูข้อมูลแบบ Real-time ได้ที่:
+        📊 ดูกราฟและข้อมูลแบบ Real-time เพิ่มเติมได้ที่:
         <a href="${DASHBOARD_LINK}" style="color:#1d4ed8;font-weight:600">${DASHBOARD_LINK}</a>
       </p>
     </div>
   </div>
+  
   <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:14px 32px;display:flex;justify-content:space-between;align-items:center">
     <p style="font-size:12px;color:#64748b;margin:0;font-weight:600">MatFlow Inventory System · Sermsuk PLC</p>
     <p style="font-size:11px;color:#94a3b8;margin:0">${now}</p>
@@ -573,15 +523,12 @@ async function sendEmailNow(){
     );
 
     if(result.status===200){
-      // Success
       showStatus('success',`ส่ง Email สำเร็จ! ไปยัง ${to}`);
       showToast('success',`ส่ง Email สำเร็จ`);
-      // ปิด modal หลัง 2.5 วินาที
       setTimeout(()=>closeSendModal(),2500);
     }else{
       throw new Error('Status: '+result.status);
     }
-
   }catch(err){
     console.error('EmailJS error:',err);
     showStatus('error','ส่งล้มเหลว: '+(err.text||err.message||'กรุณาตรวจสอบการตั้งค่า EmailJS'));
