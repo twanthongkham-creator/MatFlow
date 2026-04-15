@@ -45,11 +45,10 @@
       </span>
       Goods Receiving
     </h1>
-    <p>ระบบรับเข้าวัตถุดิบ — สแกนบาร์โค้ดหรือพิมพ์รหัสวัตถุดิบ</p>
+    <p>ระบบรับเข้าวัตถุดิบ — สแกนบาร์โค้ดหรือพิมพ์รหัสวัตถุดิบ (รับเข้าด้วยหน่วยแพ็คเกจหน้างาน)</p>
   </div>
 
   <div class="row g-3">
-    <!-- Search + Details -->
     <div class="col-lg-6 a2">
       <div class="card-mf h-100">
         <div class="ctitle">
@@ -61,14 +60,19 @@
           <input list="masterList" id="codeInput" class="fc" placeholder="พิมพ์หรือสแกนรหัสวัตถุดิบ..." oninput="onCode()">
           <datalist id="masterList"></datalist>
         </div>
+        
         <div class="preview">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-            <div><div class="pf-lbl">Product Name</div><div class="pf-val" id="resPName">—</div></div>
-            <div><div class="pf-lbl">Supplier</div><div class="pf-val" id="resSupplier">—</div></div>
+          <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px">
+            <div><div class="pf-lbl">RM Name</div><div class="pf-val" id="resName">—</div></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div><div class="pf-lbl">RM Name</div><div class="pf-val" id="resName">—</div></div>
-            <div><div class="pf-lbl">Unit (Package)</div><div class="pf-unit" id="resUnit">—</div></div>
+            <div><div class="pf-lbl">Supplier</div><div class="pf-val" id="resSupplier">—</div></div>
+            <div><div class="pf-lbl">รับเข้าด้วยหน่วย (Package)</div><div class="pf-unit" id="resPackage">—</div></div>
+          </div>
+          
+          <div class="info-box" style="margin-top:12px; margin-bottom:0; font-size:11px; padding:8px 12px;">
+            <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>ระบบจะแปลงหน่วยจาก <b id="resPackageHint">แพ็คเกจ</b> ให้เป็น <b id="resUnitHint">Unit</b> เพื่อบันทึกลงคลังโดยอัตโนมัติ</span>
           </div>
         </div>
 
@@ -80,7 +84,7 @@
 
         <div class="row g-2 mb-3">
           <div class="col-6"><label class="fl">Batch / Lot No.</label><input type="text" id="batchInput" class="fc" placeholder="Lot No..."></div>
-          <div class="col-6"><label class="fl">จำนวน (Package)</label><input type="number" id="qtyInput" class="fc" value="1" min="0.0001" step="0.0001"></div>
+          <div class="col-6"><label class="fl">จำนวน (หน้างาน/Package)</label><input type="number" id="qtyInput" class="fc" value="1" min="0.0001" step="0.0001"></div>
         </div>
         <div class="row g-2 mb-4">
           <div class="col-6">
@@ -103,7 +107,6 @@
       </div>
     </div>
 
-    <!-- Queue -->
     <div class="col-lg-6 a3">
       <div id="qArea" class="card-mf h-100" style="display:none">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -135,58 +138,92 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="mf-shared.js"></script>
 <script>
-let master=[],queue=[],selected=null;
+let master=[], queue=[], selected=null;
 const SVG_X=`<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
 window.onload=async()=>{
   mfShow('กำลังเชื่อมต่อฐานข้อมูล...');
-  try{
-    // ✅ Cached — getMasterData ไม่โหลดซ้ำถ้าเคยโหลดแล้ว
-    const j=await MF.getMasterData(); master=j.data;
+  try {
+    const j=await MF.getMasterData(); 
+    master=j.data;
     const dl=document.getElementById('masterList');
-    master.forEach(i=>{const op=document.createElement('option');op.value=i.code;op.textContent=i.name;dl.appendChild(op);});
-  }catch(e){alert('เชื่อมต่อ API ล้มเหลว');}
+    
+    // สร้าง Dropdown ค้นหา (ไม่ต้องใส่ Product Name เข้าไปแล้ว)
+    master.forEach(i=>{
+        const op=document.createElement('option');
+        op.value=i.code;
+        op.textContent=i.name; 
+        dl.appendChild(op);
+    });
+  } catch(e) {
+      alert('เชื่อมต่อ API ล้มเหลว');
+  }
   mfHide();
 };
 
 function onCode(){
   const code=document.getElementById('codeInput').value;
   selected=master.find(i=>i.code===code);
-  document.getElementById('resPName').textContent=selected?selected.productName:'—';
+  
   document.getElementById('resName').textContent=selected?selected.name:'—';
-  document.getElementById('resUnit').textContent=selected?selected.unit:'—';
+  // 🚩 แสดงหน่วยรับเข้าเป็น Package (เช่น ถัง, ขวด) เพื่อให้สอดคล้องกับหน้างาน
+  document.getElementById('resPackage').textContent=selected?selected.packageType:'—'; 
   document.getElementById('resSupplier').textContent=selected?selected.supplier:'—';
+  
+  document.getElementById('resPackageHint').textContent=selected?selected.packageType:'แพ็คเกจ';
+  document.getElementById('resUnitHint').textContent=selected?selected.unit:'Unit';
 }
 
 function addToQueue(){
   const batch=document.getElementById('batchInput').value.trim();
-  const qty=parseFloat(document.getElementById('qtyInput').value);
+  const inputQty=parseFloat(document.getElementById('qtyInput').value); // รับค่าเป็น Package
   const mfg=document.getElementById('mfgInput').value, exp=document.getElementById('expInput').value;
+  
   if(!selected)return alert('กรุณาเลือกรหัสวัตถุดิบก่อน');
   if(!batch)return alert('กรุณาระบุเลข Batch');
-  if(isNaN(qty)||qty<=0)return alert('กรุณาระบุจำนวนที่ถูกต้อง (> 0)');
+  if(isNaN(inputQty)||inputQty<=0)return alert('กรุณาระบุจำนวนที่ถูกต้อง (> 0)');
   if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
   if(new Date(mfg)>new Date(exp))return alert('วันผลิต (MFG) ต้องไม่มากกว่าวันหมดอายุ (BBF)');
-  queue.push({...selected,batch,qty,mfgDate:mfg,expDate:exp}); render();
-  document.getElementById('codeInput').value=''; document.getElementById('batchInput').value='';
-  document.getElementById('qtyInput').value='1'; document.getElementById('mfgInput').value=''; document.getElementById('expInput').value='';
-  onCode(); document.getElementById('codeInput').focus();
+  
+  // 🚩 สำคัญ: แปลงจาก Package กลับเป็น Unit ทันทีก่อนเก็บเข้า Queue เพื่อให้ RM_Monitoring มีแต่ Unit ล้วนๆ
+  const sysUnitQty = inputQty * (selected.unitPerPack || 1);
+
+  queue.push({
+      ...selected,
+      batch,
+      inputPackageQty: inputQty, // เก็บไว้โชว์สวยๆ ว่ากรอกมากี่ถัง
+      qty: sysUnitQty,           // 🚩 ค่าที่จะส่งไปบันทึกลงระบบต้องเป็น Unit
+      mfgDate: mfg,
+      expDate: exp
+  }); 
+  
+  render();
+  document.getElementById('codeInput').value=''; 
+  document.getElementById('batchInput').value='';
+  document.getElementById('qtyInput').value='1'; 
+  document.getElementById('mfgInput').value=''; 
+  document.getElementById('expInput').value='';
+  onCode(); 
+  document.getElementById('codeInput').focus();
 }
 
 function render(){
   const has=queue.length>0;
   document.getElementById('qArea').style.display=has?'block':'none';
   document.getElementById('qPlaceholder').style.display=has?'none':'flex';
-  if(!has)return;
+  
+  if(!has) return;
   document.getElementById('qCountPill').textContent=`${queue.length} รายการ`;
   document.getElementById('itemCount').textContent=`${queue.length} รายการ`;
+  
   document.getElementById('qList').innerHTML=queue.map((item,i)=>`
     <div class="qi">
       <div style="flex:1;min-width:0">
         <div class="qi-name">${item.name}</div>
         <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px">
           <span class="bcode">${item.batch}</span>
-          <span class="btag">Qty: <strong>${item.qty} ${item.unit}</strong></span>
+          <span class="btag">หน้างานรับมา: <strong>${item.inputPackageQty} ${item.packageType}</strong></span>
+          <span class="btag" style="background:rgba(59,142,248,0.15); color:var(--sky);">แปลงลงระบบ: <strong>${item.qty} ${item.unit}</strong></span>
           <span class="btag">MFG: ${mfFmtSlash(item.mfgDate)}</span>
           <span class="btag" style="color:var(--red);font-weight:500">EXP: ${mfFmtSlash(item.expDate)}</span>
         </div>
@@ -195,17 +232,31 @@ function render(){
     </div>`).join('');
 }
 
-function delItem(b){queue.splice(+b.dataset.idx,1);render();}
+function delItem(b){
+    queue.splice(+b.dataset.idx,1);
+    render();
+}
 
 async function doSubmit(){
-  if(!confirm('ยืนยันการนำเข้าวัตถุดิบทั้งหมดลงในคลัง?'))return;
+  if(!confirm('ยืนยันการนำเข้าวัตถุดิบทั้งหมดลงในคลัง?\nระบบจะทำการแปลงหน่วยลงไปบันทึกเป็น Unit โดยอัตโนมัติ'))return;
+  
   mfShow('กำลังบันทึกข้อมูล... ห้ามปิดหน้าต่าง');
   document.getElementById('btnSubmit').disabled=true;
-  try{
-    const j=await MF.receive(queue, document.getElementById('opName').value); // ✅ invalidates cache
-    if(j.status==='success'){alert('บันทึกรับเข้าสำเร็จ');location.reload();}
-    else{alert('เกิดข้อผิดพลาด: '+j.message);document.getElementById('btnSubmit').disabled=false;}
-  }catch(e){alert('การบันทึกล้มเหลว กรุณาลองใหม่');document.getElementById('btnSubmit').disabled=false;}
+  
+  try {
+    // ส่งข้อมูลที่มี qty เป็น Unit ไปบันทึก
+    const j=await MF.receive(queue, document.getElementById('opName').value); 
+    if(j.status==='success'){
+        alert('✅ บันทึกรับเข้าคลังสำเร็จ');
+        location.reload();
+    } else {
+        alert('เกิดข้อผิดพลาด: '+j.message);
+        document.getElementById('btnSubmit').disabled=false;
+    }
+  } catch(e) {
+      alert('การบันทึกล้มเหลว กรุณาลองใหม่');
+      document.getElementById('btnSubmit').disabled=false;
+  }
   mfHide();
 }
 </script>
