@@ -110,7 +110,7 @@
 
       <div style="background:rgba(26,108,245,.08); border-left:3px solid #1a6cf5; padding:10px 14px; border-radius:8px; margin-bottom:8px;">
           <p style="font-size:12px; color:#1a6cf5; margin:0; font-weight:600;">
-              💡 ระบบจะสร้าง "รายงานสรุปแบบตาราง (Summary Report)" จากข้อมูลแดชบอร์ด ณ ปัจจุบัน เพื่อส่งแนบไปกับอีเมลโดยอัตโนมัติ
+              💡 ระบบจะสร้าง "รายงานสรุปแบบตาราง (Summary Report)" จากข้อมูลแดชบอร์ด ณ ปัจจุบัน เพื่อส่งแนบไปกับอีเมลโดยอัตโนมัติ (รองรับ Microsoft Outlook)
           </p>
       </div>
     </div>
@@ -149,7 +149,7 @@
   </div>
 </header>
 
-<div class="shell">
+<div class="shell" id="dashboardCapture">
 
   <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px" class="a1">
     <div class="ph" style="margin-bottom:0">
@@ -277,9 +277,9 @@
 /* ══════════════════════════════════════════════════
    ⚙️  CONFIG — แก้ค่า 3 บรรทัดนี้ให้ตรงกับ EmailJS
 ══════════════════════════════════════════════════ */
-const EMAILJS_PUBLIC_KEY  = 'gYNAX5IlLeqDebuDi';    // จาก EmailJS → Account → General
-const EMAILJS_SERVICE_ID  = 'service_ofpsdk6';   // จาก EmailJS → Email Services
-const EMAILJS_TEMPLATE_ID = 'template_rjnzopj';  // จาก EmailJS → Email Templates
+const EMAILJS_PUBLIC_KEY  = 'gYNAX5IlLeqDebuDi';    
+const EMAILJS_SERVICE_ID  = 'service_ofpsdk6';   
+const EMAILJS_TEMPLATE_ID = 'template_rjnzopj';  
 
 const DASHBOARD_LINK = 'https://twanthongkham-creator.github.io/MatFlow/dashboard.html';
 
@@ -294,11 +294,14 @@ window.onload = () => {
   listMdl = new bootstrap.Modal(document.getElementById('listModal'));
   editMdl  = new bootstrap.Modal(document.getElementById('editModal'));
 
+  // 🚩 แก้ปัญหา &#x2F; โดยเปลี่ยนไปใช้ชื่อเดือนภาษาไทยแทน (อิงตาม EmailJS Safe format)
   const today = new Date();
-  const dd = String(today.getDate()).padStart(2,'0');
-  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = monthNames[today.getMonth()];
   const yyyy = today.getFullYear();
-  document.getElementById('fieldSubject').value = `รายงานวัตถุดิบคงเหลือ ประจำวันที่ ${dd}/${mm}/${yyyy}`;
+  
+  document.getElementById('fieldSubject').value = `รายงานวัตถุดิบคงเหลือ ประจำวันที่ ${dd} ${mm} ${yyyy}`;
 
   loadAll();
 };
@@ -403,7 +406,7 @@ async function saveEdit(){
 }
 
 /* ══════════════════════════════════════════════════
-   📧  EMAIL MODAL — SEND HTML TABLE
+   📧  EMAIL MODAL — SEND OUTLOOK-SAFE HTML TABLE
 ══════════════════════════════════════════════════ */
 function openSendModal(){
   document.getElementById('sendStatus').style.display='none';
@@ -428,87 +431,114 @@ async function sendEmailNow(){
 
   const now=new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
   
-  // 1. สร้างตารางของขาดสต๊อก (Out of Stock)
+  // 1. ตารางของขาดสต๊อก (Outlook Safe CSS) - 🚩 ปรับฟอนต์ใหม่ทั้งหมดให้ใหญ่ขึ้นและรองรับภาษาไทยดีขึ้น
   let oosHtml = '';
   if (_oosData.length > 0) {
       let oosRows = _oosData.map(i => `
         <tr>
-          <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:#b91c1c; font-weight:bold;">${i.rmName}</td>
-          <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:#64748b;">${i.pName}</td>
+          <td style="padding:16px 20px; border-bottom:1px solid #cbd5e1; color:#991b1b; font-family:Tahoma, Geneva, sans-serif; font-size:18px; font-weight:bold;">${i.rmName}</td>
+          <td style="padding:16px 20px; border-bottom:1px solid #cbd5e1; color:#475569; font-family:Tahoma, Geneva, sans-serif; font-size:17px;">${i.pName}</td>
         </tr>
       `).join('');
       
       oosHtml = `
-      <h3 style="color:#b91c1c; font-size:16px; margin-top:20px; border-left:4px solid #ef4444; padding-left:10px;">⚠️ วัตถุดิบขาด Stock (รอรับเข้า)</h3>
-      <table style="width:100%; border-collapse:collapse; background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-        <thead style="background:#fee2e2;">
+      <h3 style="color:#b91c1c; font-family:Tahoma, Geneva, sans-serif; font-size:22px; margin:0 0 16px; border-left:6px solid #ef4444; padding-left:14px;">⚠️ วัตถุดิบขาด Stock (รอรับเข้า)</h3>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #cbd5e1; border-collapse:collapse; background-color:#ffffff;">
+        <thead>
           <tr>
-            <th style="padding:10px; text-align:left; color:#991b1b; font-size:13px;">Raw Material</th>
-            <th style="padding:10px; text-align:left; color:#991b1b; font-size:13px;">สำหรับสินค้า</th>
+            <th style="padding:16px 20px; background-color:#fee2e2; border-bottom:2px solid #fca5a5; text-align:left; color:#991b1b; font-family:Tahoma, Geneva, sans-serif; font-size:17px;">Raw Material</th>
+            <th style="padding:16px 20px; background-color:#fee2e2; border-bottom:2px solid #fca5a5; text-align:left; color:#991b1b; font-family:Tahoma, Geneva, sans-serif; font-size:17px;">สำหรับสินค้า</th>
           </tr>
         </thead>
         <tbody>${oosRows}</tbody>
       </table>`;
   } else {
-      oosHtml = `<p style="color:#059669; font-weight:bold;">✅ ไม่มีวัตถุดิบขาดสต๊อก</p>`;
+      oosHtml = `
+      <h3 style="color:#059669; font-family:Tahoma, Geneva, sans-serif; font-size:22px; margin:0 0 12px; border-left:6px solid #10b981; padding-left:14px;">✅ สถานะ Stock ปกติ</h3>
+      <p style="font-family:Tahoma, Geneva, sans-serif; font-size:18px; color:#334155; margin:0;">ไม่มีวัตถุดิบขาดสต๊อก</p>`;
   }
 
-  // 2. สร้างตารางของใกล้หมดอายุ (Expiry)
+  // 2. ตารางของใกล้หมดอายุ (Outlook Safe CSS)
   let expHtml = '';
   if (_expData.length > 0) {
       let expRows = _expData.map(i => {
           let color = i.days <= 7 ? '#dc2626' : (i.days <= 15 ? '#d97706' : '#059669');
           return `
             <tr>
-              <td style="padding:10px; border-bottom:1px solid #e2e8f0; font-weight:bold;">${i.name}</td>
-              <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:#64748b; font-family:monospace;">${i.batch}</td>
-              <td style="padding:10px; border-bottom:1px solid #e2e8f0; color:${color}; font-weight:bold; text-align:center;">${i.days} วัน</td>
+              <td style="padding:16px 20px; border-bottom:1px solid #cbd5e1; font-family:Tahoma, Geneva, sans-serif; font-size:18px; font-weight:bold; color:#0f172a;">${i.name}</td>
+              <td style="padding:16px 20px; border-bottom:1px solid #cbd5e1; color:#334155; font-family:Tahoma, Geneva, sans-serif; font-size:17px;">${i.batch}</td>
+              <td style="padding:16px 20px; border-bottom:1px solid #cbd5e1; color:${color}; font-family:Tahoma, Geneva, sans-serif; font-size:18px; font-weight:bold; text-align:center;">${i.days} วัน</td>
             </tr>`;
       }).join('');
       
       expHtml = `
-      <h3 style="color:#b45309; font-size:16px; margin-top:24px; border-left:4px solid #f59e0b; padding-left:10px;">📅 วัตถุดิบใกล้หมดอายุ (ภายใน 30 วัน)</h3>
-      <table style="width:100%; border-collapse:collapse; background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-        <thead style="background:#fef3c7;">
+      <h3 style="color:#b45309; font-family:Tahoma, Geneva, sans-serif; font-size:22px; margin:0 0 16px; border-left:6px solid #f59e0b; padding-left:14px;">📅 วัตถุดิบใกล้หมดอายุ (ภายใน 30 วัน)</h3>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #cbd5e1; border-collapse:collapse; background-color:#ffffff;">
+        <thead>
           <tr>
-            <th style="padding:10px; text-align:left; color:#b45309; font-size:13px;">Raw Material</th>
-            <th style="padding:10px; text-align:left; color:#b45309; font-size:13px;">Batch / Lot</th>
-            <th style="padding:10px; text-align:center; color:#b45309; font-size:13px;">วันหมดอายุ</th>
+            <th style="padding:16px 20px; background-color:#fef3c7; border-bottom:2px solid #fcd34d; text-align:left; color:#b45309; font-family:Tahoma, Geneva, sans-serif; font-size:17px;">Raw Material</th>
+            <th style="padding:16px 20px; background-color:#fef3c7; border-bottom:2px solid #fcd34d; text-align:left; color:#b45309; font-family:Tahoma, Geneva, sans-serif; font-size:17px;">Batch / Lot</th>
+            <th style="padding:16px 20px; background-color:#fef3c7; border-bottom:2px solid #fcd34d; text-align:center; color:#b45309; font-family:Tahoma, Geneva, sans-serif; font-size:17px;">คงเหลือเวลา</th>
           </tr>
         </thead>
         <tbody>${expRows}</tbody>
       </table>`;
   }
 
-  // 3. ประกอบร่าง HTML (ไม่ใช้ Base64 รูปภาพแล้ว)
+  // 3. ประกอบร่าง HTML สำหรับส่งผ่าน EmailJS โดยใช้ Table ล้วนๆ (Outlook รองรับ 100%)
   const emailBodyHtml=`
-<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,sans-serif">
-<div style="max-width:800px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,40,120,.10)">
-  <div style="background:linear-gradient(135deg,#003494,#0047bf 50%,#1a6cf5);padding:24px 32px">
-    <p style="color:rgba(255,255,255,.65);font-size:11px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">MatFlow Inventory System · Sermsuk PLC</p>
-    <h1 style="color:#fff;font-size:20px;font-weight:700;margin:0 0 4px">${subject}</h1>
-    <p style="color:rgba(255,255,255,.70);font-size:12px;margin:0">ข้อมูลสรุปอัตโนมัติ ณ ${now}</p>
-  </div>
-  
-  <div style="padding:20px 32px">
-    ${oosHtml}
-    ${expHtml}
-    
-    <div style="margin-top:24px;padding:14px 16px;background:#eff6ff;border-radius:8px;border-left:4px solid #3b82f6">
-      <p style="font-size:12.5px;color:#1e40af;margin:0">
-        📊 ดูกราฟและข้อมูลแบบ Real-time เพิ่มเติมได้ที่:
-        <a href="${DASHBOARD_LINK}" style="color:#1d4ed8;font-weight:600">${DASHBOARD_LINK}</a>
-      </p>
-    </div>
-  </div>
-  
-  <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:14px 32px;display:flex;justify-content:space-between;align-items:center">
-    <p style="font-size:12px;color:#64748b;margin:0;font-weight:600">MatFlow Inventory System · Sermsuk PLC</p>
-    <p style="font-size:11px;color:#94a3b8;margin:0">${now}</p>
-  </div>
-</div>
-</body></html>`;
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#f8fafc; font-family:Tahoma, Geneva, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f8fafc; padding:20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" max-width="800px" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border:1px solid #cbd5e1; width:100%; max-width:800px;">
+          
+          <tr>
+            <td style="background-color:#1a6cf5; padding:30px 40px; text-align:left;">
+              <p style="color:#bfdbfe; font-family:Tahoma, Geneva, sans-serif; font-size:16px; margin:0 0 10px; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">MatFlow Inventory System · Sermsuk PLC</p>
+              <h1 style="color:#ffffff; font-family:Tahoma, Geneva, sans-serif; font-size:28px; font-weight:700; margin:0 0 10px;">${subject}</h1>
+              <p style="color:#e0f2fe; font-family:Tahoma, Geneva, sans-serif; font-size:16px; margin:0;">ระบบรวบรวมข้อมูลสรุป ณ วันที่ ${now}</p>
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="padding:40px;">
+              ${oosHtml}
+              <br><br>
+              ${expHtml}
+              
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:40px; background-color:#eff6ff; border-left:6px solid #3b82f6;">
+                <tr>
+                  <td style="padding:24px;">
+                    <p style="font-family:Tahoma, Geneva, sans-serif; font-size:18px; color:#1e40af; margin:0; line-height:1.6;">
+                      📊 <b>ดูกราฟ Capability และรายงานฉบับเต็มได้ที่ระบบ:</b><br>
+                      <a href="${DASHBOARD_LINK}" style="color:#1d4ed8; font-weight:bold; text-decoration:underline;">${DASHBOARD_LINK}</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="background-color:#f1f5f9; border-top:1px solid #e2e8f0; padding:20px 40px; text-align:center;">
+              <p style="font-family:Tahoma, Geneva, sans-serif; font-size:16px; color:#475569; margin:0; font-weight:bold;">MatFlow Inventory Management System</p>
+              <p style="font-family:Tahoma, Geneva, sans-serif; font-size:15px; color:#94a3b8; margin:8px 0 0;">อัปเดตสถานะล่าสุด: ${now}</p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 
   try{
     const result = await emailjs.send(
