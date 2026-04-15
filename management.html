@@ -1,149 +1,61 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatFlow Management Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{
-          --ocean-deep:#0a1628;--sky:#2171e5;--sky-bright:#3b8ef8;--sky-lt:#5ba4ff;
-          --glass-white:rgba(255,255,255,0.72);--glass-border:rgba(255,255,255,0.55);
-          --glass-shadow:0 8px 32px rgba(10,22,40,0.12),0 2px 8px rgba(10,22,40,0.08);
-          --glass-shadow-lg:0 20px 60px rgba(10,22,40,0.18),0 4px 16px rgba(10,22,40,0.10);
-          --glass-inset:inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -1px 0 rgba(255,255,255,0.2);
-          --txt:#0d2548;--txt2:#2d5a8e;--txt3:#7aa3cc;
-          --green:#05a06a;--green-lt:rgba(5,160,106,0.12);--green-br:rgba(5,160,106,0.3);
-          --red:#e0334c;--red-lt:rgba(224,51,76,0.10);--red-br:rgba(224,51,76,0.28);
-          --amber:#e09305;--amber-lt:rgba(224,147,5,0.10);--amber-br:rgba(224,147,5,0.28);
-          --r:12px;--r-lg:18px;--r-xl:24px;--r-2xl:32px;
-        }
-        body{font-family:'Outfit',sans-serif;background:var(--ocean-deep);color:var(--txt);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-        body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 10% 10%,rgba(33,113,229,0.55) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 20%,rgba(59,142,248,0.35) 0%,transparent 55%),radial-gradient(ellipse 70% 50% at 50% 90%,rgba(91,164,255,0.28) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(26,74,140,0.45) 0%,transparent 50%);background-color:var(--ocean-deep)}
-        body::after{content:'';position:fixed;inset:0;z-index:1;opacity:.025;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
-        .topbar{position:sticky;top:0;z-index:200;height:64px;background:rgba(10,22,40,0.55);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;padding:0 24px;gap:16px;box-shadow:0 1px 0 rgba(255,255,255,0.06),0 4px 24px rgba(0,0,0,0.22)}
-        .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
-        .brand-ico{width:34px;height:34px;background:linear-gradient(135deg,rgba(59,142,248,0.9),rgba(33,113,229,0.9));border:1px solid rgba(255,255,255,0.30);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(59,142,248,0.40),inset 0 1px 0 rgba(255,255,255,0.4)}
-        .brand-ico svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:1.8}
-        .brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.3px}
-        .brand-sep{width:1px;height:16px;background:rgba(255,255,255,0.18);margin:0 4px}
-        .brand-sub{font-size:10.5px;color:rgba(255,255,255,0.40);font-weight:400}
-        .topnav{display:flex;align-items:center;gap:2px;margin-left:auto}
-        .nav-a{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:500;color:rgba(255,255,255,0.50);transition:all .2s;white-space:nowrap}
-        .nav-a svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
-        .nav-a:hover{background:rgba(255,255,255,0.10);color:rgba(255,255,255,0.85)}
-        .nav-a.active{background:rgba(255,255,255,0.16);color:#fff;font-weight:600;border:1px solid rgba(255,255,255,0.18);box-shadow:inset 0 1px 0 rgba(255,255,255,0.20)}
-        .shell{position:relative;z-index:10;max-width:1340px;margin:0 auto;padding:24px 24px 64px}
-        .ph{margin-bottom:22px}
-        .ph h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px;display:flex;align-items:center;gap:12px;text-shadow:0 2px 16px rgba(59,142,248,0.35)}
-        .ph-ico{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,rgba(71,85,105,0.9),rgba(30,58,95,0.85));border:1px solid rgba(255,255,255,0.30);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(30,58,95,0.40),inset 0 1px 0 rgba(255,255,255,0.4)}
-        .ph-ico svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
-        .ph p{font-size:13px;color:rgba(255,255,255,0.48);margin-top:4px;margin-left:54px;font-weight:400}
-        .filter-strip{background:var(--glass-white);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--glass-border);border-radius:var(--r-xl);box-shadow:var(--glass-shadow),var(--glass-inset);padding:16px 20px;margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;position:relative;overflow:hidden}
-        .filter-strip::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,0.30) 0%,rgba(255,255,255,0.05) 100%);pointer-events:none}
-        .fg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;position:relative;z-index:1}
-        .fg.wide{flex:2;min-width:240px}
-        .fl{display:block;font-size:11.5px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px}
-        .fc{width:100%;font-family:'Outfit',sans-serif;font-size:14px;color:var(--txt);background:rgba(255,255,255,0.65);backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,0.60);border-radius:var(--r);padding:9px 13px;outline:none;transition:all .18s;-webkit-appearance:none;appearance:none;box-shadow:inset 0 1px 3px rgba(10,22,40,0.06)}
-        .fc:focus{background:rgba(255,255,255,0.88);border-color:var(--sky-bright);box-shadow:0 0 0 3.5px rgba(59,142,248,0.18)}
-        .fc::placeholder{color:var(--txt3)}
-        .search-wrap{position:relative}
-        .search-wrap .fc{padding-left:37px}
-        .search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none}
-        .search-ico svg{width:14px;height:14px;stroke:var(--txt3);fill:none;stroke-width:2}
-        .table-card{background:var(--glass-white);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--glass-border);border-radius:var(--r-xl);box-shadow:var(--glass-shadow),var(--glass-inset);overflow:hidden;position:relative}
-        .table-card::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,0.30) 0%,rgba(255,255,255,0.05) 100%);pointer-events:none;z-index:0}
-        .table-scroll{max-height:67vh;overflow-y:auto;position:relative;z-index:1}
-        .mt{width:100%;border-collapse:collapse}
-        .mt thead tr{background:linear-gradient(135deg,rgba(10,22,40,0.80),rgba(26,74,140,0.70));backdrop-filter:blur(20px);position:sticky;top:0;z-index:5}
-        .mt thead th{padding:12px 14px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(255,255,255,0.60);text-align:left;white-space:nowrap}
-        .mt tbody tr{border-bottom:1px solid rgba(255,255,255,0.22);transition:background .14s;background:rgba(255,255,255,0.55)}
-        .mt tbody tr:hover{background:rgba(255,255,255,0.82)}
-        .mt tbody tr:last-child{border-bottom:none}
-        .mt tbody td{padding:12px 14px;font-size:14px;color:var(--txt)}
-        .bcode{display:inline-block;background:rgba(255,255,255,0.55);color:var(--txt2);border:1px solid rgba(255,255,255,0.50);border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:600;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(6px)}
-        .bbatch{display:inline-block;background:rgba(59,142,248,0.12);color:var(--sky);border:1px solid rgba(59,142,248,0.28);border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:600;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(6px)}
-        .bext{display:inline-block;background:rgba(224,147,5,0.10);color:#92400e;border:1px solid rgba(224,147,5,0.30);border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:600}
-        .row-count{background:rgba(255,255,255,0.55);backdrop-filter:blur(12px);color:var(--txt2);border:1px solid rgba(255,255,255,0.50);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:600;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6)}
-        .exp-expired{color:#7c3aed;font-weight:700}.exp-danger{color:var(--red);font-weight:700}.exp-warn{color:var(--amber);font-weight:600}.exp-ok{color:var(--green);font-weight:500}
-        .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:600;border:none;border-radius:var(--r);padding:7px 14px;cursor:pointer;transition:all .18s;white-space:nowrap;letter-spacing:-.1px}
-        .btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
-        .btn:active{transform:scale(.97)}.btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}.btn-w{width:100%}
-        .btn-blue{background:linear-gradient(135deg,var(--sky-bright),var(--sky));color:#fff;border:1px solid rgba(255,255,255,0.22);box-shadow:0 3px 12px rgba(59,142,248,0.35),inset 0 1px 0 rgba(255,255,255,0.28)}
-        .btn-blue:hover{box-shadow:0 5px 20px rgba(59,142,248,0.48);transform:translateY(-1px)}
-        .btn-outline{background:rgba(255,255,255,0.55);backdrop-filter:blur(12px);color:var(--txt2);border:1.5px solid rgba(255,255,255,0.50)}
-        .btn-outline:hover{background:rgba(255,255,255,0.80)}
-        .btn-edit{background:rgba(59,142,248,0.10);color:var(--sky);border:1.5px solid rgba(59,142,248,0.25);backdrop-filter:blur(8px)}
-        .btn-edit:hover{background:rgba(59,142,248,0.20);border-color:rgba(59,142,248,0.45)}
-        .btn-del{background:rgba(224,51,76,0.08);color:var(--red);border:1.5px solid rgba(224,51,76,0.22);margin-left:5px;backdrop-filter:blur(8px)}
-        .btn-del:hover{background:rgba(224,51,76,0.16)}
-        .modal-content{border:none;border-radius:var(--r-2xl);box-shadow:0 30px 80px rgba(10,22,40,0.35);overflow:hidden;backdrop-filter:blur(32px);background:rgba(240,247,255,0.95)}
-        .modal-hd{background:linear-gradient(135deg,rgba(10,22,40,0.90),rgba(26,74,140,0.80));padding:18px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px)}
-        .modal-hd-title{font-size:14.5px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
-        .modal-hd-title svg{width:16px;height:16px;stroke:rgba(255,255,255,0.65);fill:none;stroke-width:1.8}
-        .modal-hd .btitle{font-family:'JetBrains Mono',monospace;color:#93c5fd;font-size:14px}
-        .btn-close-w{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.18);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:background .15s}
-        .btn-close-w:hover{background:rgba(255,255,255,0.24)}
-        .btn-close-w svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5}
-        .modal-bd{padding:22px 24px;background:rgba(240,247,255,0.90)}
-        .modal-info-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-        .mi-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt3);margin-bottom:3px}
-        .mi-val{font-size:14px;font-weight:700;color:var(--txt)}
-        .qty-hero{background:rgba(59,142,248,0.08);border:2px solid rgba(59,142,248,0.25);border-radius:var(--r-lg);padding:14px;text-align:center;margin-bottom:14px;backdrop-filter:blur(12px)}
-        .qty-hero input{font-size:2.2rem;font-weight:700;color:#0d2548;border:none;background:transparent;width:100%;text-align:center;outline:none;font-family:'JetBrains Mono',monospace}
-        .qty-unit{font-size:12px;font-weight:600;color:var(--txt3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
-        .date-field-wrap{background:rgba(255,255,255,0.55);backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,0.60);border-radius:var(--r-lg);padding:11px 13px}
-        .date-field-wrap label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
-        .date-field-wrap label svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
-        .date-field-wrap input{background:transparent;border:none;outline:none;font-family:'Outfit',sans-serif;font-weight:700;font-size:14.5px;color:var(--txt);width:100%}
-        .extend-wrap{background:rgba(224,147,5,0.08);border:1.5px solid rgba(224,147,5,0.28);border-radius:var(--r-lg);padding:13px 15px;backdrop-filter:blur(12px)}
-        .extend-inner{display:none;margin-top:11px;padding-top:11px;border-top:1px dashed rgba(224,147,5,0.35)}
-        .modal-ft{background:rgba(255,255,255,0.70);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.50);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end}
-        .loader{position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.60);backdrop-filter:blur(16px) saturate(180%);display:flex;align-items:center;justify-content:center}
-        .loader-box{background:rgba(255,255,255,0.82);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.70);border-radius:var(--r-2xl);padding:32px 48px;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:var(--glass-shadow-lg),var(--glass-inset);min-width:220px;text-align:center}
-        .spinner{width:38px;height:38px;border:3px solid rgba(59,142,248,0.25);border-top-color:var(--sky-bright);border-radius:50%;animation:spin .65s linear infinite}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .loader-txt{font-size:13.5px;font-weight:600;color:var(--txt2)}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-        .a1{animation:fadeUp .45s .04s both}.a2{animation:fadeUp .45s .12s both}
-        ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:rgba(255,255,255,0.15)}::-webkit-scrollbar-thumb{background:rgba(59,142,248,0.40);border-radius:99px}
-        @media(max-width:768px){.topbar{padding:0 16px;gap:10px}.brand-sub,.brand-sep{display:none}.nav-a{padding:7px 9px;font-size:12px;gap:4px}.shell{padding:16px 14px 64px}.ph h1{font-size:18px}.ph p{margin-left:0;margin-top:6px}.filter-strip{padding:12px 14px}.modal-info-row{grid-template-columns:1fr}}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MatFlow — Management</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="mf-theme.css">
 </head>
 <body>
+
 <div id="loader" class="loader" style="display:none">
-  <div class="loader-box">
-      <div class="spinner"></div>
-      <div class="loader-txt" id="loaderText">กำลังโหลด...</div>
-  </div>
+  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
 </div>
+
 <header class="topbar">
-  <a href="index.html" class="brand">
-    <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
-    <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
-  </a>
-  <nav class="topnav">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg><span>Planning</span></a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg><span>Receiving</span></a>
-    <a href="management.html" class="nav-a active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Management</span></a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg><span>Dashboard</span></a>
-  </nav>
+  <div class="topbar-inner">
+    <a href="index.html" class="brand">
+      <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
+      <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
+    </a>
+    <nav class="topnav">
+      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Planning</a>
+      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
+      <a href="management.html" class="nav-a active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
+      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+    </nav>
+    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู">
+      <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="navDrawer" class="nav-drawer">
+    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Planning</a>
+    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
+    <a href="management.html" class="nav-a active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
+    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+  </div>
 </header>
+
 <div class="shell">
   <div class="ph a1">
-    <h1><span class="ph-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>Inventory Management</h1>
+    <h1>
+      <span class="ph-ico" style="background:linear-gradient(135deg,#475569,var(--b0))">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </span>
+      Inventory Management
+    </h1>
     <p>จัดการและแก้ไขข้อมูลคลังวัตถุดิบ — เรียงตามวันหมดอายุใกล้ที่สุด</p>
   </div>
+
   <div class="filter-strip a1">
     <div class="fg">
-        <label class="fl">Product</label>
-        <select id="filterProduct" class="fc" onchange="updateNameFilter()"><option value="">ทั้งหมด</option></select>
+      <label class="fl">Product</label>
+      <select id="filterProduct" class="fc" onchange="updateNameFilter()"><option value="">ทั้งหมด</option></select>
     </div>
     <div class="fg">
-        <label class="fl">RM Name</label>
-        <select id="filterName" class="fc" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
+      <label class="fl">RM Name</label>
+      <select id="filterName" class="fc" onchange="applyFilters()"><option value="">ทั้งหมด</option></select>
     </div>
     <div class="fg wide">
       <label class="fl">ค้นหา</label>
@@ -152,178 +64,158 @@
         <input type="text" id="searchInput" class="fc" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
       </div>
     </div>
-    <div style="display:flex;align-items:flex-end;position:relative;z-index:1"><span id="rowCount" class="row-count">— รายการ</span></div>
+    <div style="display:flex;align-items:flex-end;position:relative;z-index:1">
+      <span id="rowCount" class="row-count">— รายการ</span>
+    </div>
   </div>
+
   <div class="table-card a2">
     <div class="table-scroll">
       <table class="mt">
-        <thead><tr><th>Code</th><th>RM Name</th><th>Batch</th><th style="text-align:center">Qty (Pkg)</th><th style="text-align:center">MFG</th><th style="text-align:center">BBF</th><th style="text-align:center">Extended BBF</th><th style="text-align:center">Action</th></tr></thead>
-        <tbody id="dataTable"><tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr></tbody>
+        <thead><tr>
+          <th>Code</th><th>RM Name</th><th>Batch</th>
+          <th style="text-align:center">Qty (Pkg)</th>
+          <th style="text-align:center">MFG</th>
+          <th style="text-align:center">BBF</th>
+          <th style="text-align:center">Extended BBF</th>
+          <th style="text-align:center">Action</th>
+        </tr></thead>
+        <tbody id="dataTable">
+          <tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="editModal" tabindex="-1">
+<!-- Edit Modal -->
+<div class="modal fade mf-modal" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-hd">
-        <div class="modal-hd-title"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไขรายการ — <span class="btitle" id="modalBatchTitle"></span></div>
-        <button class="btn-close-w" data-bs-dismiss="modal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <div class="modal-hd-title">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          แก้ไขรายการ — <span class="btitle" id="modalBatchTitle"></span>
+        </div>
+        <button class="btn-xw" data-bs-dismiss="modal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="modal-bd">
-        <div class="modal-info-row">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
           <div><div class="mi-lbl">RM Name</div><div class="mi-val" id="modalRMName">—</div></div>
           <div><div class="mi-lbl">Supplier</div><div class="mi-val" id="modalSupplier">—</div></div>
         </div>
         <div class="qty-hero">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sky);margin-bottom:6px">จำนวนคงเหลือ</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--b2);margin-bottom:6px">จำนวนคงเหลือ</div>
           <input type="number" step="0.0001" id="editQty">
           <div class="qty-unit" id="modalUnit">Package</div>
         </div>
-        <div class="row g-3" style="margin-bottom:14px">
-          <div class="col-6"><div class="date-field-wrap"><label style="color:var(--sky)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>วันผลิต (MFG)</label><input type="date" id="editMfg"></div></div>
-          <div class="col-6"><div class="date-field-wrap"><label style="color:var(--red)"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>วันหมดอายุ (BBF)</label><input type="date" id="editExp"></div></div>
+        <div class="row g-2" style="margin-bottom:12px">
+          <div class="col-6">
+            <div class="date-fw">
+              <label style="color:var(--b3)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>วันผลิต (MFG)</label>
+              <input type="date" id="editMfg">
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="date-fw">
+              <label style="color:var(--red)"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>วันหมดอายุ (BBF)</label>
+              <input type="date" id="editExp">
+            </div>
+          </div>
         </div>
-        <div class="extend-wrap">
+        <div class="ext-wrap">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:13.5px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:7px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>ต่ออายุวัตถุดิบ (Extended BBF)</span>
-            <input class="form-check-input" type="checkbox" id="toggleExtend" style="width:18px;height:18px;margin:0;cursor:pointer" onchange="toggleExt()">
+            <span style="font-size:13.5px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:7px">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ต่ออายุวัตถุดิบ (Extended BBF)
+            </span>
+            <input class="form-check-input" type="checkbox" id="toggleExtend" style="width:18px;height:18px;margin:0;cursor:pointer;accent-color:var(--b3)" onchange="toggleExt()">
           </div>
-          <div id="extendField" class="extend-inner">
+          <div id="extendField" class="ext-inner">
             <label class="fl" style="color:var(--amber)">วันที่ต่ออายุใหม่</label>
-            <input type="date" id="editExtExp" class="fc" style="border-color:rgba(224,147,5,0.40)">
+            <input type="date" id="editExtExp" class="fc" style="border-color:var(--ab)">
           </div>
         </div>
-        <div style="margin-top:14px"><label class="fl">แก้ไขเลข Batch</label><input type="text" id="editBatch" class="fc" style="font-family:'JetBrains Mono',monospace"></div>
+        <div style="margin-top:13px">
+          <label class="fl">แก้ไขเลข Batch</label>
+          <input type="text" id="editBatch" class="fc" style="font-family:'IBM Plex Mono',monospace">
+        </div>
       </div>
       <div class="modal-ft">
-        <button class="btn btn-outline" data-bs-dismiss="modal">ยกเลิก</button>
-        <button class="btn btn-blue" onclick="saveEdit()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>บันทึกการเปลี่ยนแปลง</button>
+        <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:9px 20px">ยกเลิก</button>
+        <button class="btn btn-blue" onclick="saveEdit()" style="padding:9px 24px">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          บันทึกการเปลี่ยนแปลง
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="mf-shared.js"></script>
 <script>
-const URL_API = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
-let rawData = [], editIdx = null;
-const modal = new bootstrap.Modal(document.getElementById('editModal'));
+let rawData=[], allData=[], editIdx=null;
+const modal=new bootstrap.Modal(document.getElementById('editModal'));
 
-window.onload = loadData;
+window.onload=loadData;
 
-async function loadData() {
-  show('กำลังโหลดข้อมูลคลังสินค้า...');
-  try {
-    const r = await fetch(`${URL_API}?action=getMonitorData`);
-    const text = await r.text();
-    let j;
-    try {
-      j = JSON.parse(text);
-    } catch (err) {
-      throw new Error("ระบบหลังบ้าน (API) ไม่ได้ส่งค่ากลับมาเป็น JSON โปรดตรวจสอบลิงก์ SCRIPT_URL");
-    }
-
-    if (j.status === 'error') {
-      throw new Error(j.message || "เกิดข้อผิดพลาดจากฝั่งเซิร์ฟเวอร์");
-    }
-
-    rawData = j.data || [];
-    
-    // ดึงเฉพาะชื่อสินค้า (Product) ไปใส่ใน Dropdown ตัวแรก
-    const prods = [...new Set(rawData.map(i => i.productName).filter(Boolean))].sort();
-    const fp = document.getElementById('filterProduct');
-    fp.innerHTML = '<option value="">ทั้งหมด</option>';
-    prods.forEach(p => fp.innerHTML += `<option value="${p}">${p}</option>`);
-    
-    // เรียกฟังก์ชันจัดเรียงชื่อวัตถุดิบ ตามค่าเริ่มต้น
-    updateNameFilter();
-
-  } catch (e) {
-    console.error(e);
-    alert('โหลดข้อมูลล้มเหลว: \n' + e.message);
-  }
-  hide();
+async function loadData(){
+  mfShow('กำลังโหลดข้อมูลคลัง...');
+  try{
+    // ✅ Cached — ไม่โหลดซ้ำถ้าเคยโหลดแล้ว
+    const j=await MF.getMonitorData(); rawData=j.data; allData=j.data;
+    buildFilters();applyFilters();
+  }catch(e){alert('โหลดข้อมูลล้มเหลว');}
+  mfHide();
 }
 
-// 🚩 ฟังก์ชันใหม่: เพื่อการทำ Cascading Dropdown (กรอง RM Name ตาม Product)
-function updateNameFilter() {
-    const pf = document.getElementById('filterProduct').value;
-    const fn = document.getElementById('filterName');
-    const currentVal = fn.value; // จำค่าเดิมไว้ก่อน
-    
-    let names = [];
-    if (pf === "") {
-        // ถ้าไม่เลือก Product ให้แสดง RM Name ทั้งหมด
-        names = [...new Set(rawData.map(i => i.name).filter(Boolean))].sort();
-    } else {
-        // ถ้าเลือก Product แล้ว ให้ดึงเฉพาะ RM Name ที่เกี่ยวข้องมาแสดง
-        names = [...new Set(rawData.filter(i => i.productName === pf).map(i => i.name).filter(Boolean))].sort();
-    }
-    
-    // รีเซ็ตและใส่ค่าใหม่ลงใน Dropdown ที่ 2
-    fn.innerHTML = '<option value="">ทั้งหมด</option>';
-    names.forEach(n => {
-        let isSelected = (n === currentVal) ? ' selected' : '';
-        fn.innerHTML += `<option value="${n}"${isSelected}>${n}</option>`;
-    });
-    
-    // ถ้าของเดิมที่เลือกไว้ ไม่มีในรายการที่ดึงมาใหม่ ให้ล้างค่าทิ้ง
-    if (currentVal && !names.includes(currentVal)) {
-        fn.value = "";
-    }
-    
-    // เรียกแสดงผลตาราง
-    applyFilters();
+function buildFilters(){
+  const prods=[...new Set(rawData.map(i=>i.productName).filter(Boolean))].sort();
+  const names=[...new Set(rawData.map(i=>i.name).filter(Boolean))].sort();
+  const fp=document.getElementById('filterProduct'), fn=document.getElementById('filterName');
+  fp.innerHTML='<option value="">ทั้งหมด</option>';
+  fn.innerHTML='<option value="">ทั้งหมด</option>';
+  prods.forEach(p=>fp.innerHTML+=`<option value="${p}">${p}</option>`);
+  names.forEach(n=>fn.innerHTML+=`<option value="${n}">${n}</option>`);
 }
 
-function applyFilters() {
-  const pf = document.getElementById('filterProduct').value;
-  const nf = document.getElementById('filterName').value;
-  const s = document.getElementById('searchInput').value.toLowerCase();
-  
-  let data = rawData.filter(i => 
-    (!pf || i.productName === pf) && 
-    (!nf || i.name === nf) && 
-    Object.values(i).some(v => String(v).toLowerCase().includes(s))
+function updateNameFilter(){
+  const pf=document.getElementById('filterProduct').value;
+  const subset=pf?rawData.filter(i=>i.productName===pf):rawData;
+  const names=[...new Set(subset.map(i=>i.name).filter(Boolean))].sort();
+  const fn=document.getElementById('filterName');
+  fn.innerHTML='<option value="">ทั้งหมด</option>';
+  names.forEach(n=>fn.innerHTML+=`<option value="${n}">${n}</option>`);
+  applyFilters();
+}
+
+function applyFilters(){
+  const pf=document.getElementById('filterProduct').value;
+  const nf=document.getElementById('filterName').value;
+  const s=document.getElementById('searchInput').value.toLowerCase();
+  let data=rawData.filter(i=>
+    (!pf||i.productName===pf)&&
+    (!nf||i.name===nf)&&
+    Object.values(i).some(v=>String(v).toLowerCase().includes(s))
   );
-  
-  data.sort((a, b) => {
-    const d1 = new Date(a.extExp || a.exp);
-    const d2 = new Date(b.extExp || b.exp);
-    const time1 = isNaN(d1) ? Infinity : d1.getTime();
-    const time2 = isNaN(d2) ? Infinity : d2.getTime();
-    return time1 - time2;
-  });
-
-  document.getElementById('rowCount').textContent = `${data.length} รายการ`;
-  const tb = document.getElementById('dataTable');
-  
-  if (!data.length) {
-      tb.innerHTML = `<tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">ไม่พบข้อมูล</td></tr>`;
-      return;
-  }
-  
-  tb.innerHTML = data.map(i => {
-    const eff = i.extExp || i.exp;
-    const d = eff ? Math.ceil((new Date(eff) - new Date()) / 864e5) : null;
-    const ec = d === null ? '' : d <= 0 ? 'exp-expired' : d <= 7 ? 'exp-danger' : d <= 15 ? 'exp-warn' : 'exp-ok';
-    
-    const safeBatch = String(i.batch || '').replace(/'/g, "\\'");
-    
-    return `<tr>
-      <td><span class="bcode">${i.code || '—'}</span></td>
-      <td>
-        <div style="font-weight:600;font-size:14px">${i.name || '—'}</div>
-        <div style="font-size:12px;color:var(--txt3)">${i.productName || ''}</div>
-      </td>
-      <td><span class="bbatch">${i.batch || '—'}</span></td>
-      <td style="text-align:center;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--sky)">${i.qty ?? '—'}</td>
-      <td style="text-align:center;font-size:13px">${fmtD(i.mfg)}</td>
-      <td style="text-align:center;font-size:13px"><span class="${ec}">${fmtD(i.exp)}</span></td>
-      <td style="text-align:center">${i.extExp ? `<span class="bext">${fmtD(i.extExp)}</span>` : '<span style="color:var(--txt3)">—</span>'}</td>
+  data.sort((a,b)=>new Date(a.extExp||a.exp)-new Date(b.extExp||b.exp));
+  document.getElementById('rowCount').textContent=`${data.length} รายการ`;
+  const tb=document.getElementById('dataTable');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">ไม่พบข้อมูล</td></tr>`;return;}
+  tb.innerHTML=data.map(i=>{
+    const eff=i.extExp||i.exp;
+    const d=eff?Math.ceil((new Date(eff)-new Date())/864e5):null;
+    const ec=d===null?'':d<=0?'exp-expired':d<=7?'exp-danger':d<=15?'exp-warn':'exp-ok';
+    const safeBatch=String(i.batch||'').replace(/'/g,"\\'");
+    return`<tr>
+      <td><span class="bcode">${i.code||'—'}</span></td>
+      <td><div style="font-weight:700;font-size:14px">${i.name||'—'}</div><div style="font-size:11.5px;color:var(--txt3)">${i.productName||''}</div></td>
+      <td><span class="bbatch">${i.batch||'—'}</span></td>
+      <td style="text-align:center;font-weight:700;font-family:'IBM Plex Mono';color:var(--b2)">${i.qty??'—'}</td>
+      <td style="text-align:center;font-size:13px">${mfFmtDisplay(i.mfg)}</td>
+      <td style="text-align:center;font-size:13px"><span class="${ec}">${mfFmtDisplay(i.exp)}</span></td>
+      <td style="text-align:center">${i.extExp?`<span class="bext">${mfFmtDisplay(i.extExp)}</span>`:'<span style="color:var(--txt3)">—</span>'}</td>
       <td style="text-align:center;min-width:130px">
         <button class="btn btn-edit" onclick="openEdit(${i.rowIdx})"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</button>
         <button class="btn btn-del" onclick="confirmDel(${i.rowIdx},'${safeBatch}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
@@ -332,79 +224,58 @@ function applyFilters() {
   }).join('');
 }
 
-function fmtD(v) { if (!v || v === '') return '—'; const d = new Date(v); return isNaN(d) ? v : d.toLocaleDateString('en-GB'); }
-function fmtI(v) { if (!v || v === '') return ''; const d = new Date(v); return isNaN(d) ? '' : d.toISOString().split('T')[0]; }
-function toggleExt() { document.getElementById('extendField').style.display = document.getElementById('toggleExtend').checked ? 'block' : 'none'; }
+function toggleExt(){document.getElementById('extendField').style.display=document.getElementById('toggleExtend').checked?'block':'none';}
 
-function openEdit(ri) {
-  const it = rawData.find(i => i.rowIdx === ri); editIdx = ri;
-  document.getElementById('modalBatchTitle').textContent = it.batch;
-  document.getElementById('modalRMName').textContent = it.name;
-  document.getElementById('modalSupplier').textContent = it.supplier || '—';
-  document.getElementById('modalUnit').textContent = it.unitPackage || 'Package';
-  document.getElementById('editBatch').value = it.batch;
-  document.getElementById('editQty').value = it.qty;
-  document.getElementById('editMfg').value = fmtI(it.mfg);
-  document.getElementById('editExp').value = fmtI(it.exp);
-  
-  const hasExt = !!it.extExp;
-  document.getElementById('toggleExtend').checked = hasExt;
-  document.getElementById('editExtExp').value = hasExt ? fmtI(it.extExp) : '';
-  document.getElementById('extendField').style.display = hasExt ? 'block' : 'none';
+function openEdit(ri){
+  const it=rawData.find(i=>i.rowIdx===ri); editIdx=ri;
+  document.getElementById('modalBatchTitle').textContent=it.batch;
+  document.getElementById('modalRMName').textContent=it.name;
+  document.getElementById('modalSupplier').textContent=it.supplier||'—';
+  document.getElementById('modalUnit').textContent=it.unitPackage||'Package';
+  document.getElementById('editBatch').value=it.batch;
+  document.getElementById('editQty').value=it.qty;
+  document.getElementById('editMfg').value=mfFmtInput(it.mfg);
+  document.getElementById('editExp').value=mfFmtInput(it.exp);
+  const hasExt=!!it.extExp;
+  document.getElementById('toggleExtend').checked=hasExt;
+  document.getElementById('editExtExp').value=hasExt?mfFmtInput(it.extExp):'';
+  document.getElementById('extendField').style.display=hasExt?'block':'none';
   modal.show();
 }
 
-async function saveEdit() {
-  const qty = parseFloat(document.getElementById('editQty').value);
-  const batch = document.getElementById('editBatch').value.trim();
-  const mfg = document.getElementById('editMfg').value, exp = document.getElementById('editExp').value;
-  
-  if (isNaN(qty) || qty < 0) return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
-  if (!batch) return alert('กรุณาระบุเลข Batch');
-  if (!mfg || !exp) return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
-  if (new Date(mfg) > new Date(exp)) return alert('วันผลิต ต้องไม่มากกว่าวันหมดอายุ');
-  
-  const isExt = document.getElementById('toggleExtend').checked;
-  const it = rawData.find(i => i.rowIdx === editIdx);
-  const updated = { ...it, batch, qty, mfg, exp, extExp: isExt ? document.getElementById('editExtExp').value : '' };
-  
-  modal.hide(); show('กำลังบันทึกข้อมูล...');
-  try {
-    const r = await fetch(`${URL_API}?action=updateMonitor&rowData=${encodeURIComponent(JSON.stringify(updated))}`);
-    const j = await r.json();
-    if (j.status === 'success') {
-        rawData[rawData.findIndex(i => i.rowIdx === editIdx)] = updated;
-        applyFilters();
-    } else {
-        alert('เกิดข้อผิดพลาด: ' + (j.message || ''));
-    }
-  } catch (e) {
-      alert('บันทึกล้มเหลว');
-  }
-  hide();
+async function saveEdit(){
+  const qty=parseFloat(document.getElementById('editQty').value);
+  const batch=document.getElementById('editBatch').value.trim();
+  const mfg=document.getElementById('editMfg').value, exp=document.getElementById('editExp').value;
+  if(isNaN(qty)||qty<0)return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
+  if(!batch)return alert('กรุณาระบุเลข Batch');
+  if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
+  if(new Date(mfg)>new Date(exp))return alert('วันผลิต ต้องไม่มากกว่าวันหมดอายุ');
+  const isExt=document.getElementById('toggleExtend').checked;
+  const it=rawData.find(i=>i.rowIdx===editIdx);
+  const updated={...it,batch,qty,mfg,exp,extExp:isExt?document.getElementById('editExtExp').value:''};
+  modal.hide(); mfShow('กำลังบันทึกข้อมูล...');
+  try{
+    const j=await MF.updateMonitor(updated); // ✅ invalidates cache
+    if(j.status==='success'){rawData[rawData.findIndex(i=>i.rowIdx===editIdx)]=updated;applyFilters();}
+    else alert('เกิดข้อผิดพลาด: '+(j.message||''));
+  }catch(e){alert('บันทึกล้มเหลว');}
+  mfHide();
 }
 
-function confirmDel(ri, batch) { if (confirm(`ยืนยันการลบ Batch [${batch}] ออกจากระบบอย่างถาวร?`)) doDelete(ri); }
+function confirmDel(ri,batch){if(confirm(`ยืนยันการลบ Batch [${batch}] ออกจากระบบอย่างถาวร?`))doDelete(ri);}
 
-async function doDelete(ri) {
-  show('กำลังลบข้อมูล...');
-  try {
-    const r = await fetch(`${URL_API}?action=deleteMonitor&rowIdx=${ri}`);
-    const j = await r.json();
-    if (j.status === 'success') {
-        rawData = rawData.filter(i => i.rowIdx !== ri).map(i => i.rowIdx > ri ? { ...i, rowIdx: i.rowIdx - 1 } : i);
-        applyFilters();
-    } else {
-        alert('ลบไม่สำเร็จ: ' + (j.message || ''));
-    }
-  } catch (e) {
-      alert('ลบล้มเหลว');
-  }
-  hide();
+async function doDelete(ri){
+  mfShow('กำลังลบข้อมูล...');
+  try{
+    const j=await MF.deleteMonitor(ri); // ✅ invalidates cache
+    if(j.status==='success'){
+      rawData=rawData.filter(i=>i.rowIdx!==ri).map(i=>i.rowIdx>ri?{...i,rowIdx:i.rowIdx-1}:i);
+      applyFilters();
+    }else alert('ลบไม่สำเร็จ: '+(j.message||''));
+  }catch(e){alert('ลบล้มเหลว');}
+  mfHide();
 }
-
-function show(t) { document.getElementById('loaderText').textContent = t; document.getElementById('loader').style.display = 'flex'; }
-function hide() { document.getElementById('loader').style.display = 'none'; }
 </script>
 </body>
 </html>
