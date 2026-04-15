@@ -440,16 +440,21 @@ async function saveEdit(){
 }
 
 /* ══════════════════════════════════════════════════
-   📧  EMAIL MODAL — CORDIA NEW ULTRA COMPACT 
+   📧  EMAIL MODAL — CORDIA NEW ULTRA COMPACT (TOP 25)
 ══════════════════════════════════════════════════ */
 function generateEmailHTML() {
   const subject = document.getElementById('fieldSubject').value.trim();
   const now = new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
   
+  // 🚩 จำกัดจำนวนแถวไม่ให้เกิน 25 แถวต่อตาราง ป้องกันปัญหาข้อมูลใหญ่เกิน 50KB (EmailJS Limit)
+  const maxRows = 25;
+  const topCap = _capDetails.slice(0, maxRows);
+  const topExp = _expData.slice(0, maxRows);
+
   // 1. Capacity Details Table (Ultra Compact)
   let capHtml = '';
-  if (_capDetails.length > 0) {
-      let capRows = _capDetails.map((i, idx) => `
+  if (topCap.length > 0) {
+      let capRows = topCap.map((i, idx) => `
         <tr>
           <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:center; color:#475569; font-family:'Cordia New', sans-serif; font-size:12pt; white-space:nowrap;">${idx + 1}</td>
           <td style="padding:4px 6px; border:1px solid #cbd5e1; color:#0f172a; font-family:'Cordia New', sans-serif; font-size:12pt; font-weight:bold; white-space:nowrap;">${i.pName}</td>
@@ -460,9 +465,11 @@ function generateEmailHTML() {
         </tr>
       `).join('');
       
+      let note = _capDetails.length > maxRows ? `<p style="font-family:'Cordia New', sans-serif; font-size:12pt; color:#dc2626; margin:4px 0 16px;">* ตารางถูกย่อให้แสดงผลเฉพาะ ${maxRows} อันดับแรก</p>` : '';
+      
       capHtml = `
       <h3 style="color:#0f172a; font-family:'Cordia New', sans-serif; font-size:16pt; font-weight:bold; margin:0 0 6px;">📊 รายละเอียดการผลิต (เรียงตาม Capacity)</h3>
-      <table width="1%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; background-color:#ffffff; margin-bottom:16px; white-space:nowrap;">
+      <table width="1%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; background-color:#ffffff; margin-bottom:4px; white-space:nowrap;">
         <thead>
           <tr style="background-color:#f1f5f9;">
             <th style="padding:4px 6px; border:1px solid #cbd5e1; text-align:center; color:#0f172a; font-family:'Cordia New', sans-serif; font-size:14pt; font-weight:bold; white-space:nowrap;">ลำดับ</th>
@@ -472,13 +479,14 @@ function generateEmailHTML() {
           </tr>
         </thead>
         <tbody>${capRows}</tbody>
-      </table>`;
+      </table>
+      ${note}`;
   }
 
   // 2. Expiry Table (Ultra Compact)
   let expHtml = '';
-  if (_expData.length > 0) {
-      let expRows = _expData.map((i, idx) => {
+  if (topExp.length > 0) {
+      let expRows = topExp.map((i, idx) => {
           let color = i.days <= 7 ? '#dc2626' : (i.days <= 15 ? '#d97706' : '#059669');
           return `
             <tr>
@@ -489,9 +497,11 @@ function generateEmailHTML() {
             </tr>`;
       }).join('');
       
+      let note = _expData.length > maxRows ? `<p style="font-family:'Cordia New', sans-serif; font-size:12pt; color:#dc2626; margin:4px 0 16px;">* ตารางถูกย่อให้แสดงผลเฉพาะ ${maxRows} อันดับแรก</p>` : '';
+      
       expHtml = `
       <h3 style="color:#b45309; font-family:'Cordia New', sans-serif; font-size:16pt; font-weight:bold; margin:0 0 6px;">📅 วัตถุดิบใกล้หมดอายุ (ภายใน 30 วัน)</h3>
-      <table width="1%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; background-color:#ffffff; white-space:nowrap;">
+      <table width="1%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; background-color:#ffffff; white-space:nowrap; margin-bottom:4px;">
         <thead>
           <tr style="background-color:#fef3c7;">
             <th style="padding:4px 6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-family:'Cordia New', sans-serif; font-size:14pt; font-weight:bold; white-space:nowrap;">ลำดับ</th>
@@ -501,7 +511,8 @@ function generateEmailHTML() {
           </tr>
         </thead>
         <tbody>${expRows}</tbody>
-      </table>`;
+      </table>
+      ${note}`;
   }
 
   return `
@@ -511,7 +522,7 @@ function generateEmailHTML() {
 <meta charset="UTF-8">
 </head>
 <body style="margin:0; padding:0; background-color:#ffffff; font-family:'Cordia New', sans-serif;">
-  <div style="max-width:800px; margin:0; padding:10px;">
+  <div style="max-width:800px; margin:0 auto; padding:10px;">
     <h1 style="color:#1a6cf5; font-family:'Cordia New', sans-serif; font-size:16pt; font-weight:bold; margin:0 0 4px;">${subject}</h1>
     <p style="color:#64748b; font-family:'Cordia New', sans-serif; font-size:12pt; margin:0 0 16px;">อัปเดตข้อมูล ณ ${now}</p>
     
@@ -561,8 +572,10 @@ async function sendEmailNow(){
       setTimeout(()=>closeSendModal(),2000);
     }else{ throw new Error('Status: '+result.status); }
   }catch(err){
-    console.error(err);
-    alert('ส่งล้มเหลว กรุณาลองใหม่');
+    console.error("EmailJS Error details:", err);
+    // 🚩 เปลี่ยนระบบแจ้งเตือนให้ดึงข้อความ Error จริงของระบบมาโชว์
+    const errorMsg = err.text || err.message || JSON.stringify(err);
+    alert('ส่งล้มเหลว สาเหตุ: ' + errorMsg);
     btnSend.disabled=false;
     btnSend.innerHTML=`ลองส่งอีกครั้ง`;
   }
