@@ -484,16 +484,17 @@ function buildEmailHtml(){
   const maxCap = Math.max(...capItems.map(i => i.val), 1);
   const oosItems = _capDetails.filter(d => d.potential <= 0).map(d => ({name: d.pName, bn: d.bottleneck}));
 
+  // 🚩 แก้ไข: ใช้ padding: 2px 6px และ line-height: 1.1 เพื่อบีบแถวให้บางที่สุดโดยที่ Outlook/Gmail จะไม่ตัด Text ทิ้ง
   const t1rows = capItems.map((it, i) => {
     const col = it.val > 500 ? '#059669' : it.val > 100 ? '#d97706' : '#dc2626';
     const pct = Math.min(Math.round((it.val / maxCap) * 100), 100);
     return `<tr style="background-color:${i%2 ? '#ffffff' : '#f8fafc'};">
-      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:0.8;">${i+1}</td>
-      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#0f172a; font-weight:bold; white-space:nowrap; line-height:0.8;">${it.name}</td>
+      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:1.1;">${i+1}</td>
+      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#0f172a; font-weight:bold; white-space:nowrap; line-height:1.1;">${it.name}</td>
       <td style="border:1px solid #cbd5e1; padding:2px 6px; text-align:left; vertical-align:middle; white-space:nowrap;">
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
           <tr>
-            <td width="1%" style="border:none; padding:0 6px 0 0; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; font-weight:bold; color:${col}; text-align:right; vertical-align:middle; white-space:nowrap; line-height:0.8;">${it.val.toLocaleString()}</td>
+            <td width="1%" style="border:none; padding:0 6px 0 0; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; font-weight:bold; color:${col}; text-align:right; vertical-align:middle; white-space:nowrap; line-height:1.1;">${it.val.toLocaleString()}</td>
             <td style="border:none; padding:0; width:100%; vertical-align:middle;">
                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#e2e8f0; height:6px; border-radius:2px;">
                  <tr>
@@ -510,24 +511,24 @@ function buildEmailHtml(){
 
   const t2rows = oosItems.length ? oosItems.map((it, i) => `
     <tr style="background-color:${i%2 ? '#ffffff' : '#fef2f2'};">
-      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#991b1b; white-space:nowrap; line-height:0.8;">${i+1}</td>
-      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#dc2626; font-weight:bold; white-space:nowrap; line-height:0.8;">${it.name}</td>
-      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:0.8;">${it.bn || '—'}</td>
-      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#991b1b; font-weight:bold; white-space:nowrap; line-height:0.8;">ขาดสต๊อก</td>
+      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#991b1b; white-space:nowrap; line-height:1.1;">${i+1}</td>
+      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#dc2626; font-weight:bold; white-space:nowrap; line-height:1.1;">${it.name}</td>
+      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:1.1;">${it.bn || '—'}</td>
+      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#991b1b; font-weight:bold; white-space:nowrap; line-height:1.1;">ขาดสต๊อก</td>
     </tr>`
-  ).join('') : `<tr><td colspan="4" style="text-align:center; padding:4px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#059669; font-weight:bold; border:1px solid #cbd5e1; line-height:0.8;">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`;
+  ).join('') : `<tr><td colspan="4" style="text-align:center; padding:6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#059669; font-weight:bold; border:1px solid #cbd5e1; line-height:1.1;">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`;
 
   const t3rows = _expiryData.length ? _expiryData.map((it, i) => {
     const ex = it.days <= 0;
     const col = ex ? '#7c3aed' : it.days <= 7 ? '#dc2626' : it.days <= 15 ? '#d97706' : '#059669';
     const bg = ex ? '#faf5ff' : it.days <= 7 ? '#fef2f2' : it.days <= 15 ? '#fffbeb' : (i%2 ? '#ffffff' : '#f8fafc');
     return `<tr style="background-color:${bg};">
-      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:0.8;">${i+1}</td>
-      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#0f172a; font-weight:bold; white-space:nowrap; line-height:0.8;">${it.name}</td>
-      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:0.8;">${it.batch}</td>
-      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:${col}; font-weight:bold; white-space:nowrap; line-height:0.8;">${ex ? `หมดอายุ ${Math.abs(it.days)} วัน` : `${it.days} วัน`}</td>
+      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:1.1;">${i+1}</td>
+      <td style="text-align:left; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#0f172a; font-weight:bold; white-space:nowrap; line-height:1.1;">${it.name}</td>
+      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569; white-space:nowrap; line-height:1.1;">${it.batch}</td>
+      <td style="text-align:center; vertical-align:middle; border:1px solid #cbd5e1; padding:2px 6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:${col}; font-weight:bold; white-space:nowrap; line-height:1.1;">${ex ? `หมดอายุ ${Math.abs(it.days)} วัน` : `${it.days} วัน`}</td>
     </tr>`;
-  }).join('') : `<tr><td colspan="4" style="text-align:center; padding:4px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#059669; font-weight:bold; border:1px solid #cbd5e1; line-height:0.8;">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`;
+  }).join('') : `<tr><td colspan="4" style="text-align:center; padding:6px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#059669; font-weight:bold; border:1px solid #cbd5e1; line-height:1.1;">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`;
 
   return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
 <body style="margin:0; padding:0; background-color:#f0f4f8;">
@@ -538,55 +539,55 @@ function buildEmailHtml(){
           
           <tr>
             <td style="background-color:#1a6cf5; padding:10px 16px;">
-              <p style="margin:0 0 2px; font-size:12pt; color:#bfdbfe; font-family:'Cordia New', Tahoma, sans-serif; line-height:0.8;">MATFLOW INVENTORY SYSTEM · SERMSUK PLC</p>
-              <h1 style="margin:0 0 2px; font-size:16pt; font-weight:bold; color:#ffffff; font-family:'Cordia New', Tahoma, sans-serif; line-height:0.8;">${subj}</h1>
-              <p style="margin:0; font-size:12pt; color:#e0f2fe; font-family:'Cordia New', Tahoma, sans-serif; line-height:0.8;">สร้างอัตโนมัติ ณ ${now}</p>
+              <p style="margin:0 0 2px; font-size:12pt; color:#bfdbfe; font-family:'Cordia New', Tahoma, sans-serif; line-height:1.1;">MATFLOW INVENTORY SYSTEM · SERMSUK PLC</p>
+              <h1 style="margin:0 0 2px; font-size:16pt; font-weight:bold; color:#ffffff; font-family:'Cordia New', Tahoma, sans-serif; line-height:1.1;">${subj}</h1>
+              <p style="margin:0; font-size:12pt; color:#e0f2fe; font-family:'Cordia New', Tahoma, sans-serif; line-height:1.1;">สร้างอัตโนมัติ ณ ${now}</p>
             </td>
           </tr>
 
           <tr>
             <td style="padding:10px 16px;">
               
-              <h2 style="font-size:14pt; font-weight:bold; color:#1e3a6e; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 4px; border-left:4px solid #1e3a6e; padding-left:6px; line-height:0.8;">1. Production Capability</h2>
+              <h2 style="font-size:14pt; font-weight:bold; color:#1e3a6e; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 4px; border-left:4px solid #1e3a6e; padding-left:6px; line-height:1.1;">1. Production Capability</h2>
               <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:12px;">
                 <thead>
                   <tr style="background-color:#1e3a6e;">
-                    <th style="padding:2px 6px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">ลำดับ</th>
-                    <th style="padding:2px 6px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">Product Name</th>
-                    <th style="padding:2px 6px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; line-height:0.8;">ผลิตได้ (Unit)</th>
+                    <th style="padding:2px 6px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">ลำดับ</th>
+                    <th style="padding:2px 6px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">Product Name</th>
+                    <th style="padding:2px 6px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; line-height:1.1;">ผลิตได้ (Unit)</th>
                   </tr>
                 </thead>
                 <tbody>${t1rows}</tbody>
               </table>
 
-              <h2 style="font-size:14pt; font-weight:bold; color:#dc2626; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 4px; border-left:4px solid #dc2626; padding-left:6px; line-height:0.8;">2. วัตถุดิบขาด Stock</h2>
+              <h2 style="font-size:14pt; font-weight:bold; color:#dc2626; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 4px; border-left:4px solid #dc2626; padding-left:6px; line-height:1.1;">2. วัตถุดิบขาด Stock</h2>
               <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:12px;">
                 <thead>
                   <tr style="background-color:#7f1d1d;">
-                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">ลำดับ</th>
-                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">Product Name</th>
-                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">RM คอขวด</th>
-                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">สถานะ</th>
+                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">ลำดับ</th>
+                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">Product Name</th>
+                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">RM คอขวด</th>
+                    <th style="padding:2px 6px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">สถานะ</th>
                   </tr>
                 </thead>
                 <tbody>${t2rows}</tbody>
               </table>
 
-              <h2 style="font-size:14pt; font-weight:bold; color:#b45309; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 4px; border-left:4px solid #b45309; padding-left:6px; line-height:0.8;">3. Expiry Timeline (31-Day)</h2>
+              <h2 style="font-size:14pt; font-weight:bold; color:#b45309; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 4px; border-left:4px solid #b45309; padding-left:6px; line-height:1.1;">3. Expiry Timeline (31-Day)</h2>
               <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:12px;">
                 <thead>
                   <tr style="background-color:#78350f;">
-                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">ลำดับ</th>
-                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">RM Name</th>
-                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">Batch</th>
-                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:0.8;">คงเหลือ (วัน)</th>
+                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">ลำดับ</th>
+                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">RM Name</th>
+                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">Batch</th>
+                    <th style="padding:2px 6px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:center; vertical-align:middle; white-space:nowrap; width:1%; line-height:1.1;">คงเหลือ (วัน)</th>
                   </tr>
                 </thead>
                 <tbody>${t3rows}</tbody>
               </table>
 
               <div style="background-color:#eff6ff; padding:8px; border-left:4px solid #3b82f6; border-radius:4px;">
-                <p style="margin:0; font-size:12pt; color:#1e40af; font-family:'Cordia New', Tahoma, sans-serif; line-height:0.8;">ดูข้อมูล Real-time ในระบบ: <a href="${DASHBOARD_URL}" style="color:#1d4ed8; font-weight:bold;">${DASHBOARD_URL}</a></p>
+                <p style="margin:0; font-size:12pt; color:#1e40af; font-family:'Cordia New', Tahoma, sans-serif; line-height:1.1;">ดูข้อมูล Real-time ในระบบ: <a href="${DASHBOARD_URL}" style="color:#1d4ed8; font-weight:bold;">${DASHBOARD_URL}</a></p>
               </div>
 
             </td>
@@ -594,7 +595,7 @@ function buildEmailHtml(){
           
           <tr>
             <td style="background-color:#f8fafc; border-top:1px solid #e2e8f0; padding:8px 16px; text-align:center;">
-              <p style="margin:0; font-size:12pt; color:#475569; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; line-height:0.8;">MatFlow Inventory System · Sermsuk PLC</p>
+              <p style="margin:0; font-size:12pt; color:#475569; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; line-height:1.1;">MatFlow Inventory System · Sermsuk PLC</p>
             </td>
           </tr>
 
