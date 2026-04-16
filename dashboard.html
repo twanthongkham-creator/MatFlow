@@ -27,9 +27,6 @@
 .ef-input{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;color:#0a1f44;background:rgba(255,255,255,.80);border:1.5px solid rgba(180,210,255,.50);border-radius:8px;padding:7px 11px;outline:none;transition:border-color .15s;width:100%}
 .ef-input:focus{border-color:#1a6cf5;box-shadow:0 0 0 3px rgba(26,108,245,.10)}
 .ef-input[readonly]{background:rgba(230,240,255,.55);color:#2d5280}
-.ej-cfg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px 20px;background:rgba(255,248,230,.70);border-bottom:1px solid rgba(217,119,6,.20);flex-shrink:0}
-.ej-cfg-title{grid-column:1/-1;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#92400e;display:flex;align-items:center;gap:5px}
-.ej-cfg-title svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
 .emod-preview{flex:1;overflow-y:auto;padding:14px 20px;background:#fff}
 .preview-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#4a6380;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .preview-label::before{content:'';display:inline-block;width:8px;height:3px;background:#1a6cf5;border-radius:2px}
@@ -75,26 +72,6 @@
       <button class="emod-xbtn" onclick="closeEmailModal()">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-    </div>
-
-    <!-- EmailJS Config (กรอกครั้งเดียว ระบบจำไว้) -->
-    <div class="ej-cfg">
-      <div class="ej-cfg-title" style="grid-column:1/-1">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        EmailJS Config — กรอกครั้งแรกครั้งเดียว (ระบบจำไว้ใน Session)
-      </div>
-      <div class="ef-group">
-        <label class="ef-lbl">Public Key</label>
-        <input class="ef-input" id="cfgPublicKey" type="text" placeholder="aBcDeFgHiJkLmNo..." style="font-family:'IBM Plex Mono',monospace;font-size:12px">
-      </div>
-      <div class="ef-group">
-        <label class="ef-lbl">Service ID</label>
-        <input class="ef-input" id="cfgServiceId" type="text" placeholder="service_xxxxxxx" style="font-family:'IBM Plex Mono',monospace;font-size:12px">
-      </div>
-      <div class="ef-group">
-        <label class="ef-lbl">Template ID</label>
-        <input class="ef-input" id="cfgTemplateId" type="text" placeholder="template_xxxxxxx" style="font-family:'IBM Plex Mono',monospace;font-size:12px">
-      </div>
     </div>
 
     <!-- Email fields -->
@@ -305,6 +282,9 @@
 <script src="mf-shared.js"></script>
 <script>
 const DASHBOARD_URL='https://twanthongkham-creator.github.io/MatFlow/dashboard.html';
+const EJ_PUBLIC_KEY ='gYNAX5IlLeqDebuDi';
+const EJ_SERVICE_ID ='service_ofpsdk6';
+const EJ_TEMPLATE_ID='template_rjnzopj';
 
 Chart.register(ChartDataLabels);
 let rawData=[], editIdx=null, listMdl, editMdl;
@@ -327,11 +307,7 @@ window.onload=()=>{
   const d=new Date();
   const ds=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
   document.getElementById('efSubject').value=`รายงานวัตถุดิบคงเหลือ ประจำวันที่ ${ds}`;
-  // Load EmailJS keys from sessionStorage ถ้ากรอกไว้แล้ว
-  ['cfgPublicKey','cfgServiceId','cfgTemplateId'].forEach(id=>{
-    const saved=sessionStorage.getItem('mf_ej_'+id);
-    if(saved)document.getElementById(id).value=saved;
-  });
+  emailjs.init(EJ_PUBLIC_KEY);
   loadAll();
 };
 
@@ -644,28 +620,10 @@ function closeEmailModal(){document.getElementById('emailModal').style.display='
 
 /* ── Send ── */
 async function sendEmailNow(){
-  // อ่านค่า config จาก input ในขณะกดส่ง
-  const pk=document.getElementById('cfgPublicKey').value.trim();
-  const sid=document.getElementById('cfgServiceId').value.trim();
-  const tid=document.getElementById('cfgTemplateId').value.trim();
   const to=document.getElementById('efTo').value.trim();
   const cc=document.getElementById('efCc').value.trim();
   const subject=document.getElementById('efSubject').value.trim();
-
-  // Validate config ตอนกดส่ง (ไม่ block การเปิด modal)
-  if(!pk||!sid||!tid){
-    showSendStatus('err','กรุณากรอก Public Key, Service ID และ Template ID ก่อนส่ง');
-    return;
-  }
   if(!to){showSendStatus('err','กรุณาระบุ To email');return;}
-
-  // บันทึกลง sessionStorage เพื่อใช้ครั้งถัดไป
-  sessionStorage.setItem('mf_ej_cfgPublicKey',pk);
-  sessionStorage.setItem('mf_ej_cfgServiceId',sid);
-  sessionStorage.setItem('mf_ej_cfgTemplateId',tid);
-
-  // Init EmailJS ด้วย key ที่กรอก
-  try{emailjs.init(pk);}catch(e){}
 
   const btn=document.getElementById('btnSendEmail');
   btn.disabled=true;
@@ -673,7 +631,7 @@ async function sendEmailNow(){
   showSendStatus('info','กำลังส่ง Email...');
 
   try{
-    const result=await emailjs.send(sid,tid,{
+    const result=await emailjs.send(EJ_SERVICE_ID, EJ_TEMPLATE_ID,{
       to_email:to,
       cc_email:cc,
       subject:subject,
