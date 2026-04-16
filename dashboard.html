@@ -12,7 +12,7 @@
 <style>
 /* ════ EMAIL MODAL ════ */
 .emod-overlay{position:fixed;inset:0;z-index:9998;background:rgba(0,28,80,.55);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:12px}
-.emod-box{background:#f8fbff;border:1px solid rgba(180,210,255,.45);border-radius:24px;box-shadow:0 24px 64px rgba(0,40,160,.22);width:100%;max-width:780px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;animation:popIn .22s cubic-bezier(.34,1.56,.64,1)}
+.emod-box{background:#f8fbff;border:1px solid rgba(180,210,255,.45);border-radius:24px;box-shadow:0 24px 64px rgba(0,40,160,.22);width:100%;max-width:800px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;animation:popIn .22s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
 .emod-hd{background:linear-gradient(125deg,#00225c,#0047bf 55%,#1a6cf5);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .emod-hd-title{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
@@ -20,8 +20,6 @@
 .emod-xbtn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:7px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;flex-shrink:0}
 .emod-xbtn:hover{background:rgba(255,255,255,.28)}
 .emod-xbtn svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5}
-
-/* email fields row */
 .efields{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 20px;border-bottom:1px solid rgba(180,210,255,.30);flex-shrink:0;background:rgba(235,245,255,.60)}
 .ef-group{display:flex;flex-direction:column;gap:4px}
 .ef-group.full{grid-column:1/-1}
@@ -29,22 +27,19 @@
 .ef-input{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;color:#0a1f44;background:rgba(255,255,255,.80);border:1.5px solid rgba(180,210,255,.50);border-radius:8px;padding:7px 11px;outline:none;transition:border-color .15s;width:100%}
 .ef-input:focus{border-color:#1a6cf5;box-shadow:0 0 0 3px rgba(26,108,245,.10)}
 .ef-input[readonly]{background:rgba(230,240,255,.55);color:#2d5280}
-
-/* preview area */
+.ej-cfg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px 20px;background:rgba(255,248,230,.70);border-bottom:1px solid rgba(217,119,6,.20);flex-shrink:0}
+.ej-cfg-title{grid-column:1/-1;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#92400e;display:flex;align-items:center;gap:5px}
+.ej-cfg-title svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
 .emod-preview{flex:1;overflow-y:auto;padding:14px 20px;background:#fff}
 .preview-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#4a6380;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .preview-label::before{content:'';display:inline-block;width:8px;height:3px;background:#1a6cf5;border-radius:2px}
 .preview-frame{border:1.5px solid rgba(180,210,255,.45);border-radius:10px;overflow:hidden;background:#fff}
-
-/* footer */
 .emod-foot{background:rgba(230,242,255,.55);border-top:1px solid rgba(180,210,255,.28);padding:12px 20px;display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;align-items:center}
-.status-pill{font-size:12.5px;font-weight:600;padding:6px 14px;border-radius:8px;display:flex;align-items:center;gap:6px;flex:1}
+.status-pill{font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:6px;flex:1;min-width:0}
 .status-pill svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0}
 .sp-ok{background:rgba(5,150,105,.10);border:1px solid rgba(5,150,105,.28);color:#065f46}
 .sp-err{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.22);color:#991b1b}
 .sp-info{background:rgba(66,146,255,.09);border:1px solid rgba(66,146,255,.22);color:#1e40af}
-
-/* buttons */
 .btn-esend{background:linear-gradient(135deg,#1a6cf5,#003494);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .15s;box-shadow:0 3px 12px rgba(26,108,245,.32);white-space:nowrap}
 .btn-esend svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;flex-shrink:0}
 .btn-esend:hover{box-shadow:0 5px 18px rgba(26,108,245,.46);transform:translateY(-1px)}
@@ -52,14 +47,10 @@
 .btn-esend:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
 .btn-ecancel{background:rgba(255,255,255,.70);color:#4a6380;border:1.5px solid rgba(180,210,255,.45);border-radius:10px;padding:8px 16px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s}
 .btn-ecancel:hover{background:rgba(255,255,255,.95)}
-
-/* report trigger button */
 .btn-report{background:linear-gradient(135deg,#1a6cf5,#003494);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .15s;box-shadow:0 2px 10px rgba(26,108,245,.28)}
 .btn-report svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.8}
 .btn-report:hover{box-shadow:0 4px 16px rgba(26,108,245,.42);transform:translateY(-1px)}
 .btn-report:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
-
-/* toast */
 .toast-mf{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:#0f172a;color:#fff;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;box-shadow:0 6px 20px rgba(0,0,0,.20);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;z-index:99999;pointer-events:none;white-space:nowrap}
 .toast-mf.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast-mf svg{width:14px;height:14px;stroke:#4ade80;fill:none;stroke-width:2.5;flex-shrink:0}
@@ -68,16 +59,12 @@
 </head>
 <body>
 
-<!-- Toast -->
 <div id="toast" class="toast-mf"><svg id="toastIco" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+<div id="loader" class="loader" style="display:none"><div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div></div>
 
-<div id="loader" class="loader" style="display:none">
-  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
-</div>
-
-<!-- ══════════════════════════════════
+<!-- ══════════════════════════════
      EMAIL MODAL
-══════════════════════════════════ -->
+══════════════════════════════ -->
 <div id="emailModal" class="emod-overlay" style="display:none">
   <div class="emod-box">
     <div class="emod-hd">
@@ -88,6 +75,26 @@
       <button class="emod-xbtn" onclick="closeEmailModal()">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
+    </div>
+
+    <!-- EmailJS Config (กรอกครั้งเดียว ระบบจำไว้) -->
+    <div class="ej-cfg">
+      <div class="ej-cfg-title" style="grid-column:1/-1">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        EmailJS Config — กรอกครั้งแรกครั้งเดียว (ระบบจำไว้ใน Session)
+      </div>
+      <div class="ef-group">
+        <label class="ef-lbl">Public Key</label>
+        <input class="ef-input" id="cfgPublicKey" type="text" placeholder="aBcDeFgHiJkLmNo..." style="font-family:'IBM Plex Mono',monospace;font-size:12px">
+      </div>
+      <div class="ef-group">
+        <label class="ef-lbl">Service ID</label>
+        <input class="ef-input" id="cfgServiceId" type="text" placeholder="service_xxxxxxx" style="font-family:'IBM Plex Mono',monospace;font-size:12px">
+      </div>
+      <div class="ef-group">
+        <label class="ef-lbl">Template ID</label>
+        <input class="ef-input" id="cfgTemplateId" type="text" placeholder="template_xxxxxxx" style="font-family:'IBM Plex Mono',monospace;font-size:12px">
+      </div>
     </div>
 
     <!-- Email fields -->
@@ -106,7 +113,7 @@
       </div>
     </div>
 
-    <!-- Preview of email content -->
+    <!-- Preview -->
     <div class="emod-preview">
       <div class="preview-label">ตัวอย่างเนื้อหา Email ที่จะส่ง</div>
       <div class="preview-frame">
@@ -116,7 +123,7 @@
 
     <div class="emod-foot">
       <div id="sendStatusPill" style="display:none" class="status-pill sp-info">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <svg id="spIco" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span id="sendStatusText"></span>
       </div>
       <button class="btn-ecancel" onclick="closeEmailModal()">ยกเลิก</button>
@@ -128,9 +135,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════
+<!-- ══════════════════════════════
      TOPBAR
-══════════════════════════════════ -->
+══════════════════════════════ -->
 <header class="topbar">
   <div class="topbar-inner">
     <a href="index.html" class="brand">
@@ -155,11 +162,10 @@
   </div>
 </header>
 
-<!-- ══════════════════════════════════
+<!-- ══════════════════════════════
      SHELL
-══════════════════════════════════ -->
+══════════════════════════════ -->
 <div class="shell">
-  <!-- Header row -->
   <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px" class="a1">
     <div class="ph" style="margin-bottom:0">
       <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
@@ -180,7 +186,7 @@
   </div>
 
   <div class="row g-3">
-    <!-- ── Production Capability Chart ── -->
+    <!-- Production Capability Chart -->
     <div class="col-lg-8 a2">
       <div class="card-mf">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -196,7 +202,7 @@
       </div>
     </div>
 
-    <!-- ── วัตถุดิบขาด Stock ── -->
+    <!-- วัตถุดิบขาด Stock -->
     <div class="col-lg-4 a3">
       <div class="card-mf h-100">
         <div class="ctitle c-red">
@@ -211,14 +217,13 @@
       </div>
     </div>
 
-    <!-- ── Expiry Timeline ── -->
+    <!-- Expiry Timeline -->
     <div class="col-12 a4">
       <div class="card-mf">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
           <div class="ctitle c-amb" style="margin-bottom:0">
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Expiry Timeline (31-Day)
-            <span style="font-size:10px;color:var(--txt3);text-transform:none;font-weight:500;margin-left:4px">คลิกแถวเพื่อแก้ไข</span>
+            Expiry Timeline (31-Day)<span style="font-size:10px;color:var(--txt3);text-transform:none;font-weight:500;margin-left:4px">คลิกแถวเพื่อแก้ไข</span>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <div class="leg"><div class="ld" style="background:#fca5a5"></div>1–7 วัน</div>
@@ -228,11 +233,7 @@
         </div>
         <div style="overflow-y:auto;max-height:340px">
           <div class="tw"><table class="mt">
-            <thead><tr>
-              <th>RM Name</th><th>Batch</th>
-              <th style="text-align:center">คงเหลือ (วัน)</th>
-              <th style="text-align:center;min-width:160px">Risk Scale</th>
-            </tr></thead>
+            <thead><tr><th>RM Name</th><th>Batch</th><th style="text-align:center">คงเหลือ (วัน)</th><th style="text-align:center;min-width:160px">Risk Scale</th></tr></thead>
             <tbody id="expiryTableBody"><tr><td colspan="4" style="padding:40px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr></tbody>
           </table></div>
         </div>
@@ -288,10 +289,7 @@
             <span style="font-size:13.5px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:7px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>ต่ออายุวัตถุดิบ (Extended BBF)</span>
             <input class="form-check-input" type="checkbox" id="toggleExtend" style="width:18px;height:18px;margin:0;cursor:pointer;accent-color:var(--b3)" onchange="document.getElementById('extField').style.display=this.checked?'block':'none'">
           </div>
-          <div id="extField" class="ext-inner">
-            <label style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px">วันที่ต่ออายุใหม่</label>
-            <input type="date" id="editExtExp" class="fc" style="border-color:var(--ab)">
-          </div>
+          <div id="extField" class="ext-inner"><label style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px">วันที่ต่ออายุใหม่</label><input type="date" id="editExtExp" class="fc" style="border-color:var(--ab)"></div>
         </div>
         <div style="margin-top:13px"><label style="font-size:11px;font-weight:700;color:var(--txt3);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px">แก้ไขเลข Batch</label><input type="text" id="editBatch" class="fc" style="font-family:'IBM Plex Mono',monospace"></div>
       </div>
@@ -306,27 +304,34 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="mf-shared.js"></script>
 <script>
-/* ══════════════════════════════════════════════
-   ⚙️  EmailJS CONFIG — แก้ 3 ค่านี้
-══════════════════════════════════════════════ */
-const EJ_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
-const EJ_SERVICE_ID  = 'YOUR_SERVICE_ID';
-const EJ_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-
-const DASHBOARD_URL = 'https://twanthongkham-creator.github.io/MatFlow/dashboard.html';
+const DASHBOARD_URL='https://twanthongkham-creator.github.io/MatFlow/dashboard.html';
 
 Chart.register(ChartDataLabels);
 let rawData=[], editIdx=null, listMdl, editMdl;
-let _capData={}, _oosData=[], _expiryData=[];
+
+/* ── Schema ใหม่จาก Code.gs ──
+   getDashboardData ส่งคืน:
+     productionCapacity: { pName: qty }
+     capDetailsList: [{ pName, bottleneck, potential }]  ← เรียงจากมากไปน้อยแล้ว
+     expiryTable: [{ name, batch, days }]
+   ไม่มี outOfStock แล้ว
+*/
+let _capData={};          // { productName: qty }
+let _capDetails=[];       // [{ pName, bottleneck, potential }] sorted desc
+let _expiryData=[];
 
 window.onload=()=>{
-  emailjs.init(EJ_PUBLIC_KEY);
   listMdl=new bootstrap.Modal(document.getElementById('listModal'));
   editMdl=new bootstrap.Modal(document.getElementById('editModal'));
   // Subject อัตโนมัติ
   const d=new Date();
   const ds=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
   document.getElementById('efSubject').value=`รายงานวัตถุดิบคงเหลือ ประจำวันที่ ${ds}`;
+  // Load EmailJS keys from sessionStorage ถ้ากรอกไว้แล้ว
+  ['cfgPublicKey','cfgServiceId','cfgTemplateId'].forEach(id=>{
+    const saved=sessionStorage.getItem('mf_ej_'+id);
+    if(saved)document.getElementById(id).value=saved;
+  });
   loadAll();
 };
 
@@ -338,46 +343,40 @@ async function loadAll(){
     if(jd.status==='success'&&jm.status==='success'){
       rawData=jm.data;
       _capData=jd.data.productionCapacity||{};
+      _capDetails=jd.data.capDetailsList||[];   // ← schema ใหม่
       _expiryData=jd.data.expiryTable||[];
 
-      /* ── OOS: วัตถุดิบที่มีสต๊อก = 0 จาก stockMap ── */
-      // สร้าง stockMap จาก rawData
-      const stockMap={};
-      rawData.forEach(i=>{
-        const c=String(i.code||'').trim();
-        if(c) stockMap[c]=(stockMap[c]||0)+(parseFloat(i.qty)||0);
-      });
-      // outOfStock คือ master items ที่ stock <= 0
-      _oosData=jd.data.outOfStock||[];
-
-      renderChart(_capData);
-      renderOOS(_oosData, stockMap);
+      renderChart(_capData, _capDetails);
+      renderOOS(_capDetails);              // ← ใช้ capDetailsList แทน outOfStock
       renderExpiry(_expiryData);
       document.getElementById('lastUpdate').textContent='อัปเดตล่าสุด: '+new Date().toLocaleString('th-TH');
       document.getElementById('btnReport').disabled=false;
     }else throw new Error();
-  }catch(e){alert('เกิดข้อผิดพลาดในการดึงข้อมูล');}
+  }catch(e){alert('เกิดข้อผิดพลาดในการดึงข้อมูล: '+e.message);}
   mfHide();
 }
 
-/* ════ Chart — เรียงมากไปน้อย, filter > 0 ════ */
-function renderChart(data){
-  // เรียงมากไปน้อย, รวม items ที่ value = 0 ด้วย (แสดงทุก product)
-  const allItems=Object.keys(data)
-    .map(k=>({n:k,v:data[k]}))
-    .sort((a,b)=>b.v-a.v); // มากไปน้อย ทั้งหมด
+/* ════ Chart ════ */
+function renderChart(capData, capDetails){
+  // ใช้ capDetails (sorted desc from backend) ถ้ามี ไม่งั้น fallback จาก capData
+  let items;
+  if(capDetails&&capDetails.length){
+    items=capDetails.map(d=>({n:d.pName,v:d.potential}));
+  }else{
+    items=Object.keys(capData).map(k=>({n:k,v:capData[k]})).sort((a,b)=>b.v-a.v);
+  }
 
-  const h=Math.max(300,allItems.length*42);
+  const h=Math.max(300,items.length*42);
   document.getElementById('canvasParent').style.height=h+'px';
   const ctx=document.getElementById('capacityChart').getContext('2d');
   if(window._ch)window._ch.destroy();
   window._ch=new Chart(ctx,{
     type:'bar',
     data:{
-      labels:allItems.map(i=>i.n),
+      labels:items.map(i=>i.n),
       datasets:[{
-        data:allItems.map(i=>i.v),
-        backgroundColor:allItems.map(i=>
+        data:items.map(i=>i.v),
+        backgroundColor:items.map(i=>
           i.v>500?'rgba(5,150,105,.75)':i.v>100?'rgba(217,119,6,.75)':i.v>0?'rgba(220,38,38,.70)':'rgba(156,163,175,.55)'
         ),
         barThickness:18,borderRadius:5
@@ -385,7 +384,7 @@ function renderChart(data){
     },
     options:{
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      layout:{padding:{right:80,left:4}},
+      layout:{padding:{right:85,left:4}},
       onClick:(e,els)=>{if(els.length)openList(window._ch.data.labels[els[0].index]);},
       onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       plugins:{
@@ -393,7 +392,7 @@ function renderChart(data){
         datalabels:{
           anchor:'end',align:'right',color:'#0a1f44',
           font:{weight:'bold',size:11,family:'IBM Plex Mono'},
-          formatter:v=>v>0?v.toLocaleString()+' U':'0'
+          formatter:v=>v>0?v.toLocaleString()+' U':'OUT'
         }
       },
       scales:{
@@ -404,10 +403,13 @@ function renderChart(data){
   });
 }
 
-/* ════ OOS — แสดงรายการที่ qty = 0 ════ */
-function renderOOS(data, stockMap){
+/* ════ OOS — ดึงจาก capDetailsList ที่ potential = 0 ════ */
+function renderOOS(capDetails){
   const c=document.getElementById('outOfStockBody');
-  if(!data||!data.length){
+  // กรองเฉพาะที่ potential = 0
+  const oosItems=capDetails.filter(d=>d.potential<=0);
+
+  if(!oosItems.length){
     c.innerHTML=`<div style="padding:44px;text-align:center">
       <div style="width:44px;height:44px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:1.5px solid var(--gb)">
         <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>
@@ -415,17 +417,11 @@ function renderOOS(data, stockMap){
       <div style="font-weight:700;color:var(--green);font-size:14px">วัตถุดิบพร้อมใช้งานทุกรายการ</div>
     </div>`;return;
   }
-  // Deduplicate by rmName+pName เผื่อมีซ้ำ
-  const seen=new Set();
-  const deduped=data.filter(i=>{
-    const k=(i.rmName||'')+(i.pName||'');
-    if(seen.has(k))return false;seen.add(k);return true;
-  });
-  c.innerHTML=deduped.map(i=>`
-    <div class="oos-item" onclick="openList('${String(i.rmName||'').replace(/'/g,"\\'")}')">
+  c.innerHTML=oosItems.map(d=>`
+    <div class="oos-item" onclick="openList('${String(d.bottleneck||d.pName||'').replace(/'/g,"\\'")}')">
       <div>
-        <div class="oos-name">${i.rmName}</div>
-        <div class="oos-sub">${i.pName}</div>
+        <div class="oos-name">${d.pName}</div>
+        <div class="oos-sub">คอขวด: ${d.bottleneck||'—'}</div>
       </div>
       <span class="oos-btn">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข
@@ -456,10 +452,19 @@ function openList(label){
   document.getElementById('listModalTitle').textContent=`วัตถุดิบในคลัง — ${label}`;
   const filtered=rawData.filter(i=>(parseFloat(i.qty)||0)>0);
   const tb=document.getElementById('listModalBody');
-  if(!filtered.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">ไม่มีสต๊อก<br><br><a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับเข้า</a></td></tr>`;}
-  else tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer"><td><span class="bcode">${i.code||'—'}</span></td><td style="font-weight:600">${i.name||'—'}</td><td><span class="bbatch">${i.batch||'—'}</span></td><td style="text-align:center;font-weight:700;color:var(--green);font-family:'IBM Plex Mono'">${i.qty}</td><td style="text-align:center"><button class="btn btn-edit" style="font-size:12px;padding:5px 12px"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</button></td></tr>`).join('');
+  if(!filtered.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">ไม่มีสต๊อก<br><br><a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px">ไปที่หน้ารับเข้า</a></td></tr>`;}
+  else tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer">
+    <td><span class="bcode">${i.code||'—'}</span></td>
+    <td style="font-weight:600">${i.name||'—'}</td>
+    <td><span class="bbatch">${i.batch||'—'}</span></td>
+    <td style="text-align:center;font-weight:700;color:var(--green);font-family:'IBM Plex Mono'">${i.qty}</td>
+    <td style="text-align:center"><button class="btn btn-edit" style="font-size:12px;padding:5px 12px">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข
+    </button></td>
+  </tr>`).join('');
   listMdl.show();
 }
+
 function findByBatch(b){const it=rawData.find(i=>String(i.batch)===String(b));if(it)openEdit(it.rowIdx);else alert('ไม่พบ Batch นี้');}
 function openEdit(ri){
   const it=rawData.find(i=>i.rowIdx===ri);if(!it)return;
@@ -490,190 +495,177 @@ async function saveEdit(){
   const it=rawData.find(i=>i.rowIdx===editIdx);
   const updated={...it,batch,qty,mfg,exp,extExp:hx?document.getElementById('editExtExp').value:''};
   editMdl.hide();mfShow('กำลังบันทึก...');
-  try{const j=await MF.updateMonitor(updated);if(j.status==='success')loadAll();else{alert('เกิดข้อผิดพลาด: '+(j.message||''));mfHide();}}
-  catch(e){alert('บันทึกล้มเหลว');mfHide();}
+  try{
+    const j=await MF.updateMonitor(updated);
+    if(j.status==='success')loadAll();
+    else{alert('เกิดข้อผิดพลาด: '+(j.message||''));mfHide();}
+  }catch(e){alert('บันทึกล้มเหลว');mfHide();}
 }
 
-/* ══════════════════════════════════════════════
-   📧  EMAIL — Build HTML tables + Modal + Send
-══════════════════════════════════════════════ */
+/* ══════════════════════════════════════
+   📧  EMAIL — Build HTML + Modal + Send
+══════════════════════════════════════ */
 
-/* CSS ที่ใช้ใน email (Cordia New 12pt, ultra compact, border) */
-const EMAIL_TABLE_CSS=`
-  font-family:'Cordia New',Tahoma,Arial,sans-serif;
-  font-size:12pt;color:#0a0a0a;
-`;
-const TH_STYLE=`
-  font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;font-weight:bold;
-  text-align:center;vertical-align:middle;
-  background:#1e3a6e;color:#ffffff;
-  border:1px solid #1e3a6e;
-  padding:3px 8px;white-space:nowrap;
-`;
-const TD_STYLE=`
-  font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;
-  border:1px solid #b0c4de;
-  padding:3px 8px;vertical-align:middle;white-space:nowrap;
-`;
-const TD_CENTER=TD_STYLE+'text-align:center;';
-const TD_RIGHT=TD_STYLE+'text-align:right;';
-const SEC_HDR=`
-  font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:14pt;font-weight:bold;
-  color:#1e3a6e;margin:16px 0 6px;padding:4px 0 4px 10px;
-  border-left:4px solid #1e3a6e;
-`;
+const CSS={
+  F:`font-family:'Cordia New',Tahoma,Arial,sans-serif`,
+  TH:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;font-weight:bold;text-align:center;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid`,
+  TD:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid #b0c4de`,
+  TDC:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid #b0c4de;text-align:center`,
+  TDR:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid #b0c4de;text-align:right`,
+  SEC:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:14pt;font-weight:bold;color:#1e3a6e;margin:14px 0 5px;padding:3px 0 3px 10px;border-left:4px solid #1e3a6e`,
+};
+const HDR=(bg,bc='')=>`${CSS.TH}${bc?';border-color:'+bc:';border-color:'+bg};background:${bg};color:#ffffff`;
 
 function buildEmailHtml(){
   const now=new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
-  const dateStr=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  const subj=document.getElementById('efSubject').value;
 
-  /* ── Table 1: Production Capability ── */
-  const capItems=Object.keys(_capData)
-    .map(k=>({name:k,val:_capData[k]}))
-    .sort((a,b)=>b.val-a.val);
+  /* ── Table 1: Production Capability (ใช้ capDetailsList ที่ sorted แล้ว) ── */
+  const capItems=_capDetails.length?_capDetails.map(d=>({name:d.pName,val:d.potential,bottleneck:d.bottleneck}))
+    :Object.keys(_capData).map(k=>({name:k,val:_capData[k],bottleneck:''})).sort((a,b)=>b.val-a.val);
 
   const maxCap=Math.max(...capItems.map(i=>i.val),1);
   const capRows=capItems.map((it,idx)=>{
-    const barPct=Math.round(it.val/maxCap*100);
-    const barColor=it.val>500?'#059669':it.val>100?'#d97706':it.val>0?'#dc2626':'#9ca3af';
-    const barBg=`<div style="width:80px;height:10px;background:#e5e7eb;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle"><div style="width:${barPct}%;height:100%;background:${barColor}"></div></div>`;
-    const qtyColor=it.val>500?'#059669':it.val>100?'#d97706':it.val>0?'#dc2626':'#9ca3af';
-    return`<tr style="background:${idx%2===0?'#f9fbff':'#ffffff'}">
-      <td style="${TD_CENTER}">${idx+1}</td>
-      <td style="${TD_STYLE}">${it.name}</td>
-      <td style="${TD_RIGHT}font-weight:bold;color:${qtyColor}">${it.val.toLocaleString()}</td>
-      <td style="${TD_CENTER}">${barBg}</td>
+    const col=it.val>500?'#059669':it.val>100?'#d97706':it.val>0?'#dc2626':'#9ca3af';
+    const pct=Math.round(it.val/maxCap*100);
+    const bar=`<div style="width:70px;height:9px;background:#e5e7eb;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle"><div style="width:${pct}%;height:100%;background:${col}"></div></div>`;
+    const rowBg=idx%2===0?'#f9fbff':'#ffffff';
+    return`<tr style="background:${rowBg}">
+      <td style="${CSS.TDC}">${idx+1}</td>
+      <td style="${CSS.TD}">${it.name}</td>
+      <td style="${CSS.TDR};font-weight:bold;color:${col}">${it.val>0?it.val.toLocaleString():'0'}</td>
+      <td style="${CSS.TDC}">${bar}</td>
     </tr>`;
   }).join('');
 
-  const table1=`
-    <div style="${SEC_HDR}">1. Production Capability</div>
-    <table style="border-collapse:collapse;${EMAIL_TABLE_CSS}">
-      <thead><tr>
-        <th style="${TH_STYLE}width:36px">ลำดับ</th>
-        <th style="${TH_STYLE}">Product Name</th>
-        <th style="${TH_STYLE}">ผลิตได้ (Unit)</th>
-        <th style="${TH_STYLE}width:100px">ความสามารถ</th>
-      </tr></thead>
-      <tbody>${capRows||`<tr><td colspan="4" style="${TD_CENTER}color:#9ca3af">ไม่มีข้อมูล</td></tr>`}</tbody>
-    </table>`;
+  const t1=`<div style="${CSS.SEC}">1. Production Capability</div>
+  <table style="border-collapse:collapse;${CSS.F};font-size:12pt">
+    <thead><tr>
+      <th style="${HDR('#1e3a6e')};width:36px">ลำดับ</th>
+      <th style="${HDR('#1e3a6e')}">Product Name</th>
+      <th style="${HDR('#1e3a6e')}">ผลิตได้ (Unit)</th>
+      <th style="${HDR('#1e3a6e')};width:90px">ความสามารถ</th>
+    </tr></thead>
+    <tbody>${capRows||`<tr><td colspan="4" style="${CSS.TDC};color:#9ca3af">ไม่มีข้อมูล</td></tr>`}</tbody>
+  </table>`;
 
-  /* ── Table 2: วัตถุดิบขาด Stock ── */
-  const seen2=new Set();
-  const oosDedup=_oosData.filter(i=>{const k=(i.rmName||'')+(i.pName||'');if(seen2.has(k))return false;seen2.add(k);return true;});
-  const oosRows=oosDedup.map((it,idx)=>`
+  /* ── Table 2: วัตถุดิบขาด Stock (potential=0) ── */
+  const oosItems=capItems.filter(i=>i.val<=0);
+  const oosRows=oosItems.map((it,idx)=>`
     <tr style="background:${idx%2===0?'#fff5f5':'#ffffff'}">
-      <td style="${TD_CENTER}">${idx+1}</td>
-      <td style="${TD_STYLE}font-weight:bold;color:#dc2626">${it.rmName}</td>
-      <td style="${TD_STYLE}">${it.pName}</td>
-      <td style="${TD_CENTER}"><span style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:3px;padding:1px 7px;font-weight:bold;font-size:11pt">OUT</span></td>
+      <td style="${CSS.TDC}">${idx+1}</td>
+      <td style="${CSS.TD};font-weight:bold;color:#dc2626">${it.name}</td>
+      <td style="${CSS.TD}">${it.bottleneck||'—'}</td>
+      <td style="${CSS.TDC}"><span style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:3px;padding:1px 7px;font-weight:bold;font-size:11pt">OUT</span></td>
     </tr>`).join('');
 
-  const table2=`
-    <div style="${SEC_HDR}color:#dc2626;border-left-color:#dc2626">2. วัตถุดิบขาด Stock</div>
-    <table style="border-collapse:collapse;${EMAIL_TABLE_CSS}">
-      <thead><tr>
-        <th style="${TH_STYLE}background:#7f1d1d;border-color:#7f1d1d;width:36px">ลำดับ</th>
-        <th style="${TH_STYLE}background:#7f1d1d;border-color:#7f1d1d">RM Name</th>
-        <th style="${TH_STYLE}background:#7f1d1d;border-color:#7f1d1d">สินค้าที่ได้รับผลกระทบ</th>
-        <th style="${TH_STYLE}background:#7f1d1d;border-color:#7f1d1d">สถานะ</th>
-      </tr></thead>
-      <tbody>${oosRows||`<tr><td colspan="4" style="${TD_CENTER}color:#059669;font-weight:bold">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`}</tbody>
-    </table>`;
+  const t2=`<div style="${CSS.SEC};color:#dc2626;border-left-color:#dc2626">2. วัตถุดิบขาด Stock</div>
+  <table style="border-collapse:collapse;${CSS.F};font-size:12pt">
+    <thead><tr>
+      <th style="${HDR('#7f1d1d')};width:36px">ลำดับ</th>
+      <th style="${HDR('#7f1d1d')}">Product Name</th>
+      <th style="${HDR('#7f1d1d')}">RM คอขวด</th>
+      <th style="${HDR('#7f1d1d')}">สถานะ</th>
+    </tr></thead>
+    <tbody>${oosRows||`<tr><td colspan="4" style="${CSS.TDC};color:#059669;font-weight:bold">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`}</tbody>
+  </table>`;
 
   /* ── Table 3: Expiry Timeline ── */
   const expRows=_expiryData.map((it,idx)=>{
-    const exp=it.days<=0;
-    const col=exp?'#7c3aed':it.days<=7?'#dc2626':it.days<=15?'#d97706':'#059669';
-    const rowBg=exp?'#faf5ff':it.days<=7?'#fff5f5':it.days<=15?'#fffbeb':idx%2===0?'#f9fbff':'#ffffff';
-    const daysTxt=exp?`หมดอายุ ${Math.abs(it.days)} วัน`:`${it.days} วัน`;
+    const expired=it.days<=0;
+    const col=expired?'#7c3aed':it.days<=7?'#dc2626':it.days<=15?'#d97706':'#059669';
+    const rowBg=expired?'#faf5ff':it.days<=7?'#fff5f5':it.days<=15?'#fffbeb':idx%2===0?'#f9fbff':'#ffffff';
+    const daysTxt=expired?`หมดอายุ ${Math.abs(it.days)} วัน`:`${it.days} วัน`;
     return`<tr style="background:${rowBg}">
-      <td style="${TD_CENTER}">${idx+1}</td>
-      <td style="${TD_STYLE}font-weight:600">${it.name}</td>
-      <td style="${TD_CENTER}font-family:'IBM Plex Mono',monospace">${it.batch}</td>
-      <td style="${TD_CENTER}font-weight:bold;color:${col}">${daysTxt}</td>
+      <td style="${CSS.TDC}">${idx+1}</td>
+      <td style="${CSS.TD};font-weight:600">${it.name}</td>
+      <td style="${CSS.TDC}">${it.batch}</td>
+      <td style="${CSS.TDC};font-weight:bold;color:${col}">${daysTxt}</td>
     </tr>`;
   }).join('');
 
-  const table3=`
-    <div style="${SEC_HDR}color:#b45309;border-left-color:#b45309">3. Expiry Timeline (31-Day)</div>
-    <table style="border-collapse:collapse;${EMAIL_TABLE_CSS}">
-      <thead><tr>
-        <th style="${TH_STYLE}background:#78350f;border-color:#78350f;width:36px">ลำดับ</th>
-        <th style="${TH_STYLE}background:#78350f;border-color:#78350f">RM Name</th>
-        <th style="${TH_STYLE}background:#78350f;border-color:#78350f">Batch</th>
-        <th style="${TH_STYLE}background:#78350f;border-color:#78350f">คงเหลือ (วัน)</th>
-      </tr></thead>
-      <tbody>${expRows||`<tr><td colspan="4" style="${TD_CENTER}color:#059669;font-weight:bold">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`}</tbody>
-    </table>`;
+  const t3=`<div style="${CSS.SEC};color:#b45309;border-left-color:#b45309">3. Expiry Timeline (31-Day)</div>
+  <table style="border-collapse:collapse;${CSS.F};font-size:12pt">
+    <thead><tr>
+      <th style="${HDR('#78350f')};width:36px">ลำดับ</th>
+      <th style="${HDR('#78350f')}">RM Name</th>
+      <th style="${HDR('#78350f')}">Batch</th>
+      <th style="${HDR('#78350f')}">คงเหลือ (วัน)</th>
+    </tr></thead>
+    <tbody>${expRows||`<tr><td colspan="4" style="${CSS.TDC};color:#059669;font-weight:bold">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`}</tbody>
+  </table>`;
 
-  /* ── Legend ── */
-  const legend=`
-    <div style="margin-top:14px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:11pt;color:#334155">
-      <strong>คำอธิบาย:</strong>
-      <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;vertical-align:middle;margin-right:4px"></span>&gt;500 Unit</span>
-      <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;vertical-align:middle;margin-right:4px"></span>100–500 Unit</span>
-      <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;vertical-align:middle;margin-right:4px"></span>&lt;100 Unit</span>
-      <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#9ca3af;border-radius:2px;vertical-align:middle;margin-right:4px"></span>ไม่มีสต๊อก</span>
-    </div>`;
+  const legend=`<div style="margin-top:12px;padding:7px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;${CSS.F};font-size:11pt;color:#334155">
+    <strong>คำอธิบาย:</strong>
+    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;vertical-align:middle;margin-right:4px"></span>&gt;500 Unit</span>
+    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;vertical-align:middle;margin-right:4px"></span>100–500 Unit</span>
+    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;vertical-align:middle;margin-right:4px"></span>&lt;100 Unit</span>
+    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#9ca3af;border-radius:2px;vertical-align:middle;margin-right:4px"></span>ขาดสต๊อก</span>
+  </div>`;
 
-  /* ── Full email HTML ── */
   return`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Cordia New',Tahoma,Arial,sans-serif">
+<body style="margin:0;padding:0;background:#f0f4f8;${CSS.F}">
 <div style="max-width:720px;margin:20px auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 20px rgba(0,40,120,.10)">
-  <!-- Header -->
   <div style="background:linear-gradient(135deg,#003494,#0047bf 50%,#1a6cf5);padding:22px 28px">
-    <p style="color:rgba(255,255,255,.65);font-size:10pt;margin:0 0 3px;text-transform:uppercase;letter-spacing:1px;font-family:'Cordia New',Tahoma">MatFlow Inventory System · Sermsuk PLC</p>
-    <h1 style="color:#fff;font-size:16pt;font-weight:bold;margin:0 0 3px;font-family:'Cordia New',Tahoma">${document.getElementById('efSubject').value}</h1>
-    <p style="color:rgba(255,255,255,.70);font-size:11pt;margin:0;font-family:'Cordia New',Tahoma">สร้างอัตโนมัติ ณ ${now}</p>
+    <p style="color:rgba(255,255,255,.65);font-size:10pt;margin:0 0 3px;text-transform:uppercase;letter-spacing:1px;${CSS.F}">MatFlow Inventory System · Sermsuk PLC</p>
+    <h1 style="color:#fff;font-size:16pt;font-weight:bold;margin:0 0 3px;${CSS.F}">${subj}</h1>
+    <p style="color:rgba(255,255,255,.70);font-size:11pt;margin:0;${CSS.F}">สร้างอัตโนมัติ ณ ${now}</p>
   </div>
-  <!-- Body -->
   <div style="padding:18px 28px 22px">
-    ${table1}
-    ${table2}
-    ${table3}
-    ${legend}
-    <!-- Link -->
-    <div style="margin-top:16px;padding:10px 14px;background:#eff6ff;border-radius:7px;border-left:4px solid #3b82f6;font-family:'Cordia New',Tahoma;font-size:11pt;color:#1e40af">
+    ${t1}${t2}${t3}${legend}
+    <div style="margin-top:14px;padding:9px 13px;background:#eff6ff;border-radius:7px;border-left:4px solid #3b82f6;${CSS.F};font-size:11pt;color:#1e40af">
       ดูข้อมูล Real-time: <a href="${DASHBOARD_URL}" style="color:#1d4ed8;font-weight:bold">${DASHBOARD_URL}</a>
     </div>
   </div>
-  <!-- Footer -->
   <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:12px 28px;display:flex;justify-content:space-between;align-items:center">
-    <p style="font-size:11pt;color:#64748b;margin:0;font-family:'Cordia New',Tahoma;font-weight:bold">MatFlow Inventory System · Sermsuk PLC</p>
-    <p style="font-size:10pt;color:#94a3b8;margin:0;font-family:'Cordia New',Tahoma">${now}</p>
+    <p style="font-size:11pt;color:#64748b;margin:0;${CSS.F};font-weight:bold">MatFlow Inventory System · Sermsuk PLC</p>
+    <p style="font-size:10pt;color:#94a3b8;margin:0;${CSS.F}">${now}</p>
   </div>
-</div>
-</body></html>`;
+</div></body></html>`;
 }
 
-/* ── Open email modal ── */
+/* ── Open modal (ไม่ check config ที่นี่ → เปิด modal ได้เสมอ) ── */
 function openEmailModal(){
-  // Build preview
   const html=buildEmailHtml();
-  document.getElementById('emailPreviewContent').innerHTML=html
+  // strip outer html/head/body tags for preview
+  const preview=html
     .replace(/<!DOCTYPE[^>]*>/i,'')
-    .replace(/<\/?html[^>]*>/gi,'')
-    .replace(/<\/?head[^>]*>[\s\S]*?<\/head>/gi,'')
-    .replace(/<\/?body[^>]*>/gi,'');
-
+    .replace(/<html[^>]*>/gi,'').replace(/<\/html>/gi,'')
+    .replace(/<head>[\s\S]*?<\/head>/gi,'')
+    .replace(/<body[^>]*>/gi,'').replace(/<\/body>/gi,'');
+  document.getElementById('emailPreviewContent').innerHTML=preview;
   document.getElementById('sendStatusPill').style.display='none';
-  document.getElementById('btnSendEmail').disabled=false;
-  document.getElementById('btnSendEmail').innerHTML=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>ส่งตารางสรุป Email`;
+  const btn=document.getElementById('btnSendEmail');
+  btn.disabled=false;
+  btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>ส่งตารางสรุป Email`;
   document.getElementById('emailModal').style.display='flex';
 }
 function closeEmailModal(){document.getElementById('emailModal').style.display='none';}
 
-/* ── Send via EmailJS ── */
+/* ── Send ── */
 async function sendEmailNow(){
+  // อ่านค่า config จาก input ในขณะกดส่ง
+  const pk=document.getElementById('cfgPublicKey').value.trim();
+  const sid=document.getElementById('cfgServiceId').value.trim();
+  const tid=document.getElementById('cfgTemplateId').value.trim();
   const to=document.getElementById('efTo').value.trim();
   const cc=document.getElementById('efCc').value.trim();
   const subject=document.getElementById('efSubject').value.trim();
-  if(!to)return alert('กรุณาระบุ To');
 
-  if(EJ_PUBLIC_KEY==='YOUR_PUBLIC_KEY'){
-    alert('กรุณาตั้งค่า EJ_PUBLIC_KEY, EJ_SERVICE_ID, EJ_TEMPLATE_ID ก่อน\n\nดูวิธีที่ emailjs.com');return;
+  // Validate config ตอนกดส่ง (ไม่ block การเปิด modal)
+  if(!pk||!sid||!tid){
+    showSendStatus('err','กรุณากรอก Public Key, Service ID และ Template ID ก่อนส่ง');
+    return;
   }
+  if(!to){showSendStatus('err','กรุณาระบุ To email');return;}
+
+  // บันทึกลง sessionStorage เพื่อใช้ครั้งถัดไป
+  sessionStorage.setItem('mf_ej_cfgPublicKey',pk);
+  sessionStorage.setItem('mf_ej_cfgServiceId',sid);
+  sessionStorage.setItem('mf_ej_cfgTemplateId',tid);
+
+  // Init EmailJS ด้วย key ที่กรอก
+  try{emailjs.init(pk);}catch(e){}
 
   const btn=document.getElementById('btnSendEmail');
   btn.disabled=true;
@@ -681,7 +673,7 @@ async function sendEmailNow(){
   showSendStatus('info','กำลังส่ง Email...');
 
   try{
-    const result=await emailjs.send(EJ_SERVICE_ID,EJ_TEMPLATE_ID,{
+    const result=await emailjs.send(sid,tid,{
       to_email:to,
       cc_email:cc,
       subject:subject,
@@ -694,7 +686,7 @@ async function sendEmailNow(){
     }else throw new Error('Status '+result.status);
   }catch(err){
     console.error(err);
-    showSendStatus('err','ส่งล้มเหลว: '+(err.text||err.message||'ตรวจสอบการตั้งค่า EmailJS'));
+    showSendStatus('err','ส่งล้มเหลว: '+(err.text||err.message||'ตรวจสอบ Config'));
     btn.disabled=false;
     btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>ลองอีกครั้ง`;
   }
@@ -702,18 +694,16 @@ async function sendEmailNow(){
 
 function showSendStatus(type,msg){
   const el=document.getElementById('sendStatusPill');
+  const ic=document.getElementById('spIco');
   const tx=document.getElementById('sendStatusText');
   el.className='status-pill '+(type==='ok'?'sp-ok':type==='err'?'sp-err':'sp-info');
-  el.querySelector('svg').innerHTML=type==='ok'?'<path d="M20 6L9 17l-5-5"/>':type==='err'?'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>':'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
-  tx.textContent=msg;
-  el.style.display='flex';
+  ic.innerHTML=type==='ok'?'<path d="M20 6L9 17l-5-5"/>':type==='err'?'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>':'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
+  tx.textContent=msg;el.style.display='flex';
 }
-
 function showToast(type,msg){
   const t=document.getElementById('toast');
   document.getElementById('toastMsg').textContent=msg;
-  if(type==='err'){t.classList.add('err');document.getElementById('toastIco').innerHTML='<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';}
-  else{t.classList.remove('err');document.getElementById('toastIco').innerHTML='<path d="M20 6L9 17l-5-5"/>';}
+  if(type==='err')t.classList.add('err');else t.classList.remove('err');
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
