@@ -482,121 +482,122 @@ async function saveEdit(){
    📧  EMAIL — Build HTML + Modal + Send
 ══════════════════════════════════════ */
 
-const CSS={
-  F:`font-family:'Cordia New',Tahoma,Arial,sans-serif`,
-  TH:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;font-weight:bold;text-align:center;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid`,
-  TD:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid #b0c4de`,
-  TDC:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid #b0c4de;text-align:center`,
-  TDR:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt;vertical-align:middle;padding:3px 8px;white-space:nowrap;border:1px solid #b0c4de;text-align:right`,
-  SEC:`font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:14pt;font-weight:bold;color:#1e3a6e;margin:14px 0 5px;padding:3px 0 3px 10px;border-left:4px solid #1e3a6e`,
-};
-const HDR=(bg,bc='')=>`${CSS.TH}${bc?';border-color:'+bc:';border-color:'+bg};background:${bg};color:#ffffff`;
-
+/* ══════════════════════════════════════════════
+   Build email HTML — ใช้ <style> block แทน inline
+   เพื่อให้ payload < 50KB (EmailJS limit)
+══════════════════════════════════════════════ */
 function buildEmailHtml(){
   const now=new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
   const subj=document.getElementById('efSubject').value;
 
-  /* ── Table 1: Production Capability (ใช้ capDetailsList ที่ sorted แล้ว) ── */
-  const capItems=_capDetails.length?_capDetails.map(d=>({name:d.pName,val:d.potential,bottleneck:d.bottleneck}))
-    :Object.keys(_capData).map(k=>({name:k,val:_capData[k],bottleneck:''})).sort((a,b)=>b.val-a.val);
-
+  /* ── data ── */
+  const capItems=_capDetails.length
+    ?_capDetails.map(d=>({name:d.pName,val:d.potential,bn:d.bottleneck}))
+    :Object.keys(_capData).map(k=>({name:k,val:_capData[k],bn:''})).sort((a,b)=>b.val-a.val);
   const maxCap=Math.max(...capItems.map(i=>i.val),1);
-  const capRows=capItems.map((it,idx)=>{
+  const oosItems=capItems.filter(i=>i.val<=0);
+
+  /* ── Table 1 rows ── */
+  const t1rows=capItems.map((it,i)=>{
     const col=it.val>500?'#059669':it.val>100?'#d97706':it.val>0?'#dc2626':'#9ca3af';
     const pct=Math.round(it.val/maxCap*100);
-    const bar=`<div style="width:70px;height:9px;background:#e5e7eb;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle"><div style="width:${pct}%;height:100%;background:${col}"></div></div>`;
-    const rowBg=idx%2===0?'#f9fbff':'#ffffff';
-    return`<tr style="background:${rowBg}">
-      <td style="${CSS.TDC}">${idx+1}</td>
-      <td style="${CSS.TD}">${it.name}</td>
-      <td style="${CSS.TDR};font-weight:bold;color:${col}">${it.val>0?it.val.toLocaleString():'0'}</td>
-      <td style="${CSS.TDC}">${bar}</td>
-    </tr>`;
+    return`<tr class="${i%2?'r1':'r0'}">
+<td class="tc">${i+1}</td><td class="tl">${it.name}</td>
+<td class="tr" style="color:${col};font-weight:bold">${it.val>0?it.val.toLocaleString():'0'}</td>
+<td class="tc"><div class="br"><div class="bf" style="width:${pct}%;background:${col}"></div></div></td></tr>`;
   }).join('');
 
-  const t1=`<div style="${CSS.SEC}">1. Production Capability</div>
-  <table style="border-collapse:collapse;${CSS.F};font-size:12pt">
-    <thead><tr>
-      <th style="${HDR('#1e3a6e')};width:36px">ลำดับ</th>
-      <th style="${HDR('#1e3a6e')}">Product Name</th>
-      <th style="${HDR('#1e3a6e')}">ผลิตได้ (Unit)</th>
-      <th style="${HDR('#1e3a6e')};width:90px">ความสามารถ</th>
-    </tr></thead>
-    <tbody>${capRows||`<tr><td colspan="4" style="${CSS.TDC};color:#9ca3af">ไม่มีข้อมูล</td></tr>`}</tbody>
-  </table>`;
+  /* ── Table 2 rows ── */
+  const t2rows=oosItems.length?oosItems.map((it,i)=>
+    `<tr class="${i%2?'r1':'r0s'}"><td class="tc">${i+1}</td>
+<td class="tl" style="color:#dc2626;font-weight:bold">${it.name}</td>
+<td class="tl">${it.bn||'—'}</td>
+<td class="tc"><span class="tag-out">OUT</span></td></tr>`
+  ).join(''):`<tr><td colspan="4" class="tc ok">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`;
 
-  /* ── Table 2: วัตถุดิบขาด Stock (potential=0) ── */
-  const oosItems=capItems.filter(i=>i.val<=0);
-  const oosRows=oosItems.map((it,idx)=>`
-    <tr style="background:${idx%2===0?'#fff5f5':'#ffffff'}">
-      <td style="${CSS.TDC}">${idx+1}</td>
-      <td style="${CSS.TD};font-weight:bold;color:#dc2626">${it.name}</td>
-      <td style="${CSS.TD}">${it.bottleneck||'—'}</td>
-      <td style="${CSS.TDC}"><span style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:3px;padding:1px 7px;font-weight:bold;font-size:11pt">OUT</span></td>
-    </tr>`).join('');
+  /* ── Table 3 rows ── */
+  const t3rows=_expiryData.length?_expiryData.map((it,i)=>{
+    const ex=it.days<=0;
+    const col=ex?'#7c3aed':it.days<=7?'#dc2626':it.days<=15?'#d97706':'#059669';
+    const cls=ex?'rp':it.days<=7?'r0s':it.days<=15?'rw':i%2?'r1':'r0';
+    return`<tr class="${cls}"><td class="tc">${i+1}</td>
+<td class="tl" style="font-weight:600">${it.name}</td>
+<td class="tc">${it.batch}</td>
+<td class="tc" style="color:${col};font-weight:bold">${ex?`หมดอายุ ${Math.abs(it.days)} วัน`:`${it.days} วัน`}</td></tr>`;
+  }).join(''):`<tr><td colspan="4" class="tc ok">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`;
 
-  const t2=`<div style="${CSS.SEC};color:#dc2626;border-left-color:#dc2626">2. วัตถุดิบขาด Stock</div>
-  <table style="border-collapse:collapse;${CSS.F};font-size:12pt">
-    <thead><tr>
-      <th style="${HDR('#7f1d1d')};width:36px">ลำดับ</th>
-      <th style="${HDR('#7f1d1d')}">Product Name</th>
-      <th style="${HDR('#7f1d1d')}">RM คอขวด</th>
-      <th style="${HDR('#7f1d1d')}">สถานะ</th>
-    </tr></thead>
-    <tbody>${oosRows||`<tr><td colspan="4" style="${CSS.TDC};color:#059669;font-weight:bold">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`}</tbody>
-  </table>`;
+  /* ══ Full HTML — CSS block ใน <head> ลด payload inline ══ */
+  return`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
+<style>
+*{font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt}
+body{margin:0;padding:0;background:#f0f4f8}
+.wrap{max-width:700px;margin:16px auto;background:#fff;border-radius:12px;overflow:hidden}
+.hd{background:linear-gradient(135deg,#003494,#1a6cf5);padding:18px 24px;color:#fff}
+.hd p{margin:0 0 2px;font-size:10pt;opacity:.65;text-transform:uppercase;letter-spacing:1px}
+.hd h1{margin:0 0 2px;font-size:16pt;font-weight:bold}
+.hd small{font-size:10pt;opacity:.7}
+.bd{padding:14px 24px 20px}
+.sec{font-size:14pt;font-weight:bold;color:#1e3a6e;margin:12px 0 4px;padding:3px 0 3px 9px;border-left:4px solid #1e3a6e}
+.sec2{color:#dc2626;border-left-color:#dc2626}
+.sec3{color:#b45309;border-left-color:#b45309}
+table{border-collapse:collapse;width:auto}
+th{font-size:12pt;font-weight:bold;text-align:center;padding:3px 8px;color:#fff;border:1px solid}
+td{font-size:12pt;padding:3px 8px;border:1px solid #b0c4de;white-space:nowrap}
+.tc{text-align:center}.tl{text-align:left}.tr{text-align:right}
+.h1{background:#1e3a6e;border-color:#1e3a6e}
+.h2{background:#7f1d1d;border-color:#7f1d1d}
+.h3{background:#78350f;border-color:#78350f}
+.r0{background:#f9fbff}.r1{background:#fff}
+.r0s{background:#fff5f5}.rw{background:#fffbeb}.rp{background:#faf5ff}
+.ok{color:#059669;font-weight:bold}
+.tag-out{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:3px;padding:1px 6px;font-weight:bold;font-size:11pt}
+.br{width:70px;height:9px;background:#e5e7eb;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}
+.bf{height:100%}
+.leg{margin-top:10px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;font-size:11pt;color:#334155}
+.dot{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:middle;margin-right:3px}
+.lnk{margin-top:10px;padding:8px 12px;background:#eff6ff;border-radius:6px;border-left:4px solid #3b82f6;font-size:11pt;color:#1e40af}
+.lnk a{color:#1d4ed8;font-weight:bold}
+.ft{background:#f8fafc;border-top:2px solid #e2e8f0;padding:10px 24px;display:flex;justify-content:space-between}
+.ft p{margin:0;font-size:11pt;color:#64748b}
+.ft small{font-size:10pt;color:#94a3b8}
+</style></head>
+<body><div class="wrap">
+<div class="hd"><p>MatFlow Inventory System · Sermsuk PLC</p><h1>${subj}</h1><small>สร้างอัตโนมัติ ณ ${now}</small></div>
+<div class="bd">
+<div class="sec">1. Production Capability</div>
+<table><thead><tr>
+<th class="h1" style="width:36px">ลำดับ</th>
+<th class="h1">Product Name</th>
+<th class="h1">ผลิตได้ (Unit)</th>
+<th class="h1" style="width:90px">ความสามารถ</th>
+</tr></thead><tbody>${t1rows}</tbody></table>
 
-  /* ── Table 3: Expiry Timeline ── */
-  const expRows=_expiryData.map((it,idx)=>{
-    const expired=it.days<=0;
-    const col=expired?'#7c3aed':it.days<=7?'#dc2626':it.days<=15?'#d97706':'#059669';
-    const rowBg=expired?'#faf5ff':it.days<=7?'#fff5f5':it.days<=15?'#fffbeb':idx%2===0?'#f9fbff':'#ffffff';
-    const daysTxt=expired?`หมดอายุ ${Math.abs(it.days)} วัน`:`${it.days} วัน`;
-    return`<tr style="background:${rowBg}">
-      <td style="${CSS.TDC}">${idx+1}</td>
-      <td style="${CSS.TD};font-weight:600">${it.name}</td>
-      <td style="${CSS.TDC}">${it.batch}</td>
-      <td style="${CSS.TDC};font-weight:bold;color:${col}">${daysTxt}</td>
-    </tr>`;
-  }).join('');
+<div class="sec sec2">2. วัตถุดิบขาด Stock</div>
+<table><thead><tr>
+<th class="h2" style="width:36px">ลำดับ</th>
+<th class="h2">Product Name</th>
+<th class="h2">RM คอขวด</th>
+<th class="h2">สถานะ</th>
+</tr></thead><tbody>${t2rows}</tbody></table>
 
-  const t3=`<div style="${CSS.SEC};color:#b45309;border-left-color:#b45309">3. Expiry Timeline (31-Day)</div>
-  <table style="border-collapse:collapse;${CSS.F};font-size:12pt">
-    <thead><tr>
-      <th style="${HDR('#78350f')};width:36px">ลำดับ</th>
-      <th style="${HDR('#78350f')}">RM Name</th>
-      <th style="${HDR('#78350f')}">Batch</th>
-      <th style="${HDR('#78350f')}">คงเหลือ (วัน)</th>
-    </tr></thead>
-    <tbody>${expRows||`<tr><td colspan="4" style="${CSS.TDC};color:#059669;font-weight:bold">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`}</tbody>
-  </table>`;
+<div class="sec sec3">3. Expiry Timeline (31-Day)</div>
+<table><thead><tr>
+<th class="h3" style="width:36px">ลำดับ</th>
+<th class="h3">RM Name</th>
+<th class="h3">Batch</th>
+<th class="h3">คงเหลือ (วัน)</th>
+</tr></thead><tbody>${t3rows}</tbody></table>
 
-  const legend=`<div style="margin-top:12px;padding:7px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;${CSS.F};font-size:11pt;color:#334155">
-    <strong>คำอธิบาย:</strong>
-    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;vertical-align:middle;margin-right:4px"></span>&gt;500 Unit</span>
-    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;vertical-align:middle;margin-right:4px"></span>100–500 Unit</span>
-    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;vertical-align:middle;margin-right:4px"></span>&lt;100 Unit</span>
-    <span style="margin-left:10px"><span style="display:inline-block;width:10px;height:10px;background:#9ca3af;border-radius:2px;vertical-align:middle;margin-right:4px"></span>ขาดสต๊อก</span>
-  </div>`;
-
-  return`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f0f4f8;${CSS.F}">
-<div style="max-width:720px;margin:20px auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 20px rgba(0,40,120,.10)">
-  <div style="background:linear-gradient(135deg,#003494,#0047bf 50%,#1a6cf5);padding:22px 28px">
-    <p style="color:rgba(255,255,255,.65);font-size:10pt;margin:0 0 3px;text-transform:uppercase;letter-spacing:1px;${CSS.F}">MatFlow Inventory System · Sermsuk PLC</p>
-    <h1 style="color:#fff;font-size:16pt;font-weight:bold;margin:0 0 3px;${CSS.F}">${subj}</h1>
-    <p style="color:rgba(255,255,255,.70);font-size:11pt;margin:0;${CSS.F}">สร้างอัตโนมัติ ณ ${now}</p>
-  </div>
-  <div style="padding:18px 28px 22px">
-    ${t1}${t2}${t3}${legend}
-    <div style="margin-top:14px;padding:9px 13px;background:#eff6ff;border-radius:7px;border-left:4px solid #3b82f6;${CSS.F};font-size:11pt;color:#1e40af">
-      ดูข้อมูล Real-time: <a href="${DASHBOARD_URL}" style="color:#1d4ed8;font-weight:bold">${DASHBOARD_URL}</a>
-    </div>
-  </div>
-  <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:12px 28px;display:flex;justify-content:space-between;align-items:center">
-    <p style="font-size:11pt;color:#64748b;margin:0;${CSS.F};font-weight:bold">MatFlow Inventory System · Sermsuk PLC</p>
-    <p style="font-size:10pt;color:#94a3b8;margin:0;${CSS.F}">${now}</p>
-  </div>
+<div class="leg">
+<strong>คำอธิบาย:</strong>
+<span style="margin-left:8px"><span class="dot" style="background:#059669"></span>&gt;500 Unit</span>
+<span style="margin-left:8px"><span class="dot" style="background:#d97706"></span>100–500</span>
+<span style="margin-left:8px"><span class="dot" style="background:#dc2626"></span>&lt;100 Unit</span>
+<span style="margin-left:8px"><span class="dot" style="background:#9ca3af"></span>ขาดสต๊อก</span>
+</div>
+<div class="lnk">ดูข้อมูล Real-time: <a href="${DASHBOARD_URL}">${DASHBOARD_URL}</a></div>
+</div>
+<div class="ft"><p><strong>MatFlow Inventory System · Sermsuk PLC</strong></p><small>${now}</small></div>
 </div></body></html>`;
 }
 
