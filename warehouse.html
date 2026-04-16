@@ -11,7 +11,6 @@
 .workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
 @media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
 
-/* Left Panel: Input */
 .input-panel {
   background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%);
   border:1px solid var(--glass-border); border-radius:var(--r-xl);
@@ -20,7 +19,6 @@
 .panel-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; }
 .panel-hd svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; }
 
-/* Plan Item Row (Left) */
 .p-item { background:rgba(255,255,255,.6); border:1px solid rgba(180,210,255,.4); border-radius:12px; padding:12px; margin-bottom:10px; position:relative; transition:.2s; }
 .p-item:hover { background:rgba(255,255,255,.85); border-color:var(--b2); box-shadow:0 4px 12px rgba(0,40,160,.05); }
 .p-item .btn-rmv { position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%; background:var(--red); color:#fff; border:2px solid #fff; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transform:scale(.8); transition:.2s; box-shadow:var(--sh-xs); }
@@ -35,12 +33,10 @@
 .p-qty-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
 .p-unit { font-size:12px; font-weight:600; color:var(--txt3); }
 
-/* Add Button */
 .btn-add-plan { width:100%; background:rgba(66,146,255,.1); border:1.5px dashed rgba(66,146,255,.4); color:var(--b2); padding:10px; border-radius:12px; font-size:13.5px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:.2s; margin-bottom:20px; }
 .btn-add-plan:hover { background:rgba(66,146,255,.2); border-color:var(--b2); }
 .btn-add-plan svg { width:16px; height:16px; stroke:currentColor; stroke-width:2; }
 
-/* Right Panel: Result Groups */
 .issue-group {
   background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%);
   border:1px solid var(--glass-border); border-radius:var(--r-xl);
@@ -56,7 +52,6 @@
 .ig-pqty { font-size:12.5px; color:var(--txt3); font-weight:500; }
 .ig-pqty span { font-weight:700; color:#059669; font-size:14px; font-family:'IBM Plex Mono',monospace; }
 
-/* RM Table */
 .ig-bd { padding:0 20px 20px; }
 .rm-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:16px; }
 .rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:left; }
@@ -70,24 +65,19 @@
 .t-req { color:var(--amber); }
 .t-stk { color:var(--txt2); }
 
-/* Batch Select */
 .batch-sel { font-family:'IBM Plex Sans Thai',sans-serif; font-size:12.5px; padding:6px 10px; background:rgba(255,255,255,.72); border:1.5px solid rgba(180,210,255,.45); border-radius:8px; color:var(--txt); outline:none; width:100%; transition:.15s; }
 .batch-sel:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.12); }
 
-/* Status Labels */
 .stat-ok { color:#059669; background:rgba(5,150,105,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(5,150,105,.2); display:inline-flex; align-items:center; gap:4px; }
 .stat-ng { color:#dc2626; background:rgba(220,38,38,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(220,38,38,.2); display:inline-flex; align-items:center; gap:4px; }
 .stat-ng svg, .stat-ok svg { width:12px; height:12px; stroke:currentColor; stroke-width:2.5; fill:none; }
 
-/* Empty State */
 .empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
 .empty-sim svg { width:48px; height:48px; stroke:rgba(5,150,105,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
 
-/* Operator Input */
 .op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); }
 .op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
 
-/* Modal Confirm Styles */
 .modal-summary-box { background:rgba(248,250,252,.8); border:1px solid #e2e8f0; border-radius:12px; padding:16px; max-height:300px; overflow-y:auto; margin-bottom:20px; }
 .ms-group { margin-bottom:16px; padding-bottom:12px; border-bottom:1px dashed #cbd5e1; }
 .ms-group:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
@@ -122,6 +112,7 @@
       <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
   </div>
+  
   <div id="navDrawer" class="nav-drawer">
     <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
     <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>จ่ายวัตถุดิบ</a>
@@ -132,7 +123,6 @@
 </header>
 
 <div class="shell">
-
   <div class="ph a1" style="margin-bottom:18px">
     <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
       <span class="ph-ico" style="background:linear-gradient(135deg,#059669,#047857);width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(5,150,105,.28)">
@@ -144,15 +134,13 @@
   </div>
 
   <div class="workspace-grid">
-    
     <div class="input-panel a2">
       <div class="panel-hd">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         สร้างออเดอร์ตัดจ่าย
       </div>
       
-      <div id="issueContainer">
-        </div>
+      <div id="issueContainer"></div>
       
       <button class="btn-add-plan" onclick="addIssueItem()">
         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -195,8 +183,7 @@
           <span id="operatorDisplay">ผู้จ่าย: —</span>
         </div>
         
-        <div class="modal-summary-box" id="modalSummaryContent">
-          </div>
+        <div class="modal-summary-box" id="modalSummaryContent"></div>
         
         <div style="background:rgba(220,38,38,.08); border:1px solid rgba(220,38,38,.2); padding:10px; border-radius:8px; font-size:11.5px; color:#991b1b; font-weight:600; text-align:center;">
           ⚠️ เมื่อกดยืนยันแล้ว ระบบจะตัดสต๊อกทันทีและไม่สามารถย้อนกลับได้
@@ -218,10 +205,10 @@
 <script>
 /* ════ State ════ */
 let _productList = []; 
-let _bomMap = {};      // { pName: [{code, rmName, unitPerPack, packSize, packName, sysUnit}] }
-let _stockMap = {};    // { rmCode: totalQty }
-let _batchMap = {};    // { rmCode: [{batch, qty, exp}] }
-let _issues = [];      // [{ id, pName, qty }]
+let _bomMap = {};      
+let _stockMap = {};    
+let _batchMap = {};    
+let _issues = [];      
 let issueCounter = 0;
 let confirmMdl;
 
@@ -240,7 +227,6 @@ async function loadMasterData() {
     
     if (jmaster.status !== 'success') throw new Error('Master API error');
 
-    // สร้าง Stock Map & Batch Map
     _stockMap = {};
     _batchMap = {};
     (jm.data || []).forEach(row => {
@@ -256,7 +242,6 @@ async function loadMasterData() {
       }
     });
 
-    // 🚩 สร้าง BOM Map (ดึงข้อมูลสัดส่วนเหมือนหน้า Planning)
     _bomMap = {};
     _productList = [];
     (jmaster.data || []).forEach(rm => {
@@ -267,8 +252,10 @@ async function loadMasterData() {
       if (!_productList.includes(p)) _productList.push(p);
       if (!_bomMap[p]) _bomMap[p] = [];
       if (!_bomMap[p].find(x => x.code === c)) {
+        
+        // 🚩 ดึงข้อมูล Col H (packSize) และ Col I (unitPerPack) มาใช้อย่างถูกต้อง
         const unitPerPack = parseFloat(rm.unitPerPack) || 1; 
-        const packSize = parseFloat(rm.unitPackage) || 1;    
+        const packSize = parseFloat(rm.packSize) || 1;    
         const packName = rm.packageType || 'แพ็ค';           
         const sysUnit = rm.unit || 'Unit';                   
 
@@ -355,19 +342,21 @@ function runCalculation() {
     let tableRows = '';
 
     if (bom.length === 0) {
-      tableRows = `<tr><td colspan="5" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ (BOM)</td></tr>`;
+      tableRows = `<tr><td colspan="6" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ (BOM)</td></tr>`;
       isGroupPass = false;
     } else {
       bom.forEach(rm => {
-        // 🚩 คำนวณคลังเตรียม และ ต้องการใช้ (เหมือนหน้า Planning)
-        const prepPackages = Math.ceil(issue.qty / rm.unitPerPack); 
-        const reqQty = prepPackages * rm.packSize;
         
+        // 🚩 คำนวณความต้องการใช้ (ReqQty) = (จำนวนเป้าหมาย / UnitPerPack) * ขนาดบรรจุ
+        const reqQty = Number(((issue.qty / rm.unitPerPack) * rm.packSize).toFixed(4));
+        
+        // คลังเตรียม คือตัวเลขเดียวกับ ReqQty (หรือคุณอาจจะปรับให้ปัดเศษขึ้นได้ตามต้องการ แต่ค่าเริ่มต้นคือตัวเลขเดียวกัน)
+        const prepPackages = reqQty; 
+
         const currentStock = _stockMap[rm.code] || 0;
         const isOk = currentStock >= reqQty;
         if(!isOk) { isGroupPass = false; allPass = false; }
 
-        // สร้าง Dropdown ให้เลือก Batch
         const batches = _batchMap[rm.code] || [];
         let opts = `<option value="FIFO">Auto FIFO (ระบบหักจากของเก่าสุด)</option>`;
         batches.forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | Exp: ${b.exp}</option>`);
@@ -496,10 +485,8 @@ async function executeIssue() {
       confirmMdl.hide();
       alert(`✅ จ่ายวัตถุดิบสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}\n\nระบบได้ทำการตัดสต๊อกเรียบร้อยแล้ว`);
       
-      // อัปเดตข้อมูล Local Stock หลังจากการตัด เพื่อให้ไม่ต้องรีเฟรชหน้า
       await loadMasterData();
       
-      // Reset form
       _issues = [];
       document.getElementById('issueContainer').innerHTML = '';
       document.getElementById('opName').value = '';
