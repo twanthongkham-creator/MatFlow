@@ -112,6 +112,7 @@
       <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
   </div>
+  
   <div id="navDrawer" class="nav-drawer">
     <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
     <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>จ่ายวัตถุดิบ</a>
@@ -133,6 +134,7 @@
   </div>
 
   <div class="workspace-grid">
+    
     <div class="input-panel a2">
       <div class="panel-hd">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -252,7 +254,7 @@ async function loadMasterData() {
       if (!_bomMap[p]) _bomMap[p] = [];
       if (!_bomMap[p].find(x => x.code === c)) {
         
-        // 🚩 ดึงข้อมูล Col H (packSize) และ Col I (unitPerPack) มาใช้อย่างถูกต้อง
+        // 🚩 ดึงข้อมูลมาคำนวณอย่างรอบคอบ ป้องกันกรณีลืม Deploy หลังบ้าน
         let rawPackSize = parseFloat(rm.packSize);
         let packSize = isNaN(rawPackSize) || rawPackSize <= 0 ? 1 : rawPackSize;
         
@@ -350,11 +352,11 @@ function runCalculation() {
     } else {
       bom.forEach(rm => {
         
-        // 🚩 คำนวณคลังเตรียม (จำนวนแพ็ค)
-        const prepPackages = Math.ceil(issue.qty / rm.unitPerPack); 
+        // 🚩 คำนวณความต้องการใช้ทั้งหมด (Target / ผลิตได้กี่หน่วย) * น้ำหนักต่อการเบิก 1 ครั้ง
+        const reqQty = Number(((issue.qty / rm.unitPerPack) * rm.packSize).toFixed(4));
         
-        // 🚩 คำนวณจำนวนตัดสต๊อก = จำนวนแพ็ค x น้ำหนักต่อแพ็ค (packSize)
-        const reqQty = Number((prepPackages * rm.packSize).toFixed(4));
+        // 🚩 คลังเตรียม และ ปริมาณที่ตัด ใช้ตัวเลขเดียวกัน ตามโจทย์ที่คุณแจ้ง
+        const prepPackages = reqQty; 
 
         const currentStock = _stockMap[rm.code] || 0;
         const isOk = currentStock >= reqQty;
