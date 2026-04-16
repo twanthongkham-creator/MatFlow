@@ -347,11 +347,11 @@ function runCalculation() {
     } else {
       bom.forEach(rm => {
         
-        // 🚩 คำนวณความต้องการใช้ (ReqQty) = (จำนวนเป้าหมาย / UnitPerPack) * ขนาดบรรจุ
-        const reqQty = Number(((issue.qty / rm.unitPerPack) * rm.packSize).toFixed(4));
+        // 🚩 คำนวณคลังเตรียม (หยิบกี่ถุง/ขวด) = เป้าหมายผลิต / ผลิตได้กี่ Unit ต่อแพ็ค (ปัดเศษขึ้น)
+        const prepPackages = Math.ceil(issue.qty / rm.unitPerPack); 
         
-        // คลังเตรียม คือตัวเลขเดียวกับ ReqQty (หรือคุณอาจจะปรับให้ปัดเศษขึ้นได้ตามต้องการ แต่ค่าเริ่มต้นคือตัวเลขเดียวกัน)
-        const prepPackages = reqQty; 
+        // 🚩 คำนวณความต้องการใช้ (ตัดสต๊อกกี่กิโล) = จำนวนแพ็คที่จะหยิบ x น้ำหนักต่อแพ็ค
+        const reqQty = Number((prepPackages * rm.packSize).toFixed(4));
 
         const currentStock = _stockMap[rm.code] || 0;
         const isOk = currentStock >= reqQty;
