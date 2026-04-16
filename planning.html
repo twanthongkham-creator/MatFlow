@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MatFlow — แผนกวางแผน</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="mf-theme.css">
+<style>
+/* ── Planning-specific styles ── */
+
+/* Product accordion card */
+.prod-card{
+  background:var(--glass);
+  backdrop-filter:blur(20px) saturate(150%);
+  -webkit-backdrop-filter:blur(20px) saturate(150%);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh-sm),var(--sh-inset);
+  overflow:hidden;
+  margin-bottom:12px;
+  transition:box-shadow .2s;
+  position:relative;
+}
+.prod-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.85) 45%,rgba(190,220,255,.65) 70%,transparent 95%);
+}
+.prod-card:hover{box-shadow:var(--sh-md),var(--sh-inset)}
+
+/* Product header row */
+.prod-hd{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.prod-hd:hover{background:rgba(255,255,255,.15)}
+
+.prod-icon{
+  width:38px;height:38px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;
+}
+.prod-name{font-size:15px;font-weight:700;color:var(--txt);flex:1;min-width:0}
+.prod-cap{
+  font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;
+  min-width:80px;text-align:right;flex-shrink:0;
+}
+.prod-unit{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--txt3);margin-top:1px}
+.prod-status-chip{
+  flex-shrink:0;display:flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:var(--r-pill);font-size:12px;font-weight:600;
+}
+.prod-chevron{
+  width:18px;height:18px;stroke:var(--txt3);fill:none;stroke-width:2;
+  flex-shrink:0;transition:transform .2s;
+}
+.prod-card.open .prod-chevron{transform:rotate(180deg)}
+
+/* RM detail table */
+.rm-table-wrap{
+  border-top:1px solid rgba(180,210,255,.30);
+  background:rgba(240,248,255,.45);
+  padding:0 18px 14px;
+  display:none;
+}
+.prod-card.open .rm-table-wrap{display:block}
+.rm-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.rm-table thead tr{background:linear-gradient(125deg,var(--b0),var(--b1) 55%,var(--b2))}
+.rm-table thead th{
+  padding:8px 12px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.7px;
+  color:rgba(255,255,255,.72);text-align:left;white-space:nowrap;
+}
+.rm-table tbody tr{border-bottom:1px solid rgba(180,210,255,.22);background:rgba(255,255,255,.55);transition:background .12s}
+.rm-table tbody tr:hover{background:rgba(235,245,255,.85)}
+.rm-table tbody tr:last-child{border-bottom:none}
+.rm-table tbody td{padding:9px 12px;vertical-align:middle}
+
+/* Stock bar */
+.sbar-wrap{width:120px;height:8px;background:rgba(180,210,255,.25);border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}
+.sbar-fill{height:100%;border-radius:4px}
+
+/* Summary stat cards */
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.stat-chip{
+  background:var(--glass);backdrop-filter:blur(16px);
+  border:1px solid var(--glass-border);border-radius:12px;
+  padding:12px 16px;flex:1;min-width:120px;
+  box-shadow:var(--sh-xs),var(--sh-inset);
+  position:relative;overflow:hidden;
+}
+.stat-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent)}
+.stat-val{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:3px}
+.stat-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--txt3)}
+
+/* Filter bar */
+.filter-bar{
+  background:var(--glass);backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);border-radius:var(--r-xl);
+  padding:12px 16px;margin-bottom:16px;
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  position:relative;overflow:hidden;
+}
+.filter-bar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.85) 45%,transparent 95%)}
+
+/* Refresh badge */
+.refresh-badge{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--txt3);font-weight:500;
+}
+.refresh-badge svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.spinning{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Read-only watermark strip */
+.readonly-strip{
+  background:rgba(66,146,255,.07);
+  border-bottom:1px solid rgba(66,146,255,.18);
+  padding:7px 22px;
+  font-size:12px;color:#1e40af;font-weight:500;
+  display:flex;align-items:center;gap:7px;
+  position:sticky;top:62px;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.readonly-strip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+
+/* Legend */
+.legend-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--txt3)}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* Sort/filter controls */
+.fc-sm{font-size:12.5px;padding:6px 10px;height:auto}
+</style>
+</head>
+<body>
+
+<div id="loader" class="loader" style="display:none">
+  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
+</div>
+
+<!-- Topbar -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="brand">
+      <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
+      <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
+    </a>
+    <nav class="topnav">
+      <a href="planning.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Planning</a>
+      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>จ่ายวัตถุดิบ</a>
+      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
+      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
+      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+    </nav>
+    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู">
+      <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="navDrawer" class="nav-drawer">
+    <a href="planning.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Planning</a>
+    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>จ่ายวัตถุดิบ</a>
+    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
+    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
+    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+  </div>
+</header>
+
+<!-- Read-only strip -->
+<div class="readonly-strip">
+  <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+  <strong>โหมดดูข้อมูลเท่านั้น (แผนกวางแผน)</strong> — ไม่สามารถแก้ไขหรือตัดสต๊อกได้ในหน้านี้
+  <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
+    <span id="refreshBadge" class="refresh-badge"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg><span id="refreshText">กำลังโหลด...</span></span>
+  </span>
+</div>
+
+<div class="shell">
+
+  <!-- Page header -->
+  <div class="ph a1" style="margin-bottom:16px">
+    <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
+      <span class="ph-ico" style="background:linear-gradient(135deg,var(--b3),var(--b1));width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      </span>
+      Production Planning View
+    </h1>
+    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">ข้อมูลสต๊อกวัตถุดิบ Real-time — คลิกที่สินค้าเพื่อดู RM รายตัว</p>
+  </div>
+
+  <!-- Summary stat chips -->
+  <div class="stat-row a1" id="statRow">
+    <div class="stat-chip"><div class="stat-val" id="sTotalProd" style="color:var(--b2)">—</div><div class="stat-lbl">สินค้าทั้งหมด</div></div>
+    <div class="stat-chip"><div class="stat-val" id="sCanProd" style="color:var(--green)">—</div><div class="stat-lbl">ผลิตได้ทันที</div></div>
+    <div class="stat-chip"><div class="stat-val" id="sLowProd" style="color:var(--amber)">—</div><div class="stat-lbl">ผลิตได้น้อย</div></div>
+    <div class="stat-chip"><div class="stat-val" id="sNoProd" style="color:var(--red)">—</div><div class="stat-lbl">ผลิตไม่ได้</div></div>
+  </div>
+
+  <!-- Filter + legend bar -->
+  <div class="filter-bar a2">
+    <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:200px">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--txt3);fill:none;stroke-width:2;flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="filterInput" class="fc fc-sm" style="flex:1" placeholder="ค้นหา Product หรือ RM Name..." oninput="applyFilter()">
+    </div>
+    <select id="sortSel" class="fc fc-sm" style="width:auto" onchange="applyFilter()">
+      <option value="desc">เรียง: ผลิตได้มากสุด</option>
+      <option value="asc">เรียง: ผลิตได้น้อยสุด</option>
+      <option value="az">เรียง: A–Z</option>
+    </select>
+    <select id="statusSel" class="fc fc-sm" style="width:auto" onchange="applyFilter()">
+      <option value="all">สถานะ: ทั้งหมด</option>
+      <option value="ok">ผลิตได้ (> 0)</option>
+      <option value="out">ผลิตไม่ได้ (= 0)</option>
+    </select>
+    <div class="legend-row" style="margin-bottom:0;margin-left:auto">
+      <div class="leg-item"><div class="leg-dot" style="background:#059669"></div>> 500 U</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#d97706"></div>100–500 U</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#dc2626"></div>< 100 U</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#9ca3af"></div>ไม่มีสต๊อก</div>
+    </div>
+  </div>
+
+  <!-- Product list -->
+  <div id="productList" class="a3">
+    <div style="text-align:center;padding:60px;color:var(--txt3)">
+      <div class="spinner" style="margin:0 auto 14px;width:34px;height:34px"></div>
+      <div style="font-size:14px;font-weight:600">กำลังโหลดข้อมูล...</div>
+    </div>
+  </div>
+
+  <div id="noResult" style="display:none;text-align:center;padding:50px;color:var(--txt3)">
+    <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:rgba(66,146,255,.25);fill:none;stroke-width:1.2;margin-bottom:12px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <div style="font-size:14px;font-weight:600">ไม่พบสินค้าที่ค้นหา</div>
+  </div>
+
+</div><!-- /shell -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="mf-shared.js"></script>
+<script>
+/* ════ State ════ */
+let _capDetails=[];   // [{pName, potential, bottleneck}] sorted desc
+let _bomMap={};       // { pName: [{code, rmName, stock}] }
+let _stockMap={};     // { rmCode: totalQty }
+let _openCards=new Set();
+let _autoRefreshTimer=null;
+const REFRESH_INTERVAL=5*60*1000; // 5 min
+
+window.onload=()=>{ loadData(); startAutoRefresh(); };
+
+/* ════ Load ════ */
+async function loadData(silent=false){
+  if(!silent) mfShow('กำลังโหลดข้อมูล...');
+  setRefreshText('กำลังอัปเดต...',true);
+  try{
+    // Bust cache เพื่อให้ได้ข้อมูลล่าสุด
+    MF.bust('getDashboardData');
+    MF.bust('getMasterData');
+    MF.bust('getMonitorData');
+
+    const[jd,jm,jmaster]=await Promise.all([
+      MF.getDashboardData(),
+      MF.getMonitorData(),
+      MF.getMasterData()
+    ]);
+
+    if(jd.status!=='success') throw new Error('Dashboard API error');
+
+    _capDetails=jd.data.capDetailsList||[];
+
+    // สร้าง stockMap จาก monitorData
+    _stockMap={};
+    (jm.data||[]).forEach(row=>{
+      const c=String(row.code||'').trim();
+      if(c) _stockMap[c]=(_stockMap[c]||0)+(parseFloat(row.qty)||0);
+    });
+
+    // สร้าง BOM map: productName → [{code, rmName, stock}]
+    _bomMap={};
+    (jmaster.data||[]).forEach(rm=>{
+      const p=rm.productName;
+      const c=String(rm.code||'').trim();
+      if(!p||!c)return;
+      if(!_bomMap[p])_bomMap[p]=[];
+      // ไม่ซ้ำ code
+      if(!_bomMap[p].find(x=>x.code===c)){
+        _bomMap[p].push({code:c,rmName:rm.name||rm.rmName||c,stock:_stockMap[c]||0});
+      }
+    });
+
+    renderStats();
+    applyFilter();
+    setRefreshText('อัปเดตล่าสุด: '+new Date().toLocaleTimeString('th-TH'),false);
+  }catch(e){
+    setRefreshText('โหลดล้มเหลว',false);
+    if(!silent)alert('เกิดข้อผิดพลาด: '+e.message);
+  }
+  if(!silent)mfHide();
+}
+
+/* ════ Stats ════ */
+function renderStats(){
+  const total=_capDetails.length;
+  const can=_capDetails.filter(d=>d.potential>500).length;
+  const low=_capDetails.filter(d=>d.potential>0&&d.potential<=500).length;
+  const no=_capDetails.filter(d=>d.potential<=0).length;
+  document.getElementById('sTotalProd').textContent=total;
+  document.getElementById('sCanProd').textContent=can;
+  document.getElementById('sLowProd').textContent=low;
+  document.getElementById('sNoProd').textContent=no;
+}
+
+/* ════ Filter + Render ════ */
+function applyFilter(){
+  const q=document.getElementById('filterInput').value.toLowerCase();
+  const sort=document.getElementById('sortSel').value;
+  const status=document.getElementById('statusSel').value;
+
+  let items=[..._capDetails];
+
+  // filter by text
+  if(q) items=items.filter(d=>
+    d.pName.toLowerCase().includes(q)||
+    (d.bottleneck||'').toLowerCase().includes(q)||
+    (_bomMap[d.pName]||[]).some(rm=>rm.rmName.toLowerCase().includes(q))
+  );
+
+  // filter by status
+  if(status==='ok')  items=items.filter(d=>d.potential>0);
+  if(status==='out') items=items.filter(d=>d.potential<=0);
+
+  // sort
+  if(sort==='desc') items.sort((a,b)=>b.potential-a.potential);
+  else if(sort==='asc') items.sort((a,b)=>a.potential-b.potential);
+  else items.sort((a,b)=>a.pName.localeCompare(b.pName,'th'));
+
+  renderList(items);
+  document.getElementById('noResult').style.display=items.length?'none':'block';
+}
+
+/* ════ Render product cards ════ */
+function renderList(items){
+  const container=document.getElementById('productList');
+  if(!items.length){ container.innerHTML=''; return; }
+
+  const maxPot=Math.max(...items.map(i=>i.potential),1);
+
+  container.innerHTML=items.map((d,idx)=>{
+    const col=d.potential>500?'#059669':d.potential>100?'#d97706':d.potential>0?'#dc2626':'#9ca3af';
+    const bg=d.potential>500?'rgba(5,150,105,.12)':d.potential>100?'rgba(217,119,6,.10)':d.potential>0?'rgba(220,38,38,.09)':'rgba(156,163,175,.12)';
+    const borderCol=d.potential>500?'rgba(5,150,105,.28)':d.potential>100?'rgba(217,119,6,.25)':d.potential>0?'rgba(220,38,38,.22)':'rgba(156,163,175,.28)';
+    const statusText=d.potential>500?'ผลิตได้':d.potential>100?'ผลิตได้น้อย':d.potential>0?'ผลิตได้น้อยมาก':'ขาดวัตถุดิบ';
+    const isOpen=_openCards.has(d.pName);
+    const bom=_bomMap[d.pName]||[];
+    const allOk=bom.length>0&&bom.every(rm=>rm.stock>0);
+    const pct=d.potential>0?Math.round(d.potential/maxPot*100):0;
+
+    // RM rows
+    const rmRows=bom.length?bom.map((rm,ri)=>{
+      const rmOk=rm.stock>0;
+      const rmCol=rm.stock>500?'#059669':rm.stock>100?'#d97706':rm.stock>0?'#dc2626':'#9ca3af';
+      const maxRmStock=Math.max(...(bom.map(x=>x.stock)),1);
+      const rmPct=Math.round(rm.stock/maxRmStock*100);
+      return`<tr>
+        <td><span class="bcode" style="font-size:10.5px">${rm.code}</span></td>
+        <td style="font-weight:600;font-size:13.5px">${rm.rmName}</td>
+        <td style="text-align:right;font-weight:700;font-family:'IBM Plex Mono';color:${rmCol};font-size:14px">${rm.stock.toLocaleString()}</td>
+        <td style="text-align:center">
+          <div class="sbar-wrap"><div class="sbar-fill" style="width:${rmPct}%;background:${rmCol}"></div></div>
+        </td>
+        <td style="text-align:center">
+          ${rmOk
+            ?`<span class="bok" style="font-size:11px;padding:2px 8px"><svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg>พร้อม</span>`
+            :`<span class="bout" style="font-size:11px;padding:2px 8px"><svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ขาด</span>`
+          }
+        </td>
+      </tr>`;
+    }).join(''):`<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--txt3);font-size:12.5px">ไม่พบข้อมูล BOM ของสินค้านี้</td></tr>`;
+
+    return`<div class="prod-card${isOpen?' open':''}" id="pcard-${idx}" style="animation:fadeUp .35s ${idx*.04}s both">
+      <div class="prod-hd" onclick="toggleCard('pcard-${idx}','${d.pName.replace(/'/g,"\\'")}')">
+        <div class="prod-icon" style="background:${bg};color:${col};border:1px solid ${borderCol}">${idx+1}</div>
+        <div style="flex:1;min-width:0">
+          <div class="prod-name">${d.pName}</div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:8px">
+            <div class="sbar-wrap" style="width:160px"><div class="sbar-fill" style="width:${pct}%;background:${col}"></div></div>
+            ${d.bottleneck?`<span style="font-size:11px;color:var(--txt3)">คอขวด: ${d.bottleneck}</span>`:''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="prod-cap" style="color:${col}">${d.potential.toLocaleString()}</div>
+          <div class="prod-unit">Unit</div>
+        </div>
+        <div class="prod-status-chip" style="background:${bg};color:${col};border:1px solid ${borderCol}">${statusText}</div>
+        <div style="margin-left:4px;font-size:11px;color:var(--txt3)">${bom.length} RM</div>
+        <svg class="prod-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="rm-table-wrap">
+        <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txt3);margin-bottom:2px">วัตถุดิบที่ใช้ใน ${d.pName}</div>
+        <div style="overflow-x:auto">
+          <table class="rm-table">
+            <thead><tr>
+              <th>Code</th><th>RM Name</th>
+              <th style="text-align:right">Stock (Unit)</th>
+              <th style="text-align:center">สัดส่วน</th>
+              <th style="text-align:center">สถานะ</th>
+            </tr></thead>
+            <tbody>${rmRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(cardId, pName){
+  const el=document.getElementById(cardId);
+  if(!el)return;
+  el.classList.toggle('open');
+  if(el.classList.contains('open')) _openCards.add(pName);
+  else _openCards.delete(pName);
+}
+
+/* ════ Auto-refresh ════ */
+function startAutoRefresh(){
+  _autoRefreshTimer=setInterval(()=>loadData(true),REFRESH_INTERVAL);
+}
+
+function setRefreshText(txt,spin){
+  const badge=document.getElementById('refreshText');
+  const icon=document.getElementById('refreshBadge').querySelector('svg');
+  if(badge) badge.textContent=txt;
+  if(icon) icon.classList.toggle('spinning',spin);
+}
+</script>
+</body>
+</html>
