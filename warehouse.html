@@ -134,6 +134,7 @@
   </div>
 
   <div class="workspace-grid">
+    
     <div class="input-panel a2">
       <div class="panel-hd">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -253,9 +254,9 @@ async function loadMasterData() {
       if (!_bomMap[p]) _bomMap[p] = [];
       if (!_bomMap[p].find(x => x.code === c)) {
         
-        // 🚩 ดึงข้อมูล Col H (packSize) และ Col I (unitPerPack) มาใช้อย่างถูกต้อง
+        // 🚩 ดึงข้อมูล Col H (packSize) แบบ Fallback ถ้าหลังบ้านไม่ได้ส่งมา ให้ลองหาจากที่อื่น หรือปรับเป็น 1
         const unitPerPack = parseFloat(rm.unitPerPack) || 1; 
-        const packSize = parseFloat(rm.packSize) || 1;    
+        const packSize = parseFloat(rm.packSize) || parseFloat(rm.produced) || parseFloat(rm.unitPackage) || 1;    
         const packName = rm.packageType || 'แพ็ค';           
         const sysUnit = rm.unit || 'Unit';                   
 
@@ -347,10 +348,10 @@ function runCalculation() {
     } else {
       bom.forEach(rm => {
         
-        // 🚩 คำนวณคลังเตรียม (หยิบกี่ถุง/ขวด) = เป้าหมายผลิต / ผลิตได้กี่ Unit ต่อแพ็ค (ปัดเศษขึ้น)
+        // 🚩 คำนวณคลังเตรียม (จำนวนแพ็ค)
         const prepPackages = Math.ceil(issue.qty / rm.unitPerPack); 
         
-        // 🚩 คำนวณความต้องการใช้ (ตัดสต๊อกกี่กิโล) = จำนวนแพ็คที่จะหยิบ x น้ำหนักต่อแพ็ค
+        // 🚩 คำนวณจำนวนตัดสต๊อก = จำนวนแพ็ค x น้ำหนักต่อแพ็ค (packSize)
         const reqQty = Number((prepPackages * rm.packSize).toFixed(4));
 
         const currentStock = _stockMap[rm.code] || 0;
