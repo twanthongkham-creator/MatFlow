@@ -27,10 +27,9 @@
 .ef-input{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;color:#0a1f44;background:rgba(255,255,255,.80);border:1.5px solid rgba(180,210,255,.50);border-radius:8px;padding:7px 11px;outline:none;transition:border-color .15s;width:100%}
 .ef-input:focus{border-color:#1a6cf5;box-shadow:0 0 0 3px rgba(26,108,245,.10)}
 .ef-input[readonly]{background:rgba(230,240,255,.55);color:#2d5280}
-.emod-preview{flex:1;overflow-y:auto;padding:14px 20px;background:#fff}
+.emod-preview{flex:1;overflow-y:auto;padding:14px 20px;background:#f0f4f8}
 .preview-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#4a6380;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .preview-label::before{content:'';display:inline-block;width:8px;height:3px;background:#1a6cf5;border-radius:2px}
-.preview-frame{border:1.5px solid rgba(180,210,255,.45);border-radius:10px;overflow:hidden;background:#fff}
 .emod-foot{background:rgba(230,242,255,.55);border-top:1px solid rgba(180,210,255,.28);padding:12px 20px;display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;align-items:center}
 .status-pill{font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:6px;flex:1;min-width:0}
 .status-pill svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0}
@@ -48,6 +47,14 @@
 .btn-report svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.8}
 .btn-report:hover{box-shadow:0 4px 16px rgba(26,108,245,.42);transform:translateY(-1px)}
 .btn-report:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* 🚩 Ultra Compact Table Styles สำหรับหน้าเว็บ */
+.tw-compact { border-radius:10px; overflow:auto; border:1px solid #cbd5e1; background:#fff; }
+.mt-compact { width:auto; min-width:100%; border-collapse:collapse; white-space:nowrap; }
+.mt-compact thead th { padding:6px 10px; font-size:11px; font-weight:700; text-transform:uppercase; color:#475569; background:#f8fafc; border-bottom:2px solid #cbd5e1; text-align:center; }
+.mt-compact tbody td { padding:6px 10px; font-size:13px; color:var(--txt); vertical-align:middle; border-bottom:1px solid #e2e8f0; }
+.clickable-row { cursor:pointer; transition:background 0.15s; }
+.clickable-row:hover { background-color:#f0f9ff !important; }
 .toast-mf{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:#0f172a;color:#fff;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;box-shadow:0 6px 20px rgba(0,0,0,.20);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;z-index:99999;pointer-events:none;white-space:nowrap}
 .toast-mf.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast-mf svg{width:14px;height:14px;stroke:#4ade80;fill:none;stroke-width:2.5;flex-shrink:0}
@@ -59,9 +66,6 @@
 <div id="toast" class="toast-mf"><svg id="toastIco" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="toastMsg"></span></div>
 <div id="loader" class="loader" style="display:none"><div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div></div>
 
-<!-- ══════════════════════════════
-     EMAIL MODAL
-══════════════════════════════ -->
 <div id="emailModal" class="emod-overlay" style="display:none">
   <div class="emod-box">
     <div class="emod-hd">
@@ -74,7 +78,6 @@
       </button>
     </div>
 
-    <!-- Email fields -->
     <div class="efields">
       <div class="ef-group">
         <label class="ef-lbl">To</label>
@@ -90,11 +93,10 @@
       </div>
     </div>
 
-    <!-- Preview -->
     <div class="emod-preview">
-      <div class="preview-label">ตัวอย่างเนื้อหา Email ที่จะส่ง</div>
-      <div class="preview-frame">
-        <div id="emailPreviewContent"></div>
+      <div class="preview-label">ตัวอย่างเนื้อหา Email ที่จะส่ง (Cordia New 12pt-14pt)</div>
+      <div style="border-radius:12px; overflow:hidden; border:1.5px solid rgba(180,210,255,.50); box-shadow:0 8px 16px rgba(0,0,0,0.05); background:#f0f4f8;">
+        <div id="emailPreviewContent" style="padding:0;"></div>
       </div>
     </div>
 
@@ -112,9 +114,6 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════
-     TOPBAR
-══════════════════════════════ -->
 <header class="topbar">
   <div class="topbar-inner">
     <a href="index.html" class="brand">
@@ -131,17 +130,8 @@
       <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
   </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Planning</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Receiving</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Management</a>
-    <a href="dashboard.html" class="nav-a active"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
-  </div>
 </header>
 
-<!-- ══════════════════════════════
-     SHELL
-══════════════════════════════ -->
 <div class="shell">
   <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px" class="a1">
     <div class="ph" style="margin-bottom:0">
@@ -163,7 +153,6 @@
   </div>
 
   <div class="row g-3">
-    <!-- Production Capability Chart -->
     <div class="col-lg-8 a2">
       <div class="card-mf">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -171,7 +160,7 @@
             <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
             Production Capability
           </div>
-          <span style="font-size:10.5px;color:var(--txt3);font-weight:500">คลิกแท่งเพื่อดูรายละเอียด</span>
+          <span style="font-size:10.5px;color:var(--txt3);font-weight:500">คลิกแท่งเพื่อดูคลังวัตถุดิบ (ตัวคอขวด)</span>
         </div>
         <div style="overflow-y:auto;max-height:430px;padding-right:6px">
           <div id="canvasParent" style="position:relative;cursor:pointer"><canvas id="capacityChart"></canvas></div>
@@ -179,7 +168,6 @@
       </div>
     </div>
 
-    <!-- วัตถุดิบขาด Stock -->
     <div class="col-lg-4 a3">
       <div class="card-mf h-100">
         <div class="ctitle c-red">
@@ -194,7 +182,6 @@
       </div>
     </div>
 
-    <!-- Expiry Timeline -->
     <div class="col-12 a4">
       <div class="card-mf">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
@@ -209,7 +196,7 @@
           </div>
         </div>
         <div style="overflow-y:auto;max-height:340px">
-          <div class="tw"><table class="mt">
+          <div class="tw-compact"><table class="mt-compact">
             <thead><tr><th>RM Name</th><th>Batch</th><th style="text-align:center">คงเหลือ (วัน)</th><th style="text-align:center;min-width:160px">Risk Scale</th></tr></thead>
             <tbody id="expiryTableBody"><tr><td colspan="4" style="padding:40px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr></tbody>
           </table></div>
@@ -219,7 +206,6 @@
   </div>
 </div>
 
-<!-- LIST MODAL -->
 <div class="modal fade mf-modal" id="listModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -228,8 +214,8 @@
         <button class="btn-xw" data-bs-dismiss="modal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div style="max-height:480px;overflow-y:auto">
-        <div class="tw" style="border-radius:0;border:none">
-          <table class="mt-mini">
+        <div class="tw-compact" style="border-radius:0;border:none">
+          <table class="mt-compact">
             <thead><tr><th>Code</th><th>RM Name</th><th>Batch</th><th style="text-align:center">Qty</th><th style="text-align:center">Action</th></tr></thead>
             <tbody id="listModalBody"></tbody>
           </table>
@@ -239,7 +225,6 @@
   </div>
 </div>
 
-<!-- EDIT MODAL -->
 <div class="modal fade mf-modal" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -289,21 +274,14 @@ const EJ_TEMPLATE_ID='template_rjnzopj';
 Chart.register(ChartDataLabels);
 let rawData=[], editIdx=null, listMdl, editMdl;
 
-/* ── Schema ใหม่จาก Code.gs ──
-   getDashboardData ส่งคืน:
-     productionCapacity: { pName: qty }
-     capDetailsList: [{ pName, bottleneck, potential }]  ← เรียงจากมากไปน้อยแล้ว
-     expiryTable: [{ name, batch, days }]
-   ไม่มี outOfStock แล้ว
-*/
+/* ── Schema ── */
 let _capData={};          // { productName: qty }
-let _capDetails=[];       // [{ pName, bottleneck, potential }] sorted desc
+let _capDetails=[];       // [{ pName, bottleneck, potential }]
 let _expiryData=[];
 
 window.onload=()=>{
   listMdl=new bootstrap.Modal(document.getElementById('listModal'));
   editMdl=new bootstrap.Modal(document.getElementById('editModal'));
-  // Subject อัตโนมัติ
   const d=new Date();
   const ds=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
   document.getElementById('efSubject').value=`รายงานวัตถุดิบคงเหลือ ประจำวันที่ ${ds}`;
@@ -319,11 +297,11 @@ async function loadAll(){
     if(jd.status==='success'&&jm.status==='success'){
       rawData=jm.data;
       _capData=jd.data.productionCapacity||{};
-      _capDetails=jd.data.capDetailsList||[];   // ← schema ใหม่
+      _capDetails=jd.data.capDetailsList||[];   
       _expiryData=jd.data.expiryTable||[];
 
       renderChart(_capData, _capDetails);
-      renderOOS(_capDetails);              // ← ใช้ capDetailsList แทน outOfStock
+      renderOOS(_capDetails);              
       renderExpiry(_expiryData);
       document.getElementById('lastUpdate').textContent='อัปเดตล่าสุด: '+new Date().toLocaleString('th-TH');
       document.getElementById('btnReport').disabled=false;
@@ -334,12 +312,12 @@ async function loadAll(){
 
 /* ════ Chart ════ */
 function renderChart(capData, capDetails){
-  // ใช้ capDetails (sorted desc from backend) ถ้ามี ไม่งั้น fallback จาก capData
-  let items;
-  if(capDetails&&capDetails.length){
-    items=capDetails.map(d=>({n:d.pName,v:d.potential}));
+  // 🚩 1. กรองข้อมูลที่มีค่าเป็น "OUT" (<=0) ออก ไม่ต้องนำมาสร้างกราฟ
+  let items = [];
+  if(capDetails && capDetails.length){
+    items = capDetails.filter(d => d.potential > 0).map(d => ({n:d.pName, v:d.potential}));
   }else{
-    items=Object.keys(capData).map(k=>({n:k,v:capData[k]})).sort((a,b)=>b.v-a.v);
+    items = Object.keys(capData).map(k => ({n:k, v:capData[k]})).filter(i => i.v > 0).sort((a,b)=>b.v-a.v);
   }
 
   const h=Math.max(300,items.length*42);
@@ -353,7 +331,7 @@ function renderChart(capData, capDetails){
       datasets:[{
         data:items.map(i=>i.v),
         backgroundColor:items.map(i=>
-          i.v>500?'rgba(5,150,105,.75)':i.v>100?'rgba(217,119,6,.75)':i.v>0?'rgba(220,38,38,.70)':'rgba(156,163,175,.55)'
+          i.v>500?'rgba(5,150,105,.75)':i.v>100?'rgba(217,119,6,.75)':'rgba(220,38,38,.70)'
         ),
         barThickness:18,borderRadius:5
       }]
@@ -361,14 +339,23 @@ function renderChart(capData, capDetails){
     options:{
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
       layout:{padding:{right:85,left:4}},
-      onClick:(e,els)=>{if(els.length)openList(window._ch.data.labels[els[0].index]);},
+      // 🚩 1. เมื่อคลิกที่แท่งกราฟ ให้ดึงข้อมูลวัตถุดิบ (คอขวด) ของแท่งนั้นๆ มาแสดงเท่านั้น
+      onClick:(e,els)=>{
+        if(els.length){
+          const pName = window._ch.data.labels[els[0].index];
+          const detail = _capDetails.find(d => d.pName === pName);
+          if(detail && detail.bottleneck) {
+             openList(detail.bottleneck); // สั่งให้ค้นหารายการด้วยชื่อ RM ที่เป็นคอขวด
+          }
+        }
+      },
       onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       plugins:{
         legend:{display:false},
         datalabels:{
           anchor:'end',align:'right',color:'#0a1f44',
           font:{weight:'bold',size:11,family:'IBM Plex Mono'},
-          formatter:v=>v>0?v.toLocaleString()+' U':'OUT'
+          formatter:v=>v.toLocaleString()+' U'
         }
       },
       scales:{
@@ -382,7 +369,6 @@ function renderChart(capData, capDetails){
 /* ════ OOS — ดึงจาก capDetailsList ที่ potential = 0 ════ */
 function renderOOS(capDetails){
   const c=document.getElementById('outOfStockBody');
-  // กรองเฉพาะที่ potential = 0
   const oosItems=capDetails.filter(d=>d.potential<=0);
 
   if(!oosItems.length){
@@ -418,7 +404,14 @@ function renderExpiry(data){
       <td style="font-weight:600">${i.name}</td>
       <td><span class="bbatch">${i.batch}</span></td>
       <td style="text-align:center">${lbl}</td>
-      <td style="text-align:center"><div class="scale-wrap"><div class="sd"></div><div class="sw"></div><div class="ss"></div><div class="si" style="left:${pos}%;background:${col}"></div></div></td>
+      <td style="text-align:center;vertical-align:middle;">
+        <div style="position:relative; width:100%; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden; display:flex;">
+          <div style="width:22.5%; background:rgba(239,68,68,0.3);"></div>
+          <div style="width:25.8%; background:rgba(245,158,11,0.3);"></div>
+          <div style="width:51.7%; background:rgba(16,185,129,0.3);"></div>
+          <div style="position:absolute; top:0; height:100%; width:4px; background:${col}; left:${pos}%; border-radius:2px;"></div>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -426,8 +419,9 @@ function renderExpiry(data){
 /* ════ List / Edit ════ */
 function openList(label){
   document.getElementById('listModalTitle').textContent=`วัตถุดิบในคลัง — ${label}`;
-  const filtered=rawData.filter(i=>(parseFloat(i.qty)||0)>0);
-  const tb=document.getElementById('listModalBody');
+  // 🚩 1. ค้นหาโดยเช็ค i.name ให้ตรงกับชื่อคอขวดเป๊ะๆ
+  const filtered = rawData.filter(i => (parseFloat(i.qty)||0) > 0 && i.name === label);
+  const tb = document.getElementById('listModalBody');
   if(!filtered.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">ไม่มีสต๊อก<br><br><a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px">ไปที่หน้ารับเข้า</a></td></tr>`;}
   else tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer">
     <td><span class="bcode">${i.code||'—'}</span></td>
@@ -478,133 +472,140 @@ async function saveEdit(){
   }catch(e){alert('บันทึกล้มเหลว');mfHide();}
 }
 
-/* ══════════════════════════════════════
-   📧  EMAIL — Build HTML + Modal + Send
-══════════════════════════════════════ */
-
 /* ══════════════════════════════════════════════
-   Build email HTML — ใช้ <style> block แทน inline
-   เพื่อให้ payload < 50KB (EmailJS limit)
+   📧  Build email HTML — Cordia New & Scale Bar
 ══════════════════════════════════════════════ */
 function buildEmailHtml(){
-  const now=new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
-  const subj=document.getElementById('efSubject').value;
+  const now = new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
+  const subj = document.getElementById('efSubject').value;
 
-  /* ── data ── */
-  const capItems=_capDetails.length
-    ?_capDetails.map(d=>({name:d.pName,val:d.potential,bn:d.bottleneck}))
-    :Object.keys(_capData).map(k=>({name:k,val:_capData[k],bn:''})).sort((a,b)=>b.val-a.val);
-  const maxCap=Math.max(...capItems.map(i=>i.val),1);
-  const oosItems=capItems.filter(i=>i.val<=0);
+  const capItems = _capDetails.filter(d => d.potential > 0).map(d => ({name: d.pName, val: d.potential, bn: d.bottleneck}));
+  const maxCap = Math.max(...capItems.map(i => i.val), 1);
+  const oosItems = _capDetails.filter(d => d.potential <= 0).map(d => ({name: d.pName, bn: d.bottleneck}));
 
-  /* ── Table 1 rows ── */
-  const t1rows=capItems.map((it,i)=>{
-    const col=it.val>500?'#059669':it.val>100?'#d97706':it.val>0?'#dc2626':'#9ca3af';
-    const pct=Math.round(it.val/maxCap*100);
-    return`<tr class="${i%2?'r1':'r0'}">
-<td class="tc">${i+1}</td><td class="tl">${it.name}</td>
-<td class="tr" style="color:${col};font-weight:bold">${it.val>0?it.val.toLocaleString():'0'}</td>
-<td class="tc"><div class="br"><div class="bf" style="width:${pct}%;background:${col}"></div></div></td></tr>`;
+  // 🚩 2. & 3. ตัดคอลัมน์ความสามารถออก, แทรก Scale สีแทน, ปรับ Font เป็น Cordia New ขนาด 12pt และ 14pt (หัวข้อ)
+  const t1rows = capItems.map((it, i) => {
+    const col = it.val > 500 ? '#059669' : it.val > 100 ? '#d97706' : '#dc2626';
+    const pct = Math.min(Math.round((it.val / maxCap) * 100), 100);
+    return `<tr style="background:${i%2 ? '#ffffff' : '#f8fafc'};">
+      <td style="text-align:center; border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569;">${i+1}</td>
+      <td style="border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#0f172a; font-weight:bold;">${it.name}</td>
+      <td style="border:1px solid #cbd5e1; padding:6px 10px; text-align:left; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif;">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+          <tr>
+            <td width="45" style="border:none; padding:0; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; font-weight:bold; color:${col}; text-align:right;">${it.val.toLocaleString()}</td>
+            <td width="10" style="border:none; padding:0;"></td>
+            <td style="border:none; padding:0; width:100%; vertical-align:middle;">
+               <div style="background-color:#e2e8f0; border-radius:4px; width:100%; height:10px; font-size:0; line-height:0;">
+                  <div style="background-color:${col}; width:${pct}%; height:10px; border-radius:4px; font-size:0; line-height:0;"></div>
+               </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>`;
   }).join('');
 
-  /* ── Table 2 rows ── */
-  const t2rows=oosItems.length?oosItems.map((it,i)=>
-    `<tr class="${i%2?'r1':'r0s'}"><td class="tc">${i+1}</td>
-<td class="tl" style="color:#dc2626;font-weight:bold">${it.name}</td>
-<td class="tl">${it.bn||'—'}</td>
-<td class="tc"><span class="tag-out">OUT</span></td></tr>`
-  ).join(''):`<tr><td colspan="4" class="tc ok">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`;
+  const t2rows = oosItems.length ? oosItems.map((it, i) => `
+    <tr style="background:${i%2 ? '#ffffff' : '#fef2f2'};">
+      <td style="text-align:center; border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#991b1b;">${i+1}</td>
+      <td style="border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#dc2626; font-weight:bold;">${it.name}</td>
+      <td style="border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569;">${it.bn || '—'}</td>
+      <td style="text-align:center; border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#991b1b; font-weight:bold;">ขาดสต๊อก</td>
+    </tr>`
+  ).join('') : `<tr><td colspan="4" style="text-align:center; padding:12px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#059669; font-weight:bold; border:1px solid #cbd5e1;">วัตถุดิบพร้อมใช้งานทุกรายการ</td></tr>`;
 
-  /* ── Table 3 rows ── */
-  const t3rows=_expiryData.length?_expiryData.map((it,i)=>{
-    const ex=it.days<=0;
-    const col=ex?'#7c3aed':it.days<=7?'#dc2626':it.days<=15?'#d97706':'#059669';
-    const cls=ex?'rp':it.days<=7?'r0s':it.days<=15?'rw':i%2?'r1':'r0';
-    return`<tr class="${cls}"><td class="tc">${i+1}</td>
-<td class="tl" style="font-weight:600">${it.name}</td>
-<td class="tc">${it.batch}</td>
-<td class="tc" style="color:${col};font-weight:bold">${ex?`หมดอายุ ${Math.abs(it.days)} วัน`:`${it.days} วัน`}</td></tr>`;
-  }).join(''):`<tr><td colspan="4" class="tc ok">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`;
+  const t3rows = _expiryData.length ? _expiryData.map((it, i) => {
+    const ex = it.days <= 0;
+    const col = ex ? '#7c3aed' : it.days <= 7 ? '#dc2626' : it.days <= 15 ? '#d97706' : '#059669';
+    const bg = ex ? '#faf5ff' : it.days <= 7 ? '#fef2f2' : it.days <= 15 ? '#fffbeb' : (i%2 ? '#ffffff' : '#f8fafc');
+    return `<tr style="background:${bg};">
+      <td style="text-align:center; border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569;">${i+1}</td>
+      <td style="border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#0f172a; font-weight:bold;">${it.name}</td>
+      <td style="text-align:center; border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#475569;">${it.batch}</td>
+      <td style="text-align:center; border:1px solid #cbd5e1; padding:6px 10px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:${col}; font-weight:bold;">${ex ? `หมดอายุ ${Math.abs(it.days)} วัน` : `${it.days} วัน`}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="4" style="text-align:center; padding:12px; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; color:#059669; font-weight:bold; border:1px solid #cbd5e1;">ทุกรายการปลอดภัย (> 30 วัน)</td></tr>`;
 
-  /* ══ Full HTML — CSS block ใน <head> ลด payload inline ══ */
-  return`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">
-<style>
-*{font-family:'Cordia New',Tahoma,Arial,sans-serif;font-size:12pt}
-body{margin:0;padding:0;background:#f0f4f8}
-.wrap{max-width:700px;margin:16px auto;background:#fff;border-radius:12px;overflow:hidden}
-.hd{background:linear-gradient(135deg,#003494,#1a6cf5);padding:18px 24px;color:#fff}
-.hd p{margin:0 0 2px;font-size:10pt;opacity:.65;text-transform:uppercase;letter-spacing:1px}
-.hd h1{margin:0 0 2px;font-size:16pt;font-weight:bold}
-.hd small{font-size:10pt;opacity:.7}
-.bd{padding:14px 24px 20px}
-.sec{font-size:14pt;font-weight:bold;color:#1e3a6e;margin:12px 0 4px;padding:3px 0 3px 9px;border-left:4px solid #1e3a6e}
-.sec2{color:#dc2626;border-left-color:#dc2626}
-.sec3{color:#b45309;border-left-color:#b45309}
-table{border-collapse:collapse;width:auto}
-th{font-size:12pt;font-weight:bold;text-align:center;padding:3px 8px;color:#fff;border:1px solid}
-td{font-size:12pt;padding:3px 8px;border:1px solid #b0c4de;white-space:nowrap}
-.tc{text-align:center}.tl{text-align:left}.tr{text-align:right}
-.h1{background:#1e3a6e;border-color:#1e3a6e}
-.h2{background:#7f1d1d;border-color:#7f1d1d}
-.h3{background:#78350f;border-color:#78350f}
-.r0{background:#f9fbff}.r1{background:#fff}
-.r0s{background:#fff5f5}.rw{background:#fffbeb}.rp{background:#faf5ff}
-.ok{color:#059669;font-weight:bold}
-.tag-out{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:3px;padding:1px 6px;font-weight:bold;font-size:11pt}
-.br{width:70px;height:9px;background:#e5e7eb;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}
-.bf{height:100%}
-.leg{margin-top:10px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;font-size:11pt;color:#334155}
-.dot{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:middle;margin-right:3px}
-.lnk{margin-top:10px;padding:8px 12px;background:#eff6ff;border-radius:6px;border-left:4px solid #3b82f6;font-size:11pt;color:#1e40af}
-.lnk a{color:#1d4ed8;font-weight:bold}
-.ft{background:#f8fafc;border-top:2px solid #e2e8f0;padding:10px 24px;display:flex;justify-content:space-between}
-.ft p{margin:0;font-size:11pt;color:#64748b}
-.ft small{font-size:10pt;color:#94a3b8}
-</style></head>
-<body><div class="wrap">
-<div class="hd"><p>MatFlow Inventory System · Sermsuk PLC</p><h1>${subj}</h1><small>สร้างอัตโนมัติ ณ ${now}</small></div>
-<div class="bd">
-<div class="sec">1. Production Capability</div>
-<table><thead><tr>
-<th class="h1" style="width:36px">ลำดับ</th>
-<th class="h1">Product Name</th>
-<th class="h1">ผลิตได้ (Unit)</th>
-<th class="h1" style="width:90px">ความสามารถ</th>
-</tr></thead><tbody>${t1rows}</tbody></table>
+  return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"></head>
+<body style="margin:0; padding:0; background-color:#f0f4f8;">
+  <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#f0f4f8; padding:20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" max-width="700" border="0" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; max-width:700px; width:100%; font-family:'Cordia New', Tahoma, sans-serif;">
+          
+          <tr>
+            <td style="background-color:#1a6cf5; padding:20px 24px;">
+              <p style="margin:0 0 4px; font-size:12pt; color:#bfdbfe; font-family:'Cordia New', Tahoma, sans-serif;">MATFLOW INVENTORY SYSTEM · SERMSUK PLC</p>
+              <h1 style="margin:0 0 4px; font-size:18pt; font-weight:bold; color:#ffffff; font-family:'Cordia New', Tahoma, sans-serif;">${subj}</h1>
+              <p style="margin:0; font-size:12pt; color:#e0f2fe; font-family:'Cordia New', Tahoma, sans-serif;">สร้างอัตโนมัติ ณ ${now}</p>
+            </td>
+          </tr>
 
-<div class="sec sec2">2. วัตถุดิบขาด Stock</div>
-<table><thead><tr>
-<th class="h2" style="width:36px">ลำดับ</th>
-<th class="h2">Product Name</th>
-<th class="h2">RM คอขวด</th>
-<th class="h2">สถานะ</th>
-</tr></thead><tbody>${t2rows}</tbody></table>
+          <tr>
+            <td style="padding:20px 24px;">
+              
+              <h2 style="font-size:14pt; font-weight:bold; color:#1e3a6e; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 8px; border-left:4px solid #1e3a6e; padding-left:8px;">1. Production Capability</h2>
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:20px;">
+                <thead>
+                  <tr style="background-color:#1e3a6e;">
+                    <th style="padding:6px 10px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; width:40px;">ลำดับ</th>
+                    <th style="padding:6px 10px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:left;">Product Name</th>
+                    <th style="padding:6px 10px; border:1px solid #1e3a6e; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:left;">ผลิตได้ (Unit)</th>
+                  </tr>
+                </thead>
+                <tbody>${t1rows}</tbody>
+              </table>
 
-<div class="sec sec3">3. Expiry Timeline (31-Day)</div>
-<table><thead><tr>
-<th class="h3" style="width:36px">ลำดับ</th>
-<th class="h3">RM Name</th>
-<th class="h3">Batch</th>
-<th class="h3">คงเหลือ (วัน)</th>
-</tr></thead><tbody>${t3rows}</tbody></table>
+              <h2 style="font-size:14pt; font-weight:bold; color:#dc2626; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 8px; border-left:4px solid #dc2626; padding-left:8px;">2. วัตถุดิบขาด Stock</h2>
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:20px;">
+                <thead>
+                  <tr style="background-color:#7f1d1d;">
+                    <th style="padding:6px 10px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; width:40px;">ลำดับ</th>
+                    <th style="padding:6px 10px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:left;">Product Name</th>
+                    <th style="padding:6px 10px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:left;">RM คอขวด</th>
+                    <th style="padding:6px 10px; border:1px solid #7f1d1d; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif;">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody>${t2rows}</tbody>
+              </table>
 
-<div class="leg">
-<strong>คำอธิบาย:</strong>
-<span style="margin-left:8px"><span class="dot" style="background:#059669"></span>&gt;500 Unit</span>
-<span style="margin-left:8px"><span class="dot" style="background:#d97706"></span>100–500</span>
-<span style="margin-left:8px"><span class="dot" style="background:#dc2626"></span>&lt;100 Unit</span>
-<span style="margin-left:8px"><span class="dot" style="background:#9ca3af"></span>ขาดสต๊อก</span>
-</div>
-<div class="lnk">ดูข้อมูล Real-time: <a href="${DASHBOARD_URL}">${DASHBOARD_URL}</a></div>
-</div>
-<div class="ft"><p><strong>MatFlow Inventory System · Sermsuk PLC</strong></p><small>${now}</small></div>
-</div></body></html>`;
+              <h2 style="font-size:14pt; font-weight:bold; color:#b45309; font-family:'Cordia New', Tahoma, sans-serif; margin:0 0 8px; border-left:4px solid #b45309; padding-left:8px;">3. Expiry Timeline (31-Day)</h2>
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:20px;">
+                <thead>
+                  <tr style="background-color:#78350f;">
+                    <th style="padding:6px 10px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; width:40px;">ลำดับ</th>
+                    <th style="padding:6px 10px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif; text-align:left;">RM Name</th>
+                    <th style="padding:6px 10px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif;">Batch</th>
+                    <th style="padding:6px 10px; border:1px solid #78350f; color:#ffffff; font-size:14pt; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif;">คงเหลือ (วัน)</th>
+                  </tr>
+                </thead>
+                <tbody>${t3rows}</tbody>
+              </table>
+
+              <div style="background-color:#eff6ff; padding:12px; border-left:4px solid #3b82f6; border-radius:4px;">
+                <p style="margin:0; font-size:12pt; color:#1e40af; font-family:'Cordia New', Tahoma, sans-serif;">ดูข้อมูล Real-time ในระบบ: <a href="${DASHBOARD_URL}" style="color:#1d4ed8; font-weight:bold;">${DASHBOARD_URL}</a></p>
+              </div>
+
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="background-color:#f8fafc; border-top:1px solid #e2e8f0; padding:14px 24px; text-align:center;">
+              <p style="margin:0; font-size:12pt; color:#475569; font-weight:bold; font-family:'Cordia New', Tahoma, sans-serif;">MatFlow Inventory System · Sermsuk PLC</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body></html>`;
 }
 
-/* ── Open modal (ไม่ check config ที่นี่ → เปิด modal ได้เสมอ) ── */
 function openEmailModal(){
   const html=buildEmailHtml();
-  // strip outer html/head/body tags for preview
+  // ทำความสะอาด HTML คร่าวๆ สำหรับแสดง Preview
   const preview=html
     .replace(/<!DOCTYPE[^>]*>/i,'')
     .replace(/<html[^>]*>/gi,'').replace(/<\/html>/gi,'')
@@ -619,7 +620,6 @@ function openEmailModal(){
 }
 function closeEmailModal(){document.getElementById('emailModal').style.display='none';}
 
-/* ── Send ── */
 async function sendEmailNow(){
   const to=document.getElementById('efTo').value.trim();
   const cc=document.getElementById('efCc').value.trim();
@@ -665,6 +665,8 @@ function showToast(type,msg){
   if(type==='err')t.classList.add('err');else t.classList.remove('err');
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);
 }
+function mfShow(t){document.getElementById('loaderText').textContent=t;document.getElementById('loader').style.display='flex';}
+function mfHide(){document.getElementById('loader').style.display='none';}
 </script>
 </body>
 </html>
