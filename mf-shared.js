@@ -61,14 +61,17 @@ const MF = (() => {
     /** Fetch dashboard stats (cached) */
     getDashboardData: () => fetchCached('getDashboardData'),
 
-    /** Evaluate multi production — always fresh */
-    evaluateMulti: (items) =>
-      fetch(`${API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(items))}`)
-        .then(r => r.json()),
+    /** Evaluate multi production — always fresh, no cache */
+    evaluateMulti: async (items) => {
+      const url = `${API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(items))}`;
+      const r = await fetch(url, { redirect: 'follow' });
+      return r.json();
+    },
 
     /** Receive items — invalidates inventory cache */
     receive: async (items, operator) => {
-      const r = await fetch(`${API}?action=receive&items=${encodeURIComponent(JSON.stringify(items))}&operator=${operator}`);
+      const url = `${API}?action=receive&operator=${encodeURIComponent(operator)}&items=${encodeURIComponent(JSON.stringify(items))}`;
+      const r = await fetch(url, { redirect: 'follow' });
       const j = await r.json();
       if (j.status === 'success') invalidateInventory();
       return j;
@@ -76,7 +79,17 @@ const MF = (() => {
 
     /** Issue stock — invalidates inventory cache */
     issueMulti: async (items, operator) => {
-      const r = await fetch(`${API}?action=issueMulti&items=${encodeURIComponent(JSON.stringify(items))}&operator=${operator}`);
+      // ส่งเฉพาะ field ที่ Code.gs ต้องการ: code, cutQty, batch, name, unit, productTarget
+      const payload = items.map(i => ({
+        code:          i.code,
+        cutQty:        i.cutQty,       // Unit ที่จะตัด (ไม่ใช่ Package)
+        batch:         i.batch,
+        name:          i.name,
+        unit:          i.unit,
+        productTarget: i.productTarget || 'Issue',
+      }));
+      const url = `${API}?action=issueMulti&operator=${encodeURIComponent(operator)}&items=${encodeURIComponent(JSON.stringify(payload))}`;
+      const r = await fetch(url, { redirect: 'follow' });
       const j = await r.json();
       if (j.status === 'success') invalidateInventory();
       return j;
