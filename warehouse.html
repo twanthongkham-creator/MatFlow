@@ -234,7 +234,7 @@ async function loadMasterData() {
       const c = String(row.code || '').trim();
       const b = String(row.batch || 'N/A').trim();
       const q = parseFloat(row.qty) || 0;
-      const expStr = row.exp ? new Date(row.exp).toLocaleDateString('th-TH') : '-';
+      const expStr = row.exp ? new Date(row.exp).toLocaleDateString('en-GB') : '-';
 
       if (c && q > 0) {
         _stockMap[c] = (_stockMap[c] || 0) + q;
@@ -372,7 +372,7 @@ function runCalculation() {
 
         const batches = _batchMap[rm.code] || [];
         let opts = `<option value="FIFO">Auto FIFO (ระบบหักจากของเก่าสุด)</option>`;
-        batches.forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | Exp: ${b.exp}</option>`);
+        batches.forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | BBF: ${b.exp}</option>`);
         if(batches.length === 0) opts = `<option value="">ไม่มีสต๊อกในคลัง</option>`;
 
         tableRows += `
