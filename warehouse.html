@@ -352,11 +352,12 @@ function runCalculation() {
     } else {
       bom.forEach(rm => {
         
-        // 🚩 คำนวณความต้องการใช้ทั้งหมด (Target / ผลิตได้กี่หน่วย) * น้ำหนักต่อการเบิก 1 ครั้ง
-        const reqQty = Number(((issue.qty / rm.unitPerPack) * rm.packSize).toFixed(4));
+        // 🚩 แก้ไขการคำนวณแยกเป็น 2 ส่วนให้ถูกต้อง
+        // 1. คลังเตรียม (จัดของเป็น Package เช่น ขวด, ถัง) = เป้าหมายการผลิต / ผลผลิตต่อแพ็ค
+        const prepPackages = Number((issue.qty / rm.unitPerPack).toFixed(4));
         
-        // 🚩 คลังเตรียม และ ปริมาณที่ตัด ใช้ตัวเลขเดียวกัน ตามโจทย์ที่คุณแจ้ง
-        const prepPackages = reqQty; 
+        // 2. จำนวนที่จะตัด (Stock ที่เป็น Unit พื้นฐาน เช่น KG, UN) = คลังเตรียม * ขนาดบรรจุ
+        const reqQty = Number((prepPackages * rm.packSize).toFixed(4));
 
         const currentStock = _stockMap[rm.code] || 0;
         const isOk = currentStock >= reqQty;
@@ -397,7 +398,7 @@ function runCalculation() {
           <div class="ig-idx">${index + 1}</div>
           <div class="ig-title">
             <div class="ig-pname">${issue.pName}</div>
-            <div class="ig-pqty">สั่งผลิต: <span>${issue.qty.toLocaleString()}</span> Unit</div>
+            <div class="ig-pqty">เป้าหมายผลิต: <span>${issue.qty.toLocaleString()}</span> Unit</div>
           </div>
           ${isGroupPass ? `<span class="stat-ok" style="font-size:13px; padding:6px 12px;"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>สต๊อกพร้อม</span>` : `<span class="stat-ng" style="font-size:13px; padding:6px 12px;"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>วัตถุดิบไม่พอ</span>`}
         </div>
@@ -408,7 +409,7 @@ function runCalculation() {
                 <th width="1%">Code</th>
                 <th>RM Name</th>
                 <th style="text-align:right">คลังเตรียม (จัดของ)</th>
-                <th style="text-align:right">จำนวนที่จะตัด (Stock)</th>
+                <th style="text-align:right">ตัด Stock (Unit จริง)</th>
                 <th width="35%">เลือก Batch ที่จะตัด</th>
                 <th style="text-align:center; width:1%;">สถานะ</th>
               </tr>
@@ -422,6 +423,80 @@ function runCalculation() {
 
   container.innerHTML = html;
   btnPrepare.disabled = !allPass;
+}
+
+/* ════ 4. Popup Confirm (Modal) ════ */
+let payloadToSubmit = [];
+
+function prepareIssue() {
+  const op = document.getElementById('opName').value.trim();
+  if(!op) return alert('กรุณาระบุรหัสพนักงาน (Operator ID) ก่อนกดยืนยันครับ');
+
+  const selects = document.querySelectorAll('.b-select');
+  payloadToSubmit = [];
+  
+  // ใช้ Object เพื่อจัดกลุ่มข้อมูลตาม ProductName สำหรับแสดงใน Popup
+  const summaryMap = {};
+
+  const d = new Date();
+  const docNo = `ISS-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
+  
+  document.getElementById('docNoDisplay').textContent = 'DOC: ' + docNo;
+  document.getElementById('operatorDisplay').textContent = 'ผู้จ่าย: ' + op;
+
+  selects.forEach(sel => {
+    const pName = sel.dataset.pname;
+    const req = parseFloat(sel.dataset.req);
+    const rmName = sel.dataset.rmname;
+    const unit = sel.dataset.unit;
+    const batch = sel.value;
+    const code = sel.dataset.code;
+
+    if (!summaryMap[pName]) summaryMap[pName] = [];
+    
+    summaryMap[pName].push({
+      code: code,
+      rmName: rmName,
+      reqQty: req,
+      unit: unit,
+      batch: batch
+    });
+
+    payloadToSubmit.push({
+      code: code,
+      name: rmName,
+      cutQty: req,
+      unit: unit,
+      batch: batch,
+      productTarget: pName
+    });
+  });
+  
+  // สร้าง HTML สำหรับ Modal Summary แยกตามกลุ่ม ProductName
+  let summaryHtml = '';
+  for (const [pName, rmItems] of Object.entries(summaryMap)) {
+    summaryHtml += `
+      <div class="ms-group">
+        <div class="ms-pname">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          สำหรับผลิต: ${pName}
+        </div>
+    `;
+    
+    rmItems.forEach(item => {
+      summaryHtml += `
+        <div class="ms-row">
+          <div><span class="ms-rm">${item.rmName}</span> <span class="ms-batch">Lot: ${item.batch === 'FIFO' ? 'Auto FIFO' : item.batch}</span></div>
+          <div class="ms-qty">- ${item.reqQty.toLocaleString()} <span style="font-size:10px; color:var(--txt3);">${item.unit}</span></div>
+        </div>
+      `;
+    });
+    
+    summaryHtml += `</div>`;
+  }
+  
+  document.getElementById('modalSummaryContent').innerHTML = summaryHtml;
+  confirmMdl.show();
 }
 
 /* ════ 4. Popup Confirm (Modal) ════ */
