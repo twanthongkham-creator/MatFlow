@@ -325,86 +325,119 @@ function updateIssue(pid, key, value) {
   }
 }
 
-function evaluateMultiProduction(items) {
-  const ss = SpreadsheetApp.openById(SHEET_ID);
-  const masterData = ss.getSheetByName('Master_RawMaterial').getDataRange().getValues();
-  const monitorData = ss.getSheetByName('RM_Monitoring').getDataRange().getValues();
+/* ════ 3. Real-time Calculation (Right) ════ */
+function runCalculation() {
+  const container = document.getElementById('issueResults');
+  const btnPrepare = document.getElementById('btnPrepareIssue');
+  const validIssues = _issues.filter(p => p.pName && p.qty > 0);
   
-  let reqMap = {}; 
-  items.forEach(item => {
-    masterData.forEach(row => {
-      if (row[1] === item.name && row[5] !== "Ignore") {
-        let code = row[0] ? row[0].toString().trim() : "";
-        let targetUnits = item.qty; 
-        
-        let rawPackSize = parseFloat(row[7]);
-        let packSize = isNaN(rawPackSize) || rawPackSize <= 0 ? 1 : rawPackSize;
-        let rawUnitPerPack = parseFloat(row[8]);
-        let unitPerPack = isNaN(rawUnitPerPack) || rawUnitPerPack <= 0 ? 1 : rawUnitPerPack;
-        let sysUnit = (row[6] && row[6].toString().trim() !== "") ? row[6].toString().trim() : "Unit";
-        let pkgType = (row[9] && row[9].toString().trim() !== "") ? row[9].toString().trim() : "แพ็คเกจ";
-
-        // 🚩 อัปเดตสูตรให้รองรับ UN
-        let prepPackages = targetUnits / unitPerPack;
-        let reqQtyInStockUnit = 0;
-        if (sysUnit.toUpperCase() === 'UN') {
-            reqQtyInStockUnit = prepPackages * unitPerPack;
-        } else {
-            reqQtyInStockUnit = prepPackages * packSize;
-        }
-
-        let mapKey = code + "_" + item.name;
-
-        if (!reqMap[mapKey]) {
-            reqMap[mapKey] = { 
-                code: code, 
-                name: row[2], 
-                productTarget: item.name,
-                unit: sysUnit, 
-                packageType: pkgType,
-                unitPerPack: unitPerPack,
-                packSize: packSize,
-                totalReqUnits: 0, 
-                totalReqPackages: 0
-            };
-        }
-        reqMap[mapKey].totalReqUnits += reqQtyInStockUnit; 
-        reqMap[mapKey].totalReqPackages += prepPackages;   
-      }
-    });
-  });
-
-  let stockInUnits = {};
-  let batchesByCode = {}; 
-  
-  for (let i = 1; i < monitorData.length; i++) {
-    let code = monitorData[i][0] ? monitorData[i][0].toString().trim() : ""; 
-    let qtyUnits = parseFloat(monitorData[i][7]) || 0; 
-    let batchName = monitorData[i][2] ? monitorData[i][2].toString() : "N/A";
-    
-    if (code && qtyUnits > 0) {
-      stockInUnits[code] = (stockInUnits[code] || 0) + qtyUnits;
-      if (!batchesByCode[code]) batchesByCode[code] = [];
-      let exp = monitorData[i][6] || monitorData[i][5];
-      let expStr = exp ? Utilities.formatDate(new Date(exp), "GMT+7", "dd/MM/yy") : "-";
-      batchesByCode[code].push({ batch: batchName, qty: qtyUnits, exp: expStr });
-    }
+  if (validIssues.length === 0) {
+    btnPrepare.disabled = true;
+    container.innerHTML = `<div class="empty-sim"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><h3>ยังไม่มีรายการจ่าย</h3><p>กรุณาเลือกสินค้าและระบุจำนวนที่ต้องการ</p></div>`;
+    return;
   }
 
-  return Object.values(reqMap).map(i => {
-    let availUnits = stockInUnits[i.code] || 0;
-    return {
-      ...i, 
-      required: i.totalReqUnits,            
-      requiredPacks: i.totalReqPackages,    
-      available: availUnits,                
-      availablePacks: i.unit.toUpperCase() === 'UN' ? availUnits / i.unitPerPack : availUnits / i.packSize, 
-      shortage: Math.max(0, i.totalReqUnits - availUnits),
-      status: availUnits >= i.totalReqUnits ? 'OK' : 'OUT',
-      batches: batchesByCode[i.code] || []
-    };
+  let html = '';
+  let allPass = true;
+
+  validIssues.forEach((issue, index) => {
+    const bom = _bomMap[issue.pName] || [];
+    let isGroupPass = true;
+    let tableRows = '';
+
+    if (bom.length === 0) {
+      tableRows = `<tr><td colspan="6" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ (BOM)</td></tr>`;
+      isGroupPass = false;
+    } else {
+      bom.forEach(rm => {
+        
+        // 1. คลังเตรียม (จัดของเป็น Package เช่น ขวด, ถัง)
+        const prepPackages = Number((issue.qty / rm.unitPerPack).toFixed(4));
+        
+        // 2. จำนวนที่จะตัด (Stock ที่เป็น Unit พื้นฐาน เช่น KG, UN)
+        let reqQty = 0;
+        let formulaMultiplier = 0;
+        
+        if (rm.sysUnit.toUpperCase() === 'UN') {
+          reqQty = Number((prepPackages * rm.unitPerPack).toFixed(4));
+          formulaMultiplier = rm.unitPerPack;
+        } else {
+          reqQty = Number((prepPackages * rm.packSize).toFixed(4));
+          formulaMultiplier = rm.packSize;
+        }
+
+        const currentStock = _stockMap[rm.code] || 0;
+        const isOk = currentStock >= reqQty;
+        if(!isOk) { isGroupPass = false; allPass = false; }
+
+        const batches = _batchMap[rm.code] || [];
+        let opts = `<option value="FIFO">Auto FIFO (ระบบหักจากของเก่าสุด)</option>`;
+        batches.forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | Exp: ${b.exp}</option>`);
+        if(batches.length === 0) opts = `<option value="">ไม่มีสต๊อกในคลัง</option>`;
+
+        tableRows += `
+          <tr>
+            <td><span class="bcode" style="font-size:10px;">${rm.code}</span></td>
+            <td class="td-rm">
+              ${rm.rmName}
+              <div style="font-size:11px; color:#64748b; margin-top:4px; font-weight:500; display:flex; align-items:center; gap:4px;">
+                <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                สูตร: 1 ${rm.packName} = ${formulaMultiplier} ${rm.sysUnit} (ผลิตได้ ${rm.unitPerPack} Unit)
+              </div>
+            </td>
+            <td class="td-num">
+              <span class="t-prep">${prepPackages.toLocaleString()} <span style="font-size:10px;font-weight:600;color:var(--txt3)">${rm.packName}</span></span>
+            </td>
+            <td class="td-num t-req">${reqQty.toLocaleString()} <span style="font-size:10px;font-weight:600;color:var(--txt3)">${rm.sysUnit}</span></td>
+            <td>
+              <select class="batch-sel b-select" data-code="${rm.code}" data-req="${reqQty}" data-pname="${issue.pName}" data-rmname="${rm.rmName}" data-unit="${rm.sysUnit}">
+                ${opts}
+              </select>
+            </td>
+            <td style="text-align:center">
+              ${isOk 
+                ? `<span class="stat-ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>พอ</span>`
+                : `<span class="stat-ng"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ขาด</span>`
+              }
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    html += `
+      <div class="issue-group">
+        <div class="ig-hd">
+          <div class="ig-idx">${index + 1}</div>
+          <div class="ig-title">
+            <div class="ig-pname">${issue.pName}</div>
+            <div class="ig-pqty">เป้าหมายผลิต: <span>${issue.qty.toLocaleString()}</span> Unit</div>
+          </div>
+          ${isGroupPass ? `<span class="stat-ok" style="font-size:13px; padding:6px 12px;"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>สต๊อกพร้อม</span>` : `<span class="stat-ng" style="font-size:13px; padding:6px 12px;"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>วัตถุดิบไม่พอ</span>`}
+        </div>
+        <div class="ig-bd">
+          <table class="rm-table">
+            <thead>
+              <tr>
+                <th width="1%">Code</th>
+                <th>RM Name</th>
+                <th style="text-align:right">คลังเตรียม (จัดของ)</th>
+                <th style="text-align:right">ตัด Stock (Unit จริง)</th>
+                <th width="35%">เลือก Batch ที่จะตัด</th>
+                <th style="text-align:center; width:1%;">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
   });
+
+  container.innerHTML = html;
+  btnPrepare.disabled = !allPass;
 }
+
 /* ════ 4. Popup Confirm (Modal) ════ */
 let payloadToSubmit = [];
 
