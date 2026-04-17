@@ -254,15 +254,14 @@ async function loadMasterData() {
       if (!_bomMap[p]) _bomMap[p] = [];
       if (!_bomMap[p].find(x => x.code === c)) {
         
-        // 🚩 ดึงข้อมูลมาคำนวณอย่างรอบคอบ ป้องกันกรณีลืม Deploy หลังบ้าน
         let rawPackSize = parseFloat(rm.packSize);
         let packSize = isNaN(rawPackSize) || rawPackSize <= 0 ? 1 : rawPackSize;
         
         let rawUnitPerPack = parseFloat(rm.unitPerPack);
         let unitPerPack = isNaN(rawUnitPerPack) || rawUnitPerPack <= 0 ? 1 : rawUnitPerPack;
 
-        const packName = rm.packageType || 'แพ็ค';           
-        const sysUnit = rm.unit || 'Unit';                   
+        const packName = rm.packageType || 'แพ็ค';            
+        const sysUnit = rm.unit || 'Unit';                    
 
         _bomMap[p].push({ 
           code: c, 
@@ -352,7 +351,6 @@ function runCalculation() {
     } else {
       bom.forEach(rm => {
         
-        // 🚩 แก้ไขการคำนวณแยกเป็น 2 ส่วนให้ถูกต้อง
         // 1. คลังเตรียม (จัดของเป็น Package เช่น ขวด, ถัง) = เป้าหมายการผลิต / ผลผลิตต่อแพ็ค
         const prepPackages = Number((issue.qty / rm.unitPerPack).toFixed(4));
         
@@ -435,7 +433,7 @@ function prepareIssue() {
   const selects = document.querySelectorAll('.b-select');
   payloadToSubmit = [];
   
-  // ใช้ Object เพื่อจัดกลุ่มข้อมูลตาม ProductName สำหรับแสดงใน Popup
+  // ใช้ Object เพื่อจัดกลุ่มข้อมูลตาม ProductName
   const summaryMap = {};
 
   const d = new Date();
@@ -494,60 +492,6 @@ function prepareIssue() {
     
     summaryHtml += `</div>`;
   }
-  
-  document.getElementById('modalSummaryContent').innerHTML = summaryHtml;
-  confirmMdl.show();
-}
-
-/* ════ 4. Popup Confirm (Modal) ════ */
-let payloadToSubmit = [];
-
-function prepareIssue() {
-  const op = document.getElementById('opName').value.trim();
-  if(!op) return alert('กรุณาระบุรหัสพนักงาน (Operator ID) ก่อนกดยืนยันครับ');
-
-  const selects = document.querySelectorAll('.b-select');
-  payloadToSubmit = [];
-  let summaryHtml = '';
-  let currentPname = '';
-
-  const d = new Date();
-  const docNo = `ISS-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
-  
-  document.getElementById('docNoDisplay').textContent = 'DOC: ' + docNo;
-  document.getElementById('operatorDisplay').textContent = 'ผู้จ่าย: ' + op;
-
-  selects.forEach(sel => {
-    const pName = sel.dataset.pname;
-    const req = parseFloat(sel.dataset.req);
-    
-    if (pName !== currentPname) {
-      if(currentPname !== '') summaryHtml += `</div>`; 
-      summaryHtml += `
-        <div class="ms-group">
-          <div class="ms-pname"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>${pName}</div>
-      `;
-      currentPname = pName;
-    }
-
-    summaryHtml += `
-      <div class="ms-row">
-        <div><span class="ms-rm">${sel.dataset.rmname}</span> <span class="ms-batch">${sel.value}</span></div>
-        <div class="ms-qty">- ${req.toLocaleString()} <span style="font-size:10px; color:var(--txt3);">${sel.dataset.unit}</span></div>
-      </div>
-    `;
-
-    payloadToSubmit.push({
-      code: sel.dataset.code,
-      name: sel.dataset.rmname,
-      cutQty: req,
-      unit: sel.dataset.unit,
-      batch: sel.value,
-      productTarget: pName
-    });
-  });
-  
-  if(currentPname !== '') summaryHtml += `</div>`;
   
   document.getElementById('modalSummaryContent').innerHTML = summaryHtml;
   confirmMdl.show();
