@@ -7,10 +7,11 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
 <style>
+/* ── Shared Theme Styles ── */
 .workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
 @media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
 .plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; max-height:85vh; overflow-y:auto; }
-.plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; }
+.plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; position:sticky; top:0; background:var(--glass); z-index:10; }
 
 /* Queue Cards */
 .q-card { background:rgba(255,255,255,.6); border:1px solid rgba(180,210,255,.4); border-radius:12px; padding:12px; margin-bottom:10px; cursor:pointer; transition:.2s; position:relative; }
@@ -29,16 +30,22 @@
 .sim-pname { font-size:16px; font-weight:700; color:var(--txt); margin-bottom:2px; }
 .sim-bd { padding:0 20px 20px; overflow-x: auto; }
 .rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
-.rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:left; }
-.rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; }
+
+/* 🚩 จัดกึ่งกลางตาราง (Center alignment) */
+.rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:center; }
+.rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; text-align:center; }
 .rm-table tr:last-child td { border-bottom:none; }
+.rm-table tbody tr:hover { background:rgba(240,248,255,.4); }
+.text-left { text-align: left !important; }
+
 .td-rm { font-weight:700; color:var(--txt); font-size:13.5px; }
+.td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px; }
 
 /* Utilities */
-.batch-sel { font-family:'IBM Plex Sans Thai',sans-serif; font-size:12.5px; padding:6px 10px; background:rgba(255,255,255,.72); border:1.5px solid rgba(180,210,255,.45); border-radius:8px; color:var(--txt); outline:none; width:100%; transition:.15s; }
+.batch-sel { font-family:'IBM Plex Sans Thai',sans-serif; font-size:12.5px; padding:6px 10px; background:rgba(255,255,255,.72); border:1.5px solid rgba(180,210,255,.45); border-radius:8px; color:var(--txt); outline:none; width:100%; transition:.15s; text-align:left; }
 .batch-sel:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.12); }
-.stat-ok { color:#059669; background:rgba(5,150,105,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(5,150,105,.2); display:inline-flex; align-items:center; gap:4px; }
-.stat-ng { color:#dc2626; background:rgba(220,38,38,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(220,38,38,.2); display:inline-flex; align-items:center; gap:4px; }
+.stat-ok { color:#059669; background:rgba(5,150,105,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(5,150,105,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
+.stat-ng { color:#dc2626; background:rgba(220,38,38,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(220,38,38,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
 .stat-ng svg, .stat-ok svg { width:12px; height:12px; stroke:currentColor; stroke-width:2.5; fill:none; }
 .status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .s-pass { background:rgba(5,150,105,.12); color:#059669; border:1px solid rgba(5,150,105,.25); }
@@ -97,7 +104,7 @@
   <div class="workspace-grid">
     <div class="plan-panel a2" style="padding:0;">
       <div class="plan-hd" style="padding:20px 20px 15px 20px;">
-        <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:var(--b3); fill:none; stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
         คิวงานรอจัดเตรียม (Pending)
       </div>
       <div id="queueContainer" style="padding:0 20px 20px 20px;">
@@ -146,7 +153,8 @@ async function loadMasterData() {
       if (!p || !c) return;
       if (!_bomMap[p]) _bomMap[p] = [];
       if (!_bomMap[p].find(x => x.code === c)) {
-        _bomMap[p].push({ code: c, rmName: rm.rmName, unitPerPack: parseFloat(rm.unitPerPack)||1, packSize: parseFloat(rm.packSize)||1, packName: rm.packageType||'แพ็ค', sysUnit: rm.unit||'Unit' });
+        // 🚩 แก้ไขจุดดึงชื่อให้ถูกต้อง (rm.name ไม่ใช่ rm.rmName)
+        _bomMap[p].push({ code: c, rmName: rm.name, unitPerPack: parseFloat(rm.unitPerPack)||1, packSize: parseFloat(rm.packSize)||1, packName: rm.packageType||'แพ็ค', sysUnit: rm.unit||'Unit' });
       }
     });
 
@@ -186,7 +194,6 @@ function selectRequest(reqNo) {
   document.querySelectorAll('.q-card').forEach(el => el.classList.remove('active'));
   document.getElementById('q_'+reqNo).classList.add('active');
   
-  // Group requested items under this reqNo
   const items = _pendingReqs.filter(r => r.reqNo === reqNo);
   _activeReq = { reqNo: reqNo, items: items };
   
@@ -222,12 +229,12 @@ function runCalculation() {
 
         tableRows += `
           <tr>
-            <td><span style="font-size:10px; font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--b2); background:rgba(66,146,255,.1); padding:2px 6px; border-radius:4px;">${rm.code}</span></td>
-            <td class="td-rm">${rm.rmName}</td>
+            <td><span style="font-size:10px; font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--b2); background:rgba(66,146,255,.1); padding:4px 8px; border-radius:6px; display:inline-block; white-space:nowrap;">${rm.code}</span></td>
+            <td class="td-rm text-left">${rm.rmName}</td>
             <td class="td-num" style="color:var(--txt2);">${prepPackages.toLocaleString()} <span style="font-size:10px;">${rm.packName}</span></td>
             <td class="td-num t-req">${reqQty.toLocaleString()} <span style="font-size:10px;">${rm.sysUnit}</span></td>
             <td><select class="batch-sel b-select" data-code="${rm.code}" data-req="${reqQty}" data-pname="${item.productTarget}" data-rmname="${rm.rmName}" data-unit="${rm.sysUnit}">${opts}</select></td>
-            <td style="text-align:center;">${isOk ? '<span class="stat-ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>พอ</span>' : '<span class="stat-ng"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ขาด</span>'}</td>
+            <td>${isOk ? '<span class="stat-ok"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>พอ</span>' : '<span class="stat-ng"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ขาด</span>'}</td>
           </tr>
         `;
       });
@@ -250,7 +257,16 @@ function runCalculation() {
         </div>
         <div class="sim-bd">
           <table class="rm-table">
-            <thead><tr><th width="1%">Code</th><th>RM Name</th><th style="text-align:right">คลังเตรียม</th><th style="text-align:right">ตัด Stock (Unit จริง)</th><th width="35%">เลือก Batch ที่จะตัด</th><th style="text-align:center;">สถานะ</th></tr></thead>
+            <thead>
+              <tr>
+                <th width="1%">Code</th>
+                <th class="text-left">RM Name</th>
+                <th>คลังเตรียม</th>
+                <th>ตัด Stock (Unit จริง)</th>
+                <th width="35%">เลือก Batch ที่จะตัด</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
             <tbody>${tableRows}</tbody>
           </table>
         </div>
