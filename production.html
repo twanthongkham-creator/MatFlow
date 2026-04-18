@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MatFlow — แผนกผลิต (Production)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="mf-theme.css">
+<style>
+/* ── Shared Theme Styles (From index.html) ── */
+.workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
+@media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
+.plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; }
+.plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; }
+.plan-hd svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; }
+.p-sel { width:100%; font-size:13px; font-weight:600; padding:10px 12px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; outline:none; transition:.2s; margin-bottom:12px; color:var(--txt); font-family:'IBM Plex Sans Thai',sans-serif; }
+.p-sel:focus { border-color:var(--b2); box-shadow:0 0 0 3px rgba(66,146,255,.15); background:#fff; }
+.p-qty-input { width:100%; font-size:14px; font-weight:700; padding:10px 12px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; margin-bottom:16px; outline:none; font-family:'IBM Plex Mono',monospace; color:var(--b3); }
+.p-qty-input:focus { border-color:var(--b2); box-shadow:0 0 0 3px rgba(66,146,255,.15); background:#fff; }
+.sim-card { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; display:flex; justify-content:space-between; align-items:center; padding:16px 20px; }
+.sim-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.85) 45%,rgba(190,220,255,.65) 70%,transparent 95%); }
+.sim-idx { width:40px; height:40px; background:rgba(255,255,255,.5); border:1px solid rgba(180,210,255,.4); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--b3); margin-right:16px; box-shadow:var(--sh-xs); }
+.sim-title { flex:1; }
+.status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
+.s-pending { background:rgba(217,119,6,.12); color:#d97706; border:1px solid rgba(217,119,6,.25); }
+.s-pass { background:rgba(5,150,105,.12); color:#059669; border:1px solid rgba(5,150,105,.25); }
+.empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
+.empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
+</style>
+</head>
+<body>
+
+<div id="loader" class="loader" style="display:none">
+  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
+</div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="brand">
+      <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
+      <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
+    </a>
+    <nav class="topnav">
+      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
+      <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
+      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังสินค้า</a>
+      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
+      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
+      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
+    </nav>
+    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู">
+      <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+  <div class="ph a1" style="margin-bottom:20px">
+    <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
+      <span class="ph-ico" style="background:linear-gradient(135deg,#f59e0b,#d97706);width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(217,119,6,.28)">
+        <svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </span>
+      เบิกวัตถุดิบ (Material Call-Off)
+    </h1>
+    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">เปิด Request เพื่อแจ้งคลังสินค้าให้จัดเตรียมและตัดจ่ายวัตถุดิบ</p>
+  </div>
+
+  <div class="workspace-grid">
+    <div class="plan-panel a2">
+      <div class="plan-hd">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        สร้างใบขอเบิกใหม่
+      </div>
+      
+      <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px; display:block;">1. สินค้าที่ต้องการผลิต</label>
+      <select class="p-sel" id="selProduct"><option value="">-- กำลังโหลด... --</option></select>
+      
+      <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px; display:block;">2. เป้าหมาย (Unit)</label>
+      <input type="number" class="p-qty-input" id="inpQty" placeholder="0" min="1">
+      
+      <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px; display:block;">3. รหัสพนักงาน (ผู้เบิก)</label>
+      <input type="text" class="p-qty-input" id="inpOp" style="font-family:'IBM Plex Sans Thai',sans-serif; text-align:left;" placeholder="ระบุชื่อหรือรหัสพนักงาน...">
+      
+      <button class="btn btn-green w-100" onclick="submitRequest()" style="padding:12px; font-size:14px; margin-top:10px;">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        ส่ง Request ไปที่คลัง
+      </button>
+    </div>
+
+    <div class="a3">
+      <div class="plan-hd" style="margin-bottom:16px;">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        ประวัติการเบิก (Request History)
+      </div>
+      <div id="reqList">
+        </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="mf-shared.js"></script>
+<script>
+  window.onload = async () => {
+    mfShow('กำลังโหลดข้อมูล...');
+    try {
+      const res = await MF.getProducts();
+      let opts = '<option value="">-- เลือกสินค้า --</option>';
+      (res.data||[]).forEach(p => opts += `<option value="${p}">${p}</option>`);
+      document.getElementById('selProduct').innerHTML = opts;
+      loadRequests();
+    } catch(e){}
+    mfHide();
+  };
+
+  async function loadRequests() {
+    const res = await MF.getRequests();
+    let html = '';
+    
+    if (!res.data || res.data.length === 0) {
+      document.getElementById('reqList').innerHTML = `
+        <div class="empty-sim">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <h3>ยังไม่มีรายการเบิก</h3>
+          <p>ประวัติการเบิกของคุณจะแสดงที่นี่</p>
+        </div>`;
+      return;
+    }
+
+    (res.data||[]).forEach(r => {
+      const dt = new Date(r.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const badge = r.status === 'Pending' 
+        ? `<div class="status-badge s-pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจ่ายของ</div>`
+        : `<div class="status-badge s-pass"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>รับของแล้ว</div>`;
+
+      html += `
+        <div class="sim-card" style="padding:16px;">
+          <div style="display:flex; align-items:center;">
+            <div class="sim-idx" style="background:var(--glass-border);"><svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:var(--b3); fill:none; stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+            <div>
+              <div style="font-size:11px; color:var(--txt3); font-family:'IBM Plex Mono',monospace; font-weight:600; margin-bottom:2px;">${r.reqNo} &nbsp;|&nbsp; ${dt}</div>
+              <div style="font-weight:700; font-size:15px; color:var(--txt); margin-bottom:2px;">${r.productTarget} <span style="color:var(--green); font-family:'IBM Plex Mono',monospace;">(${r.targetQty} Unit)</span></div>
+              <div style="font-size:11px; color:var(--txt3); font-weight:600;">ผู้เบิก: ${r.reqBy} ${r.status==='Completed' ? `<span style="color:var(--b2)">• จ่ายโดย: ${r.issueBy}</span>` : ''}</div>
+            </div>
+          </div>
+          ${badge}
+        </div>
+      `;
+    });
+    document.getElementById('reqList').innerHTML = html;
+  }
+
+  async function submitRequest() {
+    const pTarget = document.getElementById('selProduct').value;
+    const qty = parseFloat(document.getElementById('inpQty').value);
+    const op = document.getElementById('inpOp').value.trim();
+
+    if(!pTarget || !qty || !op) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+    
+    mfShow('กำลังส่ง Request...');
+    try {
+      const res = await MF.createRequest({ productTarget: pTarget, targetQty: qty, operator: op });
+      if(res.status === 'success') {
+        document.getElementById('inpQty').value = '';
+        loadRequests();
+      }
+    } catch(e) { alert('เกิดข้อผิดพลาดในการส่งข้อมูล'); }
+    mfHide();
+  }
+</script>
+</body>
+</html>
