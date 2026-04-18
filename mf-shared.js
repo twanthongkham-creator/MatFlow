@@ -41,7 +41,7 @@ const MF = (() => {
 
   /* ── Invalidate write-affected caches ── */
   function invalidateInventory() {
-    ['getMonitorData', 'getDashboardData'].forEach(k => cDel(k));
+    ['getMonitorData', 'getDashboardData', 'getRequests'].forEach(k => cDel(k));
   }
   function invalidateMaster() {
     ['getMasterData', 'getProducts', 'getDashboardData'].forEach(k => cDel(k));
@@ -61,11 +61,23 @@ const MF = (() => {
     /** Fetch dashboard stats (cached) */
     getDashboardData: () => fetchCached('getDashboardData'),
 
+    /** Fetch MATCALL Requests (cached) */
+    getRequests: () => fetchCached('getRequests'),
+
     /** Evaluate multi production — always fresh, no cache */
     evaluateMulti: async (items) => {
       const url = `${API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(items))}`;
       const r = await fetch(url, { redirect: 'follow' });
       return r.json();
+    },
+
+    /** Create new MATCALL Request — invalidates request cache */
+    createRequest: async (payload) => {
+      const url = `${API}?action=createRequest&payload=${encodeURIComponent(JSON.stringify(payload))}`;
+      const r = await fetch(url, { redirect: 'follow' });
+      const j = await r.json();
+      if (j.status === 'success') cDel('getRequests'); // เคลียร์แคชหน้าผลิต
+      return j;
     },
 
     /** Receive items — invalidates inventory cache */
@@ -77,9 +89,8 @@ const MF = (() => {
       return j;
     },
 
-    /** Issue stock — invalidates inventory cache */
-    issueMulti: async (items, operator) => {
-      // ส่งเฉพาะ field ที่ Code.gs ต้องการ: code, cutQty, batch, name, unit, productTarget
+    /** Issue stock — invalidates inventory cache & sends reqNo if available */
+    issueMulti: async (items, operator, reqNo) => {
       const payload = items.map(i => ({
         code:          i.code,
         cutQty:        i.cutQty,       // Unit ที่จะตัด (ไม่ใช่ Package)
@@ -88,7 +99,11 @@ const MF = (() => {
         unit:          i.unit,
         productTarget: i.productTarget || 'Issue',
       }));
-      const url = `${API}?action=issueMulti&operator=${encodeURIComponent(operator)}&items=${encodeURIComponent(JSON.stringify(payload))}`;
+      
+      let url = `${API}?action=issueMulti&operator=${encodeURIComponent(operator)}&items=${encodeURIComponent(JSON.stringify(payload))}`;
+      // ถ้ามีการอ้างอิงใบเบิกมา ให้แนบ reqNo ส่งไปให้หลังบ้านอัปเดตด้วย
+      if (reqNo) url += `&reqNo=${encodeURIComponent(reqNo)}`;
+      
       const r = await fetch(url, { redirect: 'follow' });
       const j = await r.json();
       if (j.status === 'success') invalidateInventory();
