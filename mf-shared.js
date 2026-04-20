@@ -55,9 +55,35 @@ const MF = (() => {
     getMonitorData: () => fetchCached('getMonitorData'),
     getDashboardData: () => fetchCached('getDashboardData'),
     getRequests: () => fetchCached('getRequests'),
-
-    /** 🚩 ฟังก์ชันที่มีปัญหา (ต้องมีบรรทัดนี้ชัวร์ๆ) */
     getTransactions: () => fetchCached('getTransactions'),
+
+    /** 🚩 ฟังก์ชันใหม่: อัปเดตตัวเลขแจ้งเตือนบน Navigation Bar */
+    updateNavBadges: async () => {
+      try {
+        const res = await MF.getRequests();
+        if (res.status === 'success') {
+          const data = res.data || [];
+          
+          // นับจำนวนเลขที่ใบเบิก (Unique ReqNo) ที่มีสถานะเป็น Pending
+          const pendingItems = data.filter(r => r.status === 'Pending');
+          const uniquePending = [...new Set(pendingItems.map(item => item.reqNo))].length;
+
+          const updateBadge = (ids, count) => {
+            ids.forEach(id => {
+              const el = document.getElementById(id);
+              if (el) {
+                el.textContent = count;
+                el.style.display = count > 0 ? 'inline-flex' : 'none';
+              }
+            });
+          };
+
+          // อัปเดตตัวเลขบนเมนู (ทั้ง Desktop และ Mobile Drawer)
+          updateBadge(['nb-wh', 'mb-wh'], uniquePending); // คลังวัตถุดิบ
+          updateBadge(['nb-pd', 'mb-pd'], uniquePending); // ฝ่ายผลิต
+        }
+      } catch (e) { console.warn("Badge Update Failed:", e); }
+    },
 
     evaluateMulti: async (items) => {
       const url = `${API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(items))}`;
@@ -69,7 +95,10 @@ const MF = (() => {
       const url = `${API}?action=createRequest&payload=${encodeURIComponent(JSON.stringify(payload))}`;
       const r = await fetch(url, { redirect: 'follow' });
       const j = await r.json();
-      if (j.status === 'success') cDel('getRequests'); 
+      if (j.status === 'success') {
+          cDel('getRequests');
+          MF.updateNavBadges(); // อัปเดตเมนูทันทีเมื่อสร้างสำเร็จ
+      }
       return j;
     },
 
@@ -77,7 +106,10 @@ const MF = (() => {
       const url = `${API}?action=cancelRequest&reqNo=${encodeURIComponent(reqNo)}&reason=${encodeURIComponent(reason)}&operator=${encodeURIComponent(operator)}&pin=${encodeURIComponent(pin)}`;
       const r = await fetch(url, { redirect: 'follow' });
       const j = await r.json();
-      if (j.status === 'success') cDel('getRequests');
+      if (j.status === 'success') {
+          cDel('getRequests');
+          MF.updateNavBadges(); // อัปเดตเมนูทันทีเมื่อยกเลิกสำเร็จ
+      }
       return j;
     },
 
@@ -104,7 +136,10 @@ const MF = (() => {
       
       const r = await fetch(url, { redirect: 'follow' });
       const j = await r.json();
-      if (j.status === 'success') invalidateInventory();
+      if (j.status === 'success') {
+          invalidateInventory();
+          MF.updateNavBadges(); // อัปเดตเมนูทันทีเมื่อจ่ายของสำเร็จ
+      }
       return j;
     },
 
@@ -166,3 +201,12 @@ function mfFmtSlash(d) {
   const [y, m, day] = d.split('-');
   return `${day}/${m}/${y}`;
 }
+
+/* ── 🚩 สั่งอัปเดตตัวเลขแจ้งเตือนอัตโนมัติเมื่อเปิดหน้าเว็บ ── */
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => { 
+      if (typeof MF !== 'undefined' && MF.updateNavBadges) {
+          MF.updateNavBadges(); 
+      }
+  }, 300);
+});
