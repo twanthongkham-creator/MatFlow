@@ -76,14 +76,6 @@ body { overflow-x: hidden; }
     </nav>
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
-  </div>
 </header>
 
 <div class="shell">
@@ -121,20 +113,13 @@ let _bomMap = {}; let _stockMap = {}; let _batchMap = {}; let _pendingReqs = [];
 let _activeReq = null;
 let _warehouseUsers = []; 
 let _allHistory = []; 
-let _transactions = []; // 🚩 เก็บประวัติการตัดจ่าย (ใช้ตอนพิมพ์ใบเบิกว่าจ่าย Lot ไหนไปบ้าง)
 
 window.onload = () => { loadMasterData(); };
 
 async function loadMasterData() {
   mfShow('กำลังอัปเดตข้อมูลคิวงาน...');
   try {
-    // 🚩 โหลดข้อมูลประวัติทั้งหมดที่จำเป็น
-    const [jmaster, jm, jreq, jusers] = await Promise.all([
-      MF.getMasterData(), 
-      MF.getMonitorData(), 
-      MF.getRequests(), 
-      MF.getUsers()
-    ]);
+    const [jmaster, jm, jreq, jusers] = await Promise.all([MF.getMasterData(), MF.getMonitorData(), MF.getRequests(), MF.getUsers()]);
     
     _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
 
@@ -162,9 +147,6 @@ async function loadMasterData() {
     _pendingReqs = _allHistory.filter(r => r.status === 'Pending');
     renderQueue();
     renderCompletedHistory(); 
-
-    // ดึง Transactions มาเก็บไว้ สำหรับพิมพ์ Batch 
-    // (สมมติว่าถ้าต้องการดึงแบบแม่นเป๊ะ 100% ต้องแก้ Code.gs ให้ส่งมา แต่เราจะใช้ตัวแปร _transactions เพื่อเก็บประวัติที่พึ่งจ่ายของใน session นี้)
 
   } catch(e) { alert("Error loading data: " + e.message); }
   mfHide();
@@ -258,6 +240,7 @@ function runCalculation() {
   const container = document.getElementById('issueResults');
   if (!_activeReq) { renderCompletedHistory(); return; }
   
+  // 🚩 แก้ไข SVG ตัวนี้ให้แสดงผลถูกต้อง ไม่เป็นก้อนดำ
   let html = `<div style="display:flex; justify-content:space-between; margin-bottom:16px;">
                 <div class="plan-hd" style="margin-bottom:0;">
                   <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:var(--b3); fill:none; stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
@@ -355,7 +338,6 @@ function runCalculation() {
   container.innerHTML = html;
 }
 
-// 🚩 ฟังก์ชันสร้างและพิมพ์เอกสาร (ดึง Batch ที่เลือกไปแสดง)
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
@@ -377,12 +359,10 @@ function printDocument(reqNo) {
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
-      // 🚩 ดึง Batch จาก Dropdown ที่ผู้ใช้เลือก 
       let batchText = '';
       if (typeof document !== 'undefined') {
           let sel = document.querySelector(`.b-select[data-code="${rm.code}"][data-pname="${item.productTarget}"]`);
           if(sel) {
-            // ถ้าเลือกว่า "FIFO" ให้แสดงว่าตัดเป็น FIFO แบบอัตโนมัติ
             batchText = sel.value === 'FIFO' ? 'Auto FIFO' : sel.value;
           }
       }
@@ -397,7 +377,6 @@ function printDocument(reqNo) {
       </tr>`;
     });
 
-    // 🚩 แทรกชื่อ ProductName ต่อท้ายรายการ (ตัวหนา)
     if (rowCount < 12) {
         rowCount++;
         tableRows += `<tr>
@@ -410,7 +389,6 @@ function printDocument(reqNo) {
         </tr>`;
     }
 
-    // เติมแถวว่างให้ครบ 12 แถว
     for(let i = rowCount + 1; i <= 12; i++) {
       tableRows += `<tr>
         <td style='border: 1px solid black; color: white;'>-</td>
@@ -498,7 +476,6 @@ function printDocument(reqNo) {
       <style>
           @page { size: A4 portrait; margin: 10mm; }
           body { font-family: 'Sarabun', 'Prompt', Tahoma, sans-serif; font-size: 13px; color: black; background: white; margin:0; padding:0; }
-          /* กำหนดให้แบ่งหน้าทุกครั้งที่จบ 1 สินค้า */
           .page-container { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; padding-bottom: 20mm; }
           .page-container:last-child { page-break-after: auto; }
           table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
@@ -525,7 +502,6 @@ async function executeIssueDirectly() {
   const selects = document.querySelectorAll('.b-select');
   let payload = [];
   selects.forEach(sel => {
-    // เก็บค่า batch ที่คลังเลือกส่งไปด้วย
     payload.push({ code: sel.dataset.code, name: sel.dataset.rmname, cutQty: parseFloat(sel.dataset.req), unit: sel.dataset.unit, batch: sel.value, productTarget: sel.dataset.pname });
   });
 
