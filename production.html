@@ -11,9 +11,13 @@ body { overflow-x: hidden; }
 .workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
 .workspace-grid > div { min-width: 0; }
 @media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
-.plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; }
-.plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; }
-.plan-hd svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; }
+
+/* ล็อกสี SVG ไม่ให้ดำทึบ */
+.plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg { fill: none !important; }
+
+.plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; max-height:85vh; overflow-y:auto; }
+.plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; position:sticky; top:0; background:var(--glass); z-index:10; }
+
 .p-item { background:rgba(255,255,255,.6); border:1px solid rgba(180,210,255,.4); border-radius:12px; padding:12px; margin-bottom:10px; position:relative; transition:.2s; }
 .p-item:hover { background:rgba(255,255,255,.85); border-color:var(--b2); box-shadow:0 4px 12px rgba(0,40,160,.05); }
 .p-item .btn-rmv { position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%; background:var(--red); color:#fff; border:2px solid #fff; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transform:scale(.8); transition:.2s; box-shadow:var(--sh-xs); }
@@ -34,12 +38,13 @@ body { overflow-x: hidden; }
 .sim-idx { width:32px; height:32px; background:var(--b2); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'IBM Plex Mono',monospace; }
 .sim-title { flex:1; }
 .sim-pname { font-size:16px; font-weight:700; color:var(--txt); margin-bottom:2px; }
-.sim-bd { padding:0 20px 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+.sim-bd { padding:0 20px 20px; overflow-x: auto; }
 .rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
-.rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:left; }
-.rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; }
-.rm-table tr:last-child td { border-bottom:none; }
+.rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:center; }
+.rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; text-align:center; }
+.text-left { text-align: left !important; }
 .td-rm { font-weight:700; color:var(--txt); font-size:13.5px; }
+.td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px; }
 .empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
 .empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
 .status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
@@ -59,24 +64,16 @@ body { overflow-x: hidden; }
 
 <header class="topbar">
   <div class="topbar-inner">
-    <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
+    <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
     <nav class="topnav">
-      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
-      <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
-      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
+      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
+      <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
+      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
+      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
+      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
     </nav>
-    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
+    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
 </header>
 
@@ -84,7 +81,7 @@ body { overflow-x: hidden; }
   <div class="ph a1" style="margin-bottom:20px">
     <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
       <span class="ph-ico" style="background:linear-gradient(135deg,#f59e0b,#d97706);width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(217,119,6,.28)">
-        <svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" style="width:19px;height:19px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
       </span>
       เบิกวัตถุดิบ (Material Call-Off)
     </h1>
@@ -94,7 +91,7 @@ body { overflow-x: hidden; }
   <div class="workspace-grid">
     <div class="plan-panel a2">
       <div class="plan-hd">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         ระบุรายการขอเบิก
       </div>
       <div id="planContainer"></div>
@@ -111,7 +108,7 @@ body { overflow-x: hidden; }
           <input type="password" id="inpPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkSubmitBtn()">
         </div>
         <button id="btnSubmitReq" class="btn btn-green w-100" onclick="submitRequest()" style="padding:12px; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;" disabled>
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           ยืนยันการเบิกวัตถุดิบ
         </button>
       </div>
@@ -119,7 +116,7 @@ body { overflow-x: hidden; }
 
     <div class="a3">
       <div class="plan-hd" id="rightPanelTitle" style="margin-bottom:16px;">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)
       </div>
       <div id="rightPanelContent"></div>
     </div>
@@ -130,7 +127,7 @@ body { overflow-x: hidden; }
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-hd" style="background:linear-gradient(135deg,#dc2626,#991b1b);">
-        <div class="modal-hd-title" style="color:#fff;"><svg viewBox="0 0 24 24" style="stroke:#fff;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ยกเลิกใบเบิกวัตถุดิบ</div>
+        <div class="modal-hd-title" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ยกเลิกใบเบิกวัตถุดิบ</div>
         <button class="btn-xw" data-bs-dismiss="modal" style="color:#fff; border-color:rgba(255,255,255,.3);">×</button>
       </div>
       <div class="modal-bd">
@@ -138,7 +135,6 @@ body { overflow-x: hidden; }
           ต้องการยกเลิกใบเบิกเลขที่ <br><strong id="cancelReqNoDisplay" style="color:var(--b3); font-family:monospace; font-size:16px;">---</strong> ใช่หรือไม่?
         </div>
         <input type="hidden" id="cancelReqNoVal">
-        
         <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">เหตุผลการยกเลิก</label>
         <select id="cancelReason" class="op-input" style="margin-bottom:16px;" onchange="checkCancelBtn()">
           <option value="">-- เลือกเหตุผล --</option>
@@ -147,11 +143,9 @@ body { overflow-x: hidden; }
           <option value="เครื่องจักรขัดข้อง/เลื่อนการผลิต">เครื่องจักรขัดข้อง/เลื่อนการผลิต</option>
           <option value="อื่นๆ">อื่นๆ</option>
         </select>
-
         <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้ยกเลิก)</label>
         <div style="display:flex; gap:10px;">
-          <select id="cancelOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkCancelBtn()">
-          </select>
+          <select id="cancelOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkCancelBtn()"></select>
           <input type="password" id="cancelPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkCancelBtn()">
         </div>
       </div>
@@ -170,6 +164,7 @@ let _productList = [];
 let _bomMap = {};      
 let _plans = [];       
 let _allHistory = [];
+let _transactions = [];
 let planCounter = 0;
 let cancelMdl; 
 
@@ -181,8 +176,10 @@ window.onload = () => {
 async function loadMasterData() {
   mfShow('กำลังโหลดข้อมูล...');
   try {
-    const [jmaster, jreq, jusers] = await Promise.all([MF.getMasterData(), MF.getRequests(), MF.getUsers()]);
+    const [jmaster, jreq, jusers, jtx] = await Promise.all([MF.getMasterData(), MF.getRequests(), MF.getUsers(), MF.getTransactions()]);
     
+    _transactions = (jtx && jtx.data) ? jtx.data : [];
+
     _bomMap = {}; _productList = [];
     (jmaster.data || []).forEach(rm => {
       const p = rm.productName; const c = String(rm.code || '').trim();
@@ -207,7 +204,7 @@ async function loadMasterData() {
     _allHistory = jreq.data || [];
     
     if(_plans.length === 0) addPlanItem();
-    else runSimulation(); 
+    else runSimulation();
 
   } catch(e) { alert('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + e.message); }
   mfHide();
@@ -258,12 +255,12 @@ function runSimulation() {
   checkSubmitBtn();
 
   if (validPlans.length === 0) {
-    document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)`;
+    document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)`;
     renderHistory();
     return;
   }
 
-  document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> พรีวิววัตถุดิบที่จะได้รับ (BOM Preview)`;
+  document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> พรีวิววัตถุดิบที่จะได้รับ (BOM Preview)`;
   let html = '';
   validPlans.forEach((plan, index) => {
     const bom = _bomMap[plan.pName] || [];
@@ -285,7 +282,7 @@ function runSimulation() {
     html += `
       <div class="sim-card" style="padding:0; display:block;">
         <div class="sim-hd">
-          <div class="sim-idx" style="background:var(--b2);"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+          <div class="sim-idx" style="background:var(--b2);"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
           <div class="sim-title">
             <div class="sim-pname">${plan.pName}</div>
             <div style="font-size:12px; color:var(--txt3); font-weight:500;">เป้าหมายผลิต: <span style="font-weight:700; color:var(--b3);">${plan.qty.toLocaleString()}</span> Unit</div>
@@ -305,7 +302,7 @@ function runSimulation() {
 
 function renderHistory() {
   if (_allHistory.length === 0) {
-    document.getElementById('rightPanelContent').innerHTML = `<div class="empty-sim"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><h3>ยังไม่มีรายการเบิก</h3><p>ประวัติการเบิกของคุณจะแสดงที่นี่</p></div>`;
+    document.getElementById('rightPanelContent').innerHTML = `<div class="empty-sim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><h3>ยังไม่มีรายการเบิก</h3><p>ประวัติการเบิกของคุณจะแสดงที่นี่</p></div>`;
     return;
   }
   let grouped = {};
@@ -323,15 +320,15 @@ function renderHistory() {
     let actionHtml = '';
 
     if (g.status === 'Pending') {
-      badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจ่ายของ</div>`;
-      actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ยกเลิก</button>
-                    <button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
+      badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจ่ายของ</div>`;
+      actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ยกเลิก</button>
+                    <button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
     } else if (g.status === 'Cancelled') {
-      badgeHtml = `<div class="status-badge s-cancel"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>ยกเลิกแล้ว</div>`;
+      badgeHtml = `<div class="status-badge s-cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>ยกเลิกแล้ว</div>`;
       itemsHtml += `<div style="margin-top:8px; font-size:11px; color:#dc2626; font-weight:600;">เหตุผล: ${g.issueDoc} (โดย ${g.issueBy})</div>`; 
     } else {
-      badgeHtml = `<div class="status-badge s-pass"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>รับของแล้ว</div>`;
-      actionHtml = `<button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
+      badgeHtml = `<div class="status-badge s-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="20 6 9 17 4 12"/></svg>รับของแล้ว</div>`;
+      actionHtml = `<button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
     }
 
     html += `
@@ -351,7 +348,7 @@ function renderHistory() {
   document.getElementById('rightPanelContent').innerHTML = html;
 }
 
-// 🚩 ฟังก์ชันสร้างและพิมพ์เอกสาร (แยกหน้าตาม ProductName)
+// 🚩 ฟังก์ชันพิมพ์ (ฝั่งผลิต จะบังคับให้ "หมายเหตุ" เป็นค่าว่างเสมอ สำหรับใบที่ยังไม่ Completed)
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
@@ -360,6 +357,7 @@ function printDocument(reqNo) {
 
   let reqByText = firstReq.reqBy || "...............................";
   let issueByText = firstReq.status === 'Completed' ? firstReq.issueBy : "...............................";
+  let isCompleted = firstReq.status === 'Completed';
 
   let pagesHtml = '';
 
@@ -373,11 +371,15 @@ function printDocument(reqNo) {
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
-      // หน้า production จะไม่สามารถอ่าน Batch จาก DOM ได้ จึงปล่อยว่าง
+      // 🚩 ฝั่งผลิต: ถ้า Completed ดึงจาก Transactions, ถ้ายังไม่ Completed ให้เว้นว่าง ('')
       let batchText = '';
-      if (typeof document !== 'undefined') {
-          let sel = document.querySelector(`.b-select[data-code="${rm.code}"][data-pname="${item.productTarget}"]`);
-          if(sel) batchText = sel.value;
+      if (isCompleted) {
+         let txMatches = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
+         if (txMatches.length > 0) {
+            batchText = [...new Set(txMatches.map(t => t.batch))].join(', ');
+         } else {
+            batchText = '-';
+         }
       }
 
       tableRows += `<tr>
@@ -390,7 +392,6 @@ function printDocument(reqNo) {
       </tr>`;
     });
 
-    // 🚩 แทรกชื่อ ProductName ต่อท้ายรายการ
     if (rowCount < 12) {
         rowCount++;
         tableRows += `<tr>
@@ -403,7 +404,6 @@ function printDocument(reqNo) {
         </tr>`;
     }
 
-    // เติมแถวว่างให้ครบ 12 แถว
     for(let i = rowCount + 1; i <= 12; i++) {
       tableRows += `<tr>
         <td style='border: 1px solid black; color: white;'>-</td>
@@ -491,7 +491,6 @@ function printDocument(reqNo) {
       <style>
           @page { size: A4 portrait; margin: 10mm; }
           body { font-family: 'Sarabun', 'Prompt', Tahoma, sans-serif; font-size: 13px; color: black; background: white; margin:0; padding:0; }
-          /* กำหนดให้แบ่งหน้าทุกครั้งที่จบ 1 สินค้า */
           .page-container { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; padding-bottom: 20mm; }
           .page-container:last-child { page-break-after: auto; }
           table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
