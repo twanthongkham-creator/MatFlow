@@ -92,8 +92,9 @@ const MF = (() => {
       return j;
     },
 
-    /** Issue stock — invalidates inventory cache & sends reqNo if available */
-    issueMulti: async (items, operator, reqNo) => {
+/** Issue stock — invalidates inventory cache & sends reqNo if available */
+    issueMulti: async (items, operator, pin, reqNo) => {
+      // ส่งเฉพาะ field ที่ Code.gs ต้องการ
       const payload = items.map(i => ({
         code:          i.code,
         cutQty:        i.cutQty,       // Unit ที่จะตัด (ไม่ใช่ Package)
@@ -103,8 +104,10 @@ const MF = (() => {
         productTarget: i.productTarget || 'Issue',
       }));
       
-      let url = `${API}?action=issueMulti&operator=${encodeURIComponent(operator)}&items=${encodeURIComponent(JSON.stringify(payload))}`;
-      // ถ้ามีการอ้างอิงใบเบิกมา ให้แนบ reqNo ส่งไปให้หลังบ้านอัปเดตด้วย
+      // 🚩 เพิ่ม pin เข้าไปใน URL สำหรับส่งไปให้หลังบ้านตรวจสอบ
+      let url = `${API}?action=issueMulti&operator=${encodeURIComponent(operator)}&pin=${encodeURIComponent(pin)}&items=${encodeURIComponent(JSON.stringify(payload))}`;
+      
+      // ถ้ามีการอ้างอิงใบเบิก (จากหน้าโกดัง) ให้แนบ reqNo ส่งไปอัปเดตสถานะด้วย
       if (reqNo) url += `&reqNo=${encodeURIComponent(reqNo)}`;
       
       const r = await fetch(url, { redirect: 'follow' });
