@@ -28,8 +28,12 @@ body { overflow-x: hidden; }
 .p-qty-wrap { display:flex; align-items:center; gap:8px; background:#f0f4f8; padding:6px 10px; border-radius:8px; border:1px solid #e2e8f0; }
 .p-qty-wrap label { font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; }
 .p-qty-input { flex:1; border:none; background:transparent; font-size:16px; font-weight:700; color:var(--b3); text-align:right; outline:none; font-family:'IBM Plex Mono',monospace; width:100%; min-width:0; }
-.btn-add-plan { width:100%; background:rgba(66,146,255,.05); border:1px dashed rgba(66,146,255,.4); color:var(--b2); padding:8px; border-radius:8px; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:.2s; margin-bottom:12px; }
+
+/* 🚩 ลดขนาดปุ่มเพิ่มรายการสินค้าให้กะทัดรัด */
+.btn-add-plan { background:rgba(66,146,255,.05); border:1px dashed rgba(66,146,255,.4); color:var(--b2); padding:6px 16px; border-radius:8px; font-size:12.5px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:.2s; }
 .btn-add-plan:hover { background:rgba(66,146,255,.15); border-color:var(--b2); }
+.btn-add-plan svg { width:14px; height:14px; stroke:currentColor; stroke-width:2.5; }
+
 .op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
 .op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
 
@@ -39,10 +43,9 @@ body { overflow-x: hidden; }
 .sim-title { flex:1; }
 .sim-pname { font-size:16px; font-weight:700; color:var(--txt); margin-bottom:2px; }
 
-/* 🚩 อนุญาตให้ตารางเลื่อนซ้ายขวาได้ */
+/* อนุญาตให้ตารางเลื่อนซ้ายขวาได้ */
 .sim-bd { padding:0 20px 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
 .rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
-
 .rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:left; }
 .rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; }
 .rm-table tr:last-child td { border-bottom:none; }
@@ -100,6 +103,7 @@ body { overflow-x: hidden; }
   </div>
 
   <div class="workspace-grid">
+    
     <div class="plan-panel a2">
       <div class="plan-hd">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -108,25 +112,27 @@ body { overflow-x: hidden; }
       
       <div id="planContainer"></div>
       
-      <button class="btn-add-plan" onclick="addPlanItem()">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        เพิ่มรายการสินค้า
-      </button>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <button class="btn-add-plan" onclick="addPlanItem()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          เพิ่มรายการสินค้า
+        </button>
+      </div>
 
-      <div style="border-top:1px dashed #cbd5e1; margin-top:20px; padding-top:20px;">
-        <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:block;">รหัสพนักงานฝ่ายผลิต (Operator ID)</label>
-        <select id="inpOp" class="op-input">
+      <div style="border-top:1px dashed #cbd5e1; padding-top:20px;">
+        <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:block;">รหัสพนักงานฝ่ายผลิต (ผู้เบิก)</label>
+        <select id="inpOp" class="op-input" onchange="checkSubmitBtn()">
           <option value="">-- เลือกพนักงานเบิก --</option>
           <option value="นาย A">นาย A</option>
           <option value="นาย B">นาย B</option>
           <option value="นาย C">นาย C</option>
         </select>
+        
+        <button id="btnSubmitReq" class="btn btn-green w-100" onclick="submitRequest()" style="padding:12px; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;" disabled>
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          ยืนยันการเบิกวัตถุดิบ
+        </button>
       </div>
-
-      <button id="btnSubmitReq" class="btn btn-green btn-w" onclick="submitRequest()" style="margin-top:10px; padding:12px; font-size:14px;" disabled>
-        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        ส่ง Request ไปที่คลัง
-      </button>
     </div>
 
     <div class="a3">
@@ -200,9 +206,16 @@ function updatePlan(pid, key, value) {
   if (plan) { plan[key] = key === 'qty' ? (parseFloat(value) || 0) : value; runSimulation(); }
 }
 
+function checkSubmitBtn() {
+  const validPlans = _plans.filter(p => p.pName && p.qty > 0);
+  const op = document.getElementById('inpOp').value.trim();
+  // จะปลดล็อกปุ่มยืนยันได้ต่อเมื่อ เลือกรหัสสินค้าครบ และ เลือกพนักงานแล้วเท่านั้น
+  document.getElementById('btnSubmitReq').disabled = (validPlans.length === 0 || !op);
+}
+
 function runSimulation() {
   const validPlans = _plans.filter(p => p.pName && p.qty > 0);
-  document.getElementById('btnSubmitReq').disabled = (validPlans.length === 0);
+  checkSubmitBtn(); // เช็คปุ่มยืนยันทุกครั้งที่มีการเปลี่ยนข้อมูล
 
   if (validPlans.length === 0) {
     document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)`;
