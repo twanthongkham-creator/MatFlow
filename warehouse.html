@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MatFlow — คลังวัตถุดิบ (RM Warehouse)</title>
+<title>MatFlow — คลังสินค้า (Warehouse)</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
 <style>
@@ -14,6 +14,7 @@ body { overflow-x: hidden; }
 /* 🚩 ล็อกความกว้างของ Grid ไม่ให้ขยายตามตารางที่อยู่ด้านใน */
 .workspace-grid > div { min-width: 0; }
 @media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
+
 .plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; max-height:85vh; overflow-y:auto; }
 .plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; position:sticky; top:0; background:var(--glass); z-index:10; }
 
@@ -35,7 +36,7 @@ body { overflow-x: hidden; }
 .sim-bd { padding:0 20px 20px; overflow-x: auto; }
 .rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
 
-/* 🚩 จัดกึ่งกลางตาราง (Center alignment) */
+/* จัดกึ่งกลางตาราง */
 .rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:center; }
 .rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; text-align:center; }
 .rm-table tr:last-child td { border-bottom:none; }
@@ -56,7 +57,9 @@ body { overflow-x: hidden; }
 .s-fail { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
 .empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
 .empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
-.op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); }
+
+/* 🚩 Operator Dropdown & PIN */
+.op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
 .op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
 </style>
 </head>
@@ -83,14 +86,6 @@ body { overflow-x: hidden; }
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู">
       <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-  </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
   </div>
 </header>
 
@@ -132,6 +127,7 @@ body { overflow-x: hidden; }
 <script>
 let _bomMap = {}; let _stockMap = {}; let _batchMap = {}; let _pendingReqs = [];
 let _activeReq = null;
+let _warehouseUsers = []; // 🚩 เก็บรายชื่อพนักงานคลัง
 
 window.onload = () => { loadMasterData(); };
 
@@ -139,8 +135,12 @@ async function loadMasterData() {
   mfShow('กำลังอัปเดตข้อมูลคิวงาน...');
   try {
     MF.bust('getRequests');
-    const [jmaster, jm, jreq] = await Promise.all([MF.getMasterData(), MF.getMonitorData(), MF.getRequests()]);
+    // 🚩 โหลดข้อมูลพนักงานพร้อมกันเลย
+    const [jmaster, jm, jreq, jusers] = await Promise.all([MF.getMasterData(), MF.getMonitorData(), MF.getRequests(), MF.getUsers()]);
     
+    // กรองพนักงานคลัง
+    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
+
     _stockMap = {}; _batchMap = {};
     (jm.data || []).forEach(row => {
       const c = row.code; const q = parseFloat(row.qty)||0;
@@ -157,7 +157,6 @@ async function loadMasterData() {
       if (!p || !c) return;
       if (!_bomMap[p]) _bomMap[p] = [];
       if (!_bomMap[p].find(x => x.code === c)) {
-        // 🚩 แก้ไขจุดดึงชื่อให้ถูกต้อง (rm.name ไม่ใช่ rm.rmName)
         _bomMap[p].push({ code: c, rmName: rm.name, unitPerPack: parseFloat(rm.unitPerPack)||1, packSize: parseFloat(rm.packSize)||1, packName: rm.packageType||'แพ็ค', sysUnit: rm.unit||'Unit' });
       }
     });
@@ -203,6 +202,17 @@ function selectRequest(reqNo) {
   
   runCalculation();
 }
+
+// 🚩 ฟังก์ชันช่วยตรวจสอบสถานะปุ่มยืนยัน
+window.checkSubmitBtn = function(allPass) {
+  const op = document.getElementById('opName').value;
+  const pin = document.getElementById('opPin').value;
+  const btn = document.getElementById('btnRealConfirm');
+  if (btn) {
+    // จะปลดล็อกปุ่มเมื่อ สต๊อกพอ && เลือกคน && PIN มี 4 หลัก
+    btn.disabled = !(allPass && op && pin.length >= 4);
+  }
+};
 
 function runCalculation() {
   const container = document.getElementById('issueResults');
@@ -278,12 +288,22 @@ function runCalculation() {
     `;
   });
 
+  // 🚩 สร้างตัวเลือกพนักงานคลัง
+  let userOpts = '<option value="">-- เลือกพนักงานคลัง --</option>';
+  _warehouseUsers.forEach(u => userOpts += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`);
+
+  // 🚩 เพิ่มส่วนยืนยันตัวตน (Dropdown + PIN)
   html += `
     <div style="background:var(--glass); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:var(--r-xl); padding:20px; box-shadow:var(--sh-sm);">
-      <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:8px; display:block;">รหัสพนักงานคลัง (ผู้จัดจ่าย)</label>
-      <input type="text" id="opName" class="op-input" placeholder="ระบุชื่อหรือรหัสพนักงาน...">
-      <button class="btn btn-green w-100" onclick="executeIssueDirectly()" ${allPass ? '' : 'disabled'} style="padding:14px; font-size:14px;">
-        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:8px; display:block;">ยืนยันตัวตน (พนักงานคลังสินค้า)</label>
+      <div style="display:flex; gap:10px; margin-bottom:14px;">
+        <select id="opName" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkSubmitBtn(${allPass})">
+          ${userOpts}
+        </select>
+        <input type="password" id="opPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkSubmitBtn(${allPass})">
+      </div>
+      <button id="btnRealConfirm" class="btn btn-green w-100" onclick="executeIssueDirectly()" disabled style="padding:14px; font-size:14px;">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px;margin-right:6px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         ยืนยันตัด Stock และปิดใบเบิก
       </button>
     </div>
@@ -293,7 +313,8 @@ function runCalculation() {
 
 async function executeIssueDirectly() {
   const op = document.getElementById('opName').value.trim();
-  if(!op) return alert('กรุณาระบุรหัสพนักงานคลังสินค้า ก่อนกดยืนยันครับ');
+  const pin = document.getElementById('opPin').value.trim();
+  if(!op || pin.length < 4) return alert('กรุณาระบุรหัสพนักงานและ PIN ให้ครบถ้วน');
 
   const selects = document.querySelectorAll('.b-select');
   let payload = [];
@@ -303,7 +324,8 @@ async function executeIssueDirectly() {
 
   mfShow('กำลังตัด Stock และปิดใบเบิก...');
   try {
-    const j = await MF.issueMulti(payload, op, _activeReq.reqNo);
+    // 🚩 ส่ง PIN ไปให้หลังบ้านตรวจสอบด้วย
+    const j = await MF.issueMulti(payload, op, pin, _activeReq.reqNo);
     if(j.status === 'success') {
       alert(`✅ ตัดสต๊อกและปิดใบเบิกสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
       _activeReq = null;
@@ -314,7 +336,10 @@ async function executeIssueDirectly() {
           <p>กรุณาเลือกคิวงานถัดไปจากเมนูด้านซ้าย</p>
         </div>`;
       loadMasterData(); 
-    } else { alert('เกิดข้อผิดพลาด: ' + j.message); }
+    } else { 
+      // แจ้งเตือนกรณี PIN ผิด หรือ ไม่มีสิทธิ์
+      alert('เกิดข้อผิดพลาด: ' + j.message); 
+    }
   } catch(e) { alert('การบันทึกล้มเหลว กรุณาลองใหม่'); }
   mfHide();
 }
