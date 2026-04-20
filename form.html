@@ -2,48 +2,93 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Print Form - MatFlow</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <title>พิมพ์ใบเบิก (MatFlow)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* ตั้งค่าหน้ากระดาษ A4 */
         @page { size: A4 portrait; margin: 10mm; }
-        body { font-family: 'Sarabun', sans-serif; font-size: 13px; color: black; background: #f5f5f5; margin: 0; padding: 0; }
-        .page-container { width: 210mm; min-height: 297mm; padding: 10mm; margin: 10mm auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; page-break-after: always; }
-        table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
-        td { border: 1px solid black; padding: 6px; vertical-align: middle; }
-        .header-table td { border: 1px solid black; }
-        .info-table { border-top: none; border-bottom: 2px solid black; }
-        .info-table td { border: none; text-align: left; padding: 8px; }
-        .main-table { border-top: none; }
-        .footer-table { border-top: none; font-size: 11px; }
-        .text-left { text-align: left; padding-left: 8px; }
-        .bold { font-weight: bold; }
-        @media print {
-            body { background: white; }
-            .page-container { margin: 0; box-shadow: none; }
-            .no-print { display: none; }
+        
+        /* สไตล์พื้นหลังตอนแสดงบนหน้าจอคอม */
+        body { font-family: 'Sarabun', sans-serif; font-size: 13px; color: black; background: #525659; margin: 0; padding: 20px; }
+        
+        /* สไตล์กระดาษ A4 จำลอง */
+        .page-container { 
+            width: 210mm; 
+            min-height: 296mm; 
+            padding: 10mm; 
+            margin: 0 auto 20px auto; 
+            background: white; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            box-sizing: border-box; 
+            page-break-after: always; 
+            position: relative; 
         }
+        .page-container:last-child { page-break-after: auto; margin-bottom: 0; }
+        
+        /* โครงสร้างตาราง (ล็อกความกว้างห้ามดิ้น) */
+        table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; table-layout: fixed; }
+        th, td { border: 1px solid black; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; }
+        
+        /* ส่วนหัวบริษัท */
+        .header-table { border-bottom: none; }
+        .header-table td { border: none; border-right: 1px solid black; }
+        .header-table td:last-child { border-right: none; }
+        
+        /* ส่วนข้อมูลผู้เบิก */
+        .info-table { border-top: 2px solid black; border-bottom: none; }
+        .info-table td { border: none; text-align: left; padding: 6px 10px; }
+        .dot-line { display: inline-block; min-width: 100px; border-bottom: 1px dotted black; margin-left: 5px; }
+        
+        /* ส่วนตารางรายการ */
+        .main-table { border-top: 2px solid black; }
+        .main-table th { background: #f8f9fa; font-weight: bold; padding: 6px; }
+        .text-left { text-align: left !important; padding-left: 8px !important; }
+        .bold { font-weight: bold; }
+        
+        /* ส่วนลายเซ็นท้ายกระดาษ */
+        .footer-table { border-top: none; }
+        .footer-title { background: #f8f9fa; font-weight: bold; font-size: 11px; padding: 4px 2px; }
+        .footer-box { height: 65px; vertical-align: bottom !important; padding-bottom: 5px !important; font-size: 11px; }
+        
+        /* ซ่อนปุ่มและพื้นหลังตอนสั่ง Print จริง */
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .page-container { width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; }
+            .no-print { display: none !important; }
+        }
+
+        .print-btn { padding:10px 20px; font-size:16px; cursor:pointer; background:#0070C0; color:white; border:none; border-radius:8px; font-family:'Sarabun', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .print-btn:hover { background: #005A9E; }
     </style>
 </head>
 <body>
-    <div class="no-print" style="text-align:center; padding: 20px;">
-        <button onclick="window.print()" style="padding:10px 20px; font-size:16px; cursor:pointer;">🖨️ คลิกเพื่อพิมพ์เอกสาร</button>
+    
+    <div class="no-print" style="text-align:center; padding-bottom: 20px;">
+        <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button>
     </div>
-
+    
     <div id="print-area"></div>
 
     <script>
         window.onload = function() {
+            // ดึงข้อมูล JSON ที่ถูกส่งมาจากหน้า Production หรือ Warehouse
             const data = JSON.parse(sessionStorage.getItem('printData') || '{}');
+            
             if (!data.reqNo) {
-                document.getElementById('print-area').innerHTML = '<h2 style="text-align:center;">ไม่พบข้อมูลการพิมพ์</h2>';
+                document.getElementById('print-area').innerHTML = `
+                    <div class="page-container" style="display:flex; align-items:center; justify-content:center;">
+                        <h2 style="color:red;">❌ ไม่พบข้อมูลการพิมพ์ กรุณากลับไปกดปุ่มพิมพ์จากหน้าหลักอีกครั้ง</h2>
+                    </div>`;
                 return;
             }
 
             let html = '';
-            // แยกพิมพ์หน้าละ 1 สินค้า (Product)
+            
+            // วนลูปแยกหน้าเอกสาร ตามจำนวนสินค้า (Product)
             data.products.forEach(prod => {
                 let rowsHtml = '';
-                // วนลูป BOM (วัตถุดิบ)
+                
+                // วนลูปรายการวัตถุดิบ
                 prod.items.forEach((item, idx) => {
                     rowsHtml += `
                         <tr>
@@ -52,16 +97,16 @@
                             <td class="text-left">${item.rmName}</td>
                             <td class="bold">${item.qty.toLocaleString()}</td>
                             <td>${item.unit}</td>
-                            <td>${item.batch || ''}</td>
+                            <td style="font-size: 11.5px;">${item.batch || ''}</td>
                         </tr>`;
                 });
 
-                // บรรทัดสุดท้ายของรายละเอียด: แสดง ProductName ตัวหนา
+                // บรรทัดสุดท้ายของตาราง: แสดง ProductName ตัวหนา
                 rowsHtml += `
                     <tr>
                         <td>${prod.items.length + 1}</td>
                         <td></td>
-                        <td class="text-left bold">${prod.pName}</td>
+                        <td class="text-left bold" style="font-size: 14px; color: #000;">${prod.pName}</td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -69,66 +114,83 @@
 
                 // เติมแถวว่างให้ครบ 12 แถว
                 for (let i = prod.items.length + 2; i <= 12; i++) {
-                    rowsHtml += `<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+                    rowsHtml += `<tr><td style="color:transparent;">-</td><td></td><td></td><td></td><td></td><td></td></tr>`;
                 }
 
+                // ตัดชื่อยาวๆ ป้องกันตารางเบี้ยว
+                let reqName = data.reqBy && data.reqBy.length > 20 ? data.reqBy.substring(0,20) + '..' : (data.reqBy || "...................");
+                let issName = data.issueBy && data.issueBy.length > 20 ? data.issueBy.substring(0,20) + '..' : (data.issueBy || "...................");
+
+                // ประกอบร่าง HTML 1 หน้า
                 html += `
                 <div class="page-container">
+                    
                     <table class="header-table">
                         <tr>
-                            <td width="20%"><h2 style="color:#0070C0; margin:0;">เสริมสุข</h2></td>
-                            <td width="60%">
+                            <td width="20%"><h2 style="color:#0070C0; margin:0; font-family: Tahoma, sans-serif;">เสริมสุข</h2></td>
+                            <td width="55%">
                                 <div class="bold" style="font-size:16px;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
-                                <div class="bold" style="font-size:16px;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
-                                <div>(Stock Transfer Request)</div>
+                                <div class="bold" style="font-size:15px;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
+                                <div style="font-size:13px;">(Stock Transfer Request)</div>
                             </td>
-                            <td width="20%" style="text-align:left; font-size:11px;">
-                                <div style="text-align:right;">FM-Q-RW-001/013</div>
-                                <div>เลขที่ <span class="bold">${data.reqNo}</span></div>
-                                <div>วันที่จัดทำ <span class="bold">${data.date}</span></div>
+                            <td width="25%" style="text-align:right; font-size:11px; padding-right:10px;">
+                                <div style="margin-bottom: 4px;">FM-Q-RW-001/013</div>
+                                <div>เลขที่ <span class="bold" style="font-size:13px;">${data.reqNo}</span></div>
+                                <div style="margin-top: 4px;">วันที่จัดทำ <span class="bold">${data.date}</span></div>
                             </td>
                         </tr>
                     </table>
 
                     <table class="info-table">
                         <tr>
-                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้ขอโอน ..............................................</td>
-                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน ..............................................</td>
+                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้ขอโอน <span class="dot-line"></span></td>
+                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน <span class="dot-line"></span></td>
                         </tr>
                         <tr>
-                            <td>วันที่ต้องการพัสดุ ..............................................</td>
-                            <td>เลขที่ใบจ่ายโอนจากระบบ ..............................................</td>
+                            <td>วันที่ต้องการพัสดุ <span class="dot-line"></span></td>
+                            <td>เลขที่ใบจ่ายโอนจากระบบ <span class="dot-line"></span></td>
                         </tr>
                     </table>
 
                     <table class="main-table">
-                        <tr class="bold" style="background:#f0f0f0;">
-                            <td width="8%">ลำดับ</td><td width="15%">รหัสพัสดุ</td><td width="37%">รายละเอียด</td>
-                            <td width="15%">จำนวนขอโอน</td><td width="10%">หน่วยนับ</td><td width="15%">หมายเหตุ</td>
+                        <tr>
+                            <th width="8%">ลำดับ</th>
+                            <th width="15%">รหัสพัสดุ</th>
+                            <th width="35%">รายละเอียด</th>
+                            <th width="14%">จำนวนขอโอน</th>
+                            <th width="11%">หน่วยนับ</th>
+                            <th width="17%">หมายเหตุ</th>
                         </tr>
                         ${rowsHtml}
                     </table>
 
                     <table class="footer-table">
-                        <tr class="bold" style="background:#f0f0f0;">
-                            <td width="16.6%">ผู้ขอโอน</td><td width="16.6%">ผู้อนุมัติขอโอน</td><td width="16.6%">ผู้จ่ายโอน</td>
-                            <td width="16.6%">ผู้อนุมัติจ่ายโอน</td><td width="16.6%">ผู้รับของ</td><td width="16.6%">ผู้บันทึกรายการ</td>
+                        <tr>
+                            <td class="footer-title">ผู้ขอโอน</td>
+                            <td class="footer-title">ผู้อนุมัติขอโอน</td>
+                            <td class="footer-title">ผู้จ่ายโอน</td>
+                            <td class="footer-title">ผู้อนุมัติจ่ายโอน</td>
+                            <td class="footer-title">ผู้รับของ</td>
+                            <td class="footer-title">ผู้บันทึกรายการ</td>
                         </tr>
-                        <tr style="height:60px; vertical-align:bottom;">
-                            <td class="text-left">ลงชื่อ ${data.reqBy}<br>วันที่ ..../..../....</td>
-                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
-                            <td class="text-left">ลงชื่อ ${data.issueBy}<br>วันที่ ..../..../....</td>
-                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
-                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
-                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
+                        <tr>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${reqName}</span><br><br>วันที่ ....../....../......</td>
+                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${issName}</span><br><br>วันที่ ....../....../......</td>
+                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
+                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
+                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
                         </tr>
                     </table>
-                    <div style="font-size:10px; margin-top:5px;">Rev.00/Eff Date:01/06/2020</div>
+                    <div style="font-size:10px; margin-top:5px; text-align:left;">Rev.00/Eff Date:01/06/2020</div>
+                    
                 </div>`;
             });
 
             document.getElementById('print-area').innerHTML = html;
-            setTimeout(() => { window.print(); }, 800);
+            
+            // หน่วงเวลาให้เบราว์เซอร์จัดหน้ากระดาษเสร็จ แล้วเด้งหน้าต่าง Print
+            setTimeout(() => { window.print(); }, 500);
         };
     </script>
 </body>
