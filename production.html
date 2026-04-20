@@ -48,7 +48,7 @@ body { overflow-x: hidden; }
 .empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
 .empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
 
-/* 🚩 Styles สำหรับปุ่มและ Badges สถานะต่างๆ */
+/* Styles สำหรับปุ่มและ Badges สถานะต่างๆ */
 .status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .s-pending { background:rgba(217,119,6,.12); color:#d97706; border:1px solid rgba(217,119,6,.25); }
 .s-issued { background:rgba(13,148,136,.12); color:#0f766e; border:1px solid rgba(13,148,136,.25); }
@@ -61,7 +61,6 @@ body { overflow-x: hidden; }
 .btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
 .btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
 
-/* 🚩 สไตล์ปุ่มกดรับของใหม่ */
 .btn-rcv { font-size:11px; font-weight:700; color:#059669; background:transparent; border:1px solid #6ee7b7; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; }
 .btn-rcv:hover { background:#ecfdf5; border-color:#059669; }
 .btn-rcv svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
@@ -70,6 +69,10 @@ body { overflow-x: hidden; }
 .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: 800; color: #fff; margin-left: 8px; font-family: 'IBM Plex Mono', monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-1px); }
 .badge-wh { background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid rgba(255,255,255,0.3); }
 .badge-pd { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 1.5px solid rgba(255,255,255,0.3); }
+
+/* 🚩 Checkbox ใน Modal */
+.cb-rcv-item { transform: scale(1.3); cursor: pointer; margin-right: 4px; accent-color: #0d9488; }
+#cbAllRcv { transform: scale(1.3); cursor: pointer; accent-color: #0d9488; }
 </style>
 </head>
 <body>
@@ -107,7 +110,7 @@ body { overflow-x: hidden; }
       </span>
       เบิกวัตถุดิบ (Material Call-Off)
     </h1>
-    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">สร้างใบ Request แจ้งคลังจัดเตรียมวัตถุดิบ สามารถขอเบิกหลายรายการพร้อมกันได้</p>
+    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">สร้างใบ Request แจ้งคลังจัดเตรียมวัตถุดิบ และตรวจรับของเข้าไลน์ผลิต</p>
   </div>
 
   <div class="workspace-grid">
@@ -180,7 +183,7 @@ body { overflow-x: hidden; }
 </div>
 
 <div class="modal fade mf-modal" id="receiveModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-hd" style="background:linear-gradient(135deg,#0d9488,#0f766e);">
         <div class="modal-hd-title" style="color:#fff;">
@@ -190,10 +193,14 @@ body { overflow-x: hidden; }
         <button class="btn-xw" data-bs-dismiss="modal" style="color:#fff; border-color:rgba(255,255,255,.3);">×</button>
       </div>
       <div class="modal-bd">
-        <div style="font-size:13px; color:var(--txt); margin-bottom:16px; text-align:center;">
+        <div style="font-size:13px; color:var(--txt); margin-bottom:12px; text-align:center;">
           ตรวจสอบความถูกต้อง และยืนยันการรับของเลขที่<br><strong id="rcvReqNoDisplay" style="color:var(--b3); font-family:monospace; font-size:16px;">---</strong>
         </div>
         <input type="hidden" id="rcvReqNoVal">
+        
+        <div id="rcvItemsContainer" style="margin-bottom: 16px; max-height: 250px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff;">
+           </div>
+
         <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้รับของ)</label>
         <div style="display:flex; gap:10px;">
           <select id="rcvOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkRcvBtn()"></select>
@@ -202,14 +209,14 @@ body { overflow-x: hidden; }
       </div>
       <div class="modal-ft">
         <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:10px 20px;">ปิด</button>
-        <button class="btn btn-green" id="btnRealRcv" onclick="executeReceive()" style="padding:10px 24px; font-size:14px; background:#0d9488; color:#fff; border:none; border-radius:8px; font-weight:700;" disabled>ยืนยันรับของ</button>
+        <button class="btn btn-green" id="btnRealRcv" onclick="executeReceive()" style="padding:10px 24px; font-size:14px; background:#0d9488; color:#fff; border:none; border-radius:8px; font-weight:700;" disabled>ยืนยันรับของครบถ้วน</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=4"></script>
+<script src="mf-shared.js?v=6"></script>
 <script>
 let _productList = []; 
 let _bomMap = {};      
@@ -218,11 +225,11 @@ let _allHistory = [];
 let _transactions = [];
 let planCounter = 0;
 let cancelMdl; 
-let receiveMdl; // 🚩 ตัวแปร Modal รับของ
+let receiveMdl;
 
 window.onload = () => { 
   cancelMdl = new bootstrap.Modal(document.getElementById('cancelModal'));
-  receiveMdl = new bootstrap.Modal(document.getElementById('receiveModal')); // 🚩 ผูก Modal
+  receiveMdl = new bootstrap.Modal(document.getElementById('receiveModal')); 
   loadMasterData(); 
 };
 
@@ -253,14 +260,14 @@ async function loadMasterData() {
     });
     document.getElementById('inpOp').innerHTML = opHtml;
     document.getElementById('cancelOp').innerHTML = opHtml; 
-    document.getElementById('rcvOp').innerHTML = opHtml; // 🚩 ใส่ Dropdown เข้า Modal รับของ
+    document.getElementById('rcvOp').innerHTML = opHtml;
 
     _allHistory = jreq.data || [];
     
     if(_plans.length === 0) addPlanItem();
     else runSimulation();
 
-  } catch(e) { alert('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + e.message); }
+  } catch(e) { console.error(e); }
   mfHide();
 }
 
@@ -278,11 +285,26 @@ function checkCancelBtn() {
   document.getElementById('btnRealCancel').disabled = (!reason || !op || pin.length < 4);
 }
 
-// 🚩 ตรวจสอบปุ่มกดยืนยันรับของ
+// 🚩 ฟังก์ชัน Checkbox Select All
+function toggleAllRcvCb(source) {
+  const cbs = document.querySelectorAll('.cb-rcv-item');
+  cbs.forEach(cb => cb.checked = source.checked);
+  checkRcvBtn();
+}
+
+// 🚩 ตรวจสอบปุ่มกดยืนยันรับของ (ต้อง Check ให้ครบ)
 function checkRcvBtn() {
   const op = document.getElementById('rcvOp').value;
   const pin = document.getElementById('rcvPin').value;
-  document.getElementById('btnRealRcv').disabled = (!op || pin.length < 4);
+  
+  const cbs = document.querySelectorAll('.cb-rcv-item');
+  let allChecked = cbs.length > 0 ? true : false;
+  cbs.forEach(cb => { if(!cb.checked) allChecked = false; });
+  
+  const cbAll = document.getElementById('cbAllRcv');
+  if (cbAll) cbAll.checked = allChecked && cbs.length > 0;
+
+  document.getElementById('btnRealRcv').disabled = (!allChecked || !op || pin.length < 4);
 }
 
 function addPlanItem() {
@@ -368,7 +390,6 @@ function renderHistory() {
   }
   let grouped = {};
   _allHistory.forEach(r => {
-    // 🚩 เก็บตัวแปร receiveBy ลง Group ด้วย
     if(!grouped[r.reqNo]) grouped[r.reqNo] = { reqNo: r.reqNo, timestamp: r.timestamp, reqBy: r.reqBy, status: r.status, issueDoc: r.issueDoc, issueBy: r.issueBy, receiveBy: r.receiveBy, items: [] };
     grouped[r.reqNo].items.push(r);
   });
@@ -381,7 +402,6 @@ function renderHistory() {
     let badgeHtml = '';
     let actionHtml = '';
 
-    // 🚩 ปรับ Logic การแสดงปุ่มและ Badge ให้รองรับสถานะ Issued (รอรับของ)
     if (g.status === 'Pending') {
       badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจัดของ</div>`;
       actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')">ยกเลิก</button>
@@ -398,7 +418,6 @@ function renderHistory() {
       actionHtml = `<button class="btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
     }
 
-    // 🚩 แสดงชื่อผู้เกี่ยวข้องใน History Card
     let userTags = `ผู้เบิก: ${g.reqBy}`;
     if (g.status === 'Issued' || g.status === 'Completed') userTags += ` <span style="color:var(--b2)">• จ่ายโดย: ${g.issueBy}</span>`;
     if (g.status === 'Completed' && g.receiveBy) userTags += ` <span style="color:#059669">• รับโดย: ${g.receiveBy}</span>`;
@@ -427,7 +446,6 @@ function printDocument(reqNo) {
   const first = reqItems[0];
   const isCompleted = first.status === 'Completed';
 
-  // 🚩 ส่งชื่อ receiveBy ลงใน Session สำหรับพิมพ์ที่ form.html
   let printData = {
     reqNo: reqNo,
     date: new Date(first.timestamp).toLocaleDateString('en-GB'),
@@ -521,12 +539,54 @@ async function executeCancel() {
   mfHide();
 }
 
-// 🚩 ฟังก์ชันเปิด Modal รับของ 
+// 🚩 ฟังก์ชันเปิด Modal รับของ (พร้อมสร้างตาราง Checkbox)
 function showReceiveModal(reqNo) {
   document.getElementById('rcvReqNoDisplay').textContent = reqNo;
   document.getElementById('rcvReqNoVal').value = reqNo;
   document.getElementById('rcvOp').value = '';
   document.getElementById('rcvPin').value = '';
+  
+  // 🚩 สร้างตารางรายการที่จะรับ
+  const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
+  let html = `<table style="width:100%; border-collapse: collapse; font-size:13px;">
+                <thead>
+                  <tr style="border-bottom:2px solid #cbd5e1; background:#f8fafc;">
+                    <th style="padding:10px; text-align:center; width:5%;"><input type="checkbox" id="cbAllRcv" onchange="toggleAllRcvCb(this)"></th>
+                    <th style="padding:10px; text-align:left; width:50%;">รายการวัตถุดิบ (ที่คลังจ่ายมา)</th>
+                    <th style="padding:10px; text-align:center; width:20%;">จำนวน</th>
+                    <th style="padding:10px; text-align:left; width:25%;">Batch/Lot</th>
+                  </tr>
+                </thead>
+                <tbody>`;
+  
+  let hasItems = false;
+  reqItems.forEach(item => {
+    const bom = _bomMap[item.productTarget] || [];
+    bom.forEach(rm => {
+      hasItems = true;
+      const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
+      let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
+      
+      const txs = _transactions.filter(t => t.reqNo === reqNo && t.code === rm.code);
+      let batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
+
+      html += `<tr style="border-bottom:1px solid #e2e8f0; transition: background 0.2s;">
+                 <td style="padding:10px; text-align:center;"><input type="checkbox" class="cb-rcv-item" onchange="checkRcvBtn()"></td>
+                 <td style="padding:10px; font-weight:600; color:var(--txt);"><span style="color:var(--b2); font-family:monospace;">${rm.code}</span><br>${rm.rmName}</td>
+                 <td style="padding:10px; text-align:center; font-family:monospace; font-weight:bold; color:var(--b3);">${reqQty.toLocaleString()} <span style="font-size:10px;">${rm.sysUnit}</span></td>
+                 <td style="padding:10px; color:#059669; font-family:monospace; font-weight:bold;">${batchVal}</td>
+               </tr>`;
+    });
+  });
+
+  html += `</tbody></table>`;
+  
+  if(!hasItems) {
+      html = `<div style="text-align:center; padding:20px; color:var(--txt3);">ไม่พบรายการวัตถุดิบในบิลนี้</div>`;
+  }
+
+  document.getElementById('rcvItemsContainer').innerHTML = html;
+  
   checkRcvBtn();
   receiveMdl.show();
 }
