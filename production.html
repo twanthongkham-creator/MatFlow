@@ -176,6 +176,7 @@ window.onload = () => {
   loadMasterData(); 
 };
 
+// 🚩 ปรับปรุงฟังก์ชันโหลดข้อมูลให้ Hot Reload ข้อมูลผู้เบิกด้วย
 async function loadMasterData() {
   mfShow('กำลังโหลดข้อมูล...');
   try {
@@ -195,7 +196,7 @@ async function loadMasterData() {
     
     let opHtml = '<option value="">-- เลือกพนักงาน --</option>';
     (jusers.data || []).forEach(u => {
-      if(u.dept === 'Production') {
+      if(u.dept === 'Production' || u.dept === 'Planning') {
         opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`;
       }
     });
@@ -203,7 +204,9 @@ async function loadMasterData() {
     document.getElementById('cancelOp').innerHTML = opHtml; 
 
     _allHistory = jreq.data || [];
+    
     if(_plans.length === 0) addPlanItem();
+    else runSimulation(); // ถ้ารีโหลดหลังกด ให้เรนเดอร์ขวาใหม่เลย
 
   } catch(e) { alert('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + e.message); }
   mfHide();
@@ -345,6 +348,7 @@ function renderHistory() {
   document.getElementById('rightPanelContent').innerHTML = html;
 }
 
+// 🚩 อัปเดตฟังก์ชันนี้ ให้แน่ใจว่าโหลดข้อมูลใหม่หลังกด Submit
 async function submitRequest() {
   const op = document.getElementById('inpOp').value.trim();
   const pin = document.getElementById('inpPin').value.trim();
@@ -358,9 +362,18 @@ async function submitRequest() {
     const res = await MF.createRequest({ items: items, operator: op, pin: pin });
     if(res.status === 'success') {
       alert('✅ ส่ง Request เรียบร้อยแล้ว!\nเลขที่: ' + res.reqNo);
-      _plans = []; document.getElementById('planContainer').innerHTML = ''; 
-      document.getElementById('inpOp').value = ''; document.getElementById('inpPin').value = '';
-      addPlanItem(); MF.bust('getRequests'); loadMasterData();
+      // เคลียร์ค่าฝั่งซ้าย
+      _plans = []; 
+      document.getElementById('planContainer').innerHTML = ''; 
+      document.getElementById('inpOp').value = ''; 
+      document.getElementById('inpPin').value = '';
+      
+      // สั่งล้างแคช และโหลดข้อมูลใหม่ทันที
+      MF.bust('getRequests'); 
+      await loadMasterData(); 
+      
+      // เพิ่มช่องว่าง 1 อันกลับมาให้กรอกต่อ
+      addPlanItem(); 
     } else { alert(res.message); }
   } catch(e) { alert('เกิดข้อผิดพลาดในการส่งข้อมูล'); }
   mfHide();
@@ -376,6 +389,7 @@ function showCancelModal(reqNo) {
   cancelMdl.show();
 }
 
+// 🚩 อัปเดตฟังก์ชันนี้ ให้แน่ใจว่าโหลดข้อมูลใหม่หลังกดยกเลิก
 async function executeCancel() {
   const reqNo = document.getElementById('cancelReqNoVal').value;
   const reason = document.getElementById('cancelReason').value;
@@ -388,7 +402,9 @@ async function executeCancel() {
     if(res.status === 'success') {
       cancelMdl.hide();
       alert('✅ ยกเลิกใบเบิกเรียบร้อยแล้ว');
-      MF.bust('getRequests'); loadMasterData();
+      // สั่งล้างแคช และโหลดข้อมูลใหม่ทันที
+      MF.bust('getRequests'); 
+      await loadMasterData();
     } else {
       alert(res.message);
     }
