@@ -5,13 +5,9 @@
     <title>พิมพ์ใบเบิก (MatFlow)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ตั้งค่าหน้ากระดาษ A4 */
         @page { size: A4 portrait; margin: 10mm; }
-        
-        /* สไตล์พื้นหลังตอนแสดงบนหน้าจอคอม */
         body { font-family: 'Sarabun', sans-serif; font-size: 13px; color: black; background: #525659; margin: 0; padding: 20px; }
         
-        /* สไตล์กระดาษ A4 จำลอง */
         .page-container { 
             width: 210mm; 
             min-height: 296mm; 
@@ -25,53 +21,57 @@
         }
         .page-container:last-child { page-break-after: auto; margin-bottom: 0; }
         
-        /* โครงสร้างตาราง (ล็อกความกว้างห้ามดิ้น) */
+        /* 🚩 ข้อที่ 1: รหัสเอกสารอยู่นอกกรอบตาราง */
+        .doc-id-top { text-align: right; font-size: 11px; margin-bottom: 5px; font-weight: bold; }
+
         table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; table-layout: fixed; }
         th, td { border: 1px solid black; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; }
         
-        /* ส่วนหัวบริษัท */
         .header-table { border-bottom: none; }
         .header-table td { border: none; border-right: 1px solid black; }
         .header-table td:last-child { border-right: none; }
         
-        /* ส่วนข้อมูลผู้เบิก */
+        /* 🚩 ข้อที่ 2: ส่วน Logo เสริมสุข */
+        .logo-placeholder { 
+            width: 100%; 
+            max-height: 50px; 
+            object-fit: contain; 
+            margin-bottom: 5px;
+        }
+        .brand-text { color: #0070C0; font-family: Tahoma, sans-serif; font-weight: bold; font-size: 20px; margin: 0; }
+
         .info-table { border-top: 2px solid black; border-bottom: none; }
         .info-table td { border: none; text-align: left; padding: 6px 10px; }
-        .dot-line { display: inline-block; min-width: 100px; border-bottom: 1px dotted black; margin-left: 5px; }
+        .dot-line { display: inline-block; min-width: 120px; border-bottom: 1px dotted black; }
         
-        /* ส่วนตารางรายการ */
         .main-table { border-top: 2px solid black; }
-        .main-table th { background: #f8f9fa; font-weight: bold; padding: 6px; }
+        .main-table th { background: #f8f9fa; font-weight: bold; padding: 6px; font-size: 12px; }
         .text-left { text-align: left !important; padding-left: 8px !important; }
         .bold { font-weight: bold; }
         
-        /* ส่วนลายเซ็นท้ายกระดาษ */
         .footer-table { border-top: none; }
         .footer-title { background: #f8f9fa; font-weight: bold; font-size: 11px; padding: 4px 2px; }
-        .footer-box { height: 65px; vertical-align: bottom !important; padding-bottom: 5px !important; font-size: 11px; }
+        .footer-box { height: 65px; vertical-align: bottom !important; padding-bottom: 8px !important; font-size: 11px; line-height: 1.6; }
         
-        /* ซ่อนปุ่มและพื้นหลังตอนสั่ง Print จริง */
         @media print {
             body { background: white; padding: 0; margin: 0; }
-            .page-container { width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; }
+            .page-container { width: 100%; min-height: auto; margin: 0; padding: 10mm; box-shadow: none; }
             .no-print { display: none !important; }
         }
 
-        .print-btn { padding:10px 20px; font-size:16px; cursor:pointer; background:#0070C0; color:white; border:none; border-radius:8px; font-family:'Sarabun', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .print-btn:hover { background: #005A9E; }
+        .print-btn { padding:10px 20px; font-size:16px; cursor:pointer; background:#0070C0; color:white; border:none; border-radius:8px; font-family:'Sarabun', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px; }
     </style>
 </head>
 <body>
     
-    <div class="no-print" style="text-align:center; padding-bottom: 20px;">
-        <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button>
+    <div class="no-print" style="text-align:center;">
+        <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์ใบเบิกพัสดุ</button>
     </div>
     
     <div id="print-area"></div>
 
     <script>
         window.onload = function() {
-            // ดึงข้อมูล JSON ที่ถูกส่งมาจากหน้า Production หรือ Warehouse
             const data = JSON.parse(sessionStorage.getItem('printData') || '{}');
             
             if (!data.reqNo) {
@@ -84,29 +84,27 @@
 
             let html = '';
             
-            // วนลูปแยกหน้าเอกสาร ตามจำนวนสินค้า (Product)
             data.products.forEach(prod => {
                 let rowsHtml = '';
                 
-                // วนลูปรายการวัตถุดิบ
                 prod.items.forEach((item, idx) => {
                     rowsHtml += `
                         <tr>
-                            <td>${idx + 1}</td>
-                            <td>${item.code}</td>
-                            <td class="text-left">${item.rmName}</td>
-                            <td class="bold">${item.qty.toLocaleString()}</td>
-                            <td>${item.unit}</td>
-                            <td style="font-size: 11.5px;">${item.batch || ''}</td>
+                            <td style="width:8%">${idx + 1}</td>
+                            <td style="width:15%">${item.code}</td>
+                            <td class="text-left" style="width:35%">${item.rmName}</td>
+                            <td class="bold" style="width:14%">${item.qty.toLocaleString()}</td>
+                            <td style="width:11%">${item.unit}</td>
+                            <td style="width:17%; font-size: 10px;">${item.batch || ''}</td>
                         </tr>`;
                 });
 
-                // บรรทัดสุดท้ายของตาราง: แสดง ProductName ตัวหนา
+                // 🚩 ข้อที่ 3: ProductName แถวสุดท้าย ไม่ต้องใส่เลขลำดับ
                 rowsHtml += `
                     <tr>
-                        <td>${prod.items.length + 1}</td>
                         <td></td>
-                        <td class="text-left bold" style="font-size: 14px; color: #000;">${prod.pName}</td>
+                        <td></td>
+                        <td class="text-left bold" style="font-size: 14px;">${prod.pName}</td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -117,26 +115,31 @@
                     rowsHtml += `<tr><td style="color:transparent;">-</td><td></td><td></td><td></td><td></td><td></td></tr>`;
                 }
 
-                // ตัดชื่อยาวๆ ป้องกันตารางเบี้ยว
+                // ตัดชื่อยาวป้องกันตารางเบี้ยว
                 let reqName = data.reqBy && data.reqBy.length > 20 ? data.reqBy.substring(0,20) + '..' : (data.reqBy || "...................");
                 let issName = data.issueBy && data.issueBy.length > 20 ? data.issueBy.substring(0,20) + '..' : (data.issueBy || "...................");
 
-                // ประกอบร่าง HTML 1 หน้า
+                // 🚩 ข้อที่ 4: แสดงวันที่ดำเนินการจริง dd/mm/yyyy
+                let currentFullDate = data.date || "..../..../....";
+
                 html += `
                 <div class="page-container">
+                    <div class="doc-id-top">FM-Q-RW-001/013</div>
                     
                     <table class="header-table">
                         <tr>
-                            <td width="20%"><h2 style="color:#0070C0; margin:0; font-family: Tahoma, sans-serif;">เสริมสุข</h2></td>
+                            <td width="20%">
+                                <div class="brand-text">เสริมสุข</div>
+                                <div style="font-size:10px; font-weight:bold; color:#555;">SERMSUK PLC.</div>
+                            </td>
                             <td width="55%">
                                 <div class="bold" style="font-size:16px;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
                                 <div class="bold" style="font-size:15px;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
                                 <div style="font-size:13px;">(Stock Transfer Request)</div>
                             </td>
-                            <td width="25%" style="text-align:right; font-size:11px; padding-right:10px;">
-                                <div style="margin-bottom: 4px;">FM-Q-RW-001/013</div>
-                                <div>เลขที่ <span class="bold" style="font-size:13px;">${data.reqNo}</span></div>
-                                <div style="margin-top: 4px;">วันที่จัดทำ <span class="bold">${data.date}</span></div>
+                            <td width="25%" style="text-align:right; font-size:12px; padding-right:10px;">
+                                <div>เลขที่ <span class="bold" style="font-size:14px;">${data.reqNo}</span></div>
+                                <div style="margin-top: 5px;">วันที่จัดทำ <span class="bold">${currentFullDate}</span></div>
                             </td>
                         </tr>
                     </table>
@@ -174,12 +177,12 @@
                             <td class="footer-title">ผู้บันทึกรายการ</td>
                         </tr>
                         <tr>
-                            <td class="footer-box">ลงชื่อ <span class="bold">${reqName}</span><br><br>วันที่ ....../....../......</td>
-                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
-                            <td class="footer-box">ลงชื่อ <span class="bold">${issName}</span><br><br>วันที่ ....../....../......</td>
-                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
-                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
-                            <td class="footer-box">ลงชื่อ .........................<br><br>วันที่ ....../....../......</td>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${reqName}</span><br>วันที่ ${currentFullDate}</td>
+                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${issName}</span><br>วันที่ ${currentFullDate}</td>
+                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
+                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
+                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
                         </tr>
                     </table>
                     <div style="font-size:10px; margin-top:5px; text-align:left;">Rev.00/Eff Date:01/06/2020</div>
@@ -188,9 +191,7 @@
             });
 
             document.getElementById('print-area').innerHTML = html;
-            
-            // หน่วงเวลาให้เบราว์เซอร์จัดหน้ากระดาษเสร็จ แล้วเด้งหน้าต่าง Print
-            setTimeout(() => { window.print(); }, 500);
+            setTimeout(() => { window.print(); }, 600);
         };
     </script>
 </body>
