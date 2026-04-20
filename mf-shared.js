@@ -52,6 +52,9 @@ const MF = (() => {
     /** Fetch product list (cached) */
     getProducts: () => fetchCached('getProducts'),
 
+    /** Fetch Users (cached) */
+    getUsers: () => fetchCached('getUsers'),
+
     /** Fetch full master data (cached) */
     getMasterData: () => fetchCached('getMasterData'),
 
