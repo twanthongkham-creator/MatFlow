@@ -2,45 +2,133 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>พิมพ์ใบเบิก (MatFlow)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+    <title>Print Form - MatFlow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ตั้งค่าหน้ากระดาษ A4 */
         @page { size: A4 portrait; margin: 10mm; }
-        body { font-family: 'Sarabun', 'Prompt', Tahoma, sans-serif; font-size: 13px; color: black; background: white; margin:0; padding:0; }
-        
-        /* จัดการการขึ้นหน้าใหม่ */
-        .page-container { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; padding-bottom: 20mm; }
-        .page-container:last-child { page-break-after: auto; }
-        
-        /* สไตล์ตารางเอกสาร */
+        body { font-family: 'Sarabun', sans-serif; font-size: 13px; color: black; background: #f5f5f5; margin: 0; padding: 0; }
+        .page-container { width: 210mm; min-height: 297mm; padding: 10mm; margin: 10mm auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; page-break-after: always; }
         table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
-        td { border: 1px solid black; padding: 5px; }
-        .border-thick { border: 2px solid black; }
-        
-        /* ปุ่มพิมพ์ซ้ำ (ซ่อนตอนปริ้นจริง) */
-        @media print { .no-print { display: none !important; } }
-        .print-btn { display:block; margin: 20px auto; padding: 10px 30px; font-size: 16px; background: #0070C0; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Prompt'; }
+        td { border: 1px solid black; padding: 6px; vertical-align: middle; }
+        .header-table td { border: 1px solid black; }
+        .info-table { border-top: none; border-bottom: 2px solid black; }
+        .info-table td { border: none; text-align: left; padding: 8px; }
+        .main-table { border-top: none; }
+        .footer-table { border-top: none; font-size: 11px; }
+        .text-left { text-align: left; padding-left: 8px; }
+        .bold { font-weight: bold; }
+        @media print {
+            body { background: white; }
+            .page-container { margin: 0; box-shadow: none; }
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body>
-    
-    <button class="print-btn no-print" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button>
-    
-    <div id="print-content"></div>
+    <div class="no-print" style="text-align:center; padding: 20px;">
+        <button onclick="window.print()" style="padding:10px 20px; font-size:16px; cursor:pointer;">🖨️ คลิกเพื่อพิมพ์เอกสาร</button>
+    </div>
+
+    <div id="print-area"></div>
 
     <script>
         window.onload = function() {
-            // ดึงข้อมูล HTML ที่หน้า Production หรือ Warehouse สร้างเตรียมไว้ให้
-            const content = sessionStorage.getItem('print_html_content');
-            
-            if (content) {
-                document.getElementById('print-content').innerHTML = content;
-                // สั่งเปิดหน้าต่าง Print อัตโนมัติ (หน่วงเวลาเล็กน้อยให้ฟอนต์โหลดเสร็จ)
-                setTimeout(() => { window.print(); }, 500);
-            } else {
-                document.getElementById('print-content').innerHTML = '<h3 style="text-align:center; margin-top:50px;">❌ ไม่พบข้อมูลสำหรับการพิมพ์ กรุณากลับไปกดปุ่มพิมพ์จากหน้าหลักอีกครั้ง</h3>';
+            const data = JSON.parse(sessionStorage.getItem('printData') || '{}');
+            if (!data.reqNo) {
+                document.getElementById('print-area').innerHTML = '<h2 style="text-align:center;">ไม่พบข้อมูลการพิมพ์</h2>';
+                return;
             }
+
+            let html = '';
+            // แยกพิมพ์หน้าละ 1 สินค้า (Product)
+            data.products.forEach(prod => {
+                let rowsHtml = '';
+                // วนลูป BOM (วัตถุดิบ)
+                prod.items.forEach((item, idx) => {
+                    rowsHtml += `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td>${item.code}</td>
+                            <td class="text-left">${item.rmName}</td>
+                            <td class="bold">${item.qty.toLocaleString()}</td>
+                            <td>${item.unit}</td>
+                            <td>${item.batch || ''}</td>
+                        </tr>`;
+                });
+
+                // บรรทัดสุดท้ายของรายละเอียด: แสดง ProductName ตัวหนา
+                rowsHtml += `
+                    <tr>
+                        <td>${prod.items.length + 1}</td>
+                        <td></td>
+                        <td class="text-left bold">${prod.pName}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>`;
+
+                // เติมแถวว่างให้ครบ 12 แถว
+                for (let i = prod.items.length + 2; i <= 12; i++) {
+                    rowsHtml += `<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+                }
+
+                html += `
+                <div class="page-container">
+                    <table class="header-table">
+                        <tr>
+                            <td width="20%"><h2 style="color:#0070C0; margin:0;">เสริมสุข</h2></td>
+                            <td width="60%">
+                                <div class="bold" style="font-size:16px;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
+                                <div class="bold" style="font-size:16px;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
+                                <div>(Stock Transfer Request)</div>
+                            </td>
+                            <td width="20%" style="text-align:left; font-size:11px;">
+                                <div style="text-align:right;">FM-Q-RW-001/013</div>
+                                <div>เลขที่ <span class="bold">${data.reqNo}</span></div>
+                                <div>วันที่จัดทำ <span class="bold">${data.date}</span></div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table class="info-table">
+                        <tr>
+                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้ขอโอน ..............................................</td>
+                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน ..............................................</td>
+                        </tr>
+                        <tr>
+                            <td>วันที่ต้องการพัสดุ ..............................................</td>
+                            <td>เลขที่ใบจ่ายโอนจากระบบ ..............................................</td>
+                        </tr>
+                    </table>
+
+                    <table class="main-table">
+                        <tr class="bold" style="background:#f0f0f0;">
+                            <td width="8%">ลำดับ</td><td width="15%">รหัสพัสดุ</td><td width="37%">รายละเอียด</td>
+                            <td width="15%">จำนวนขอโอน</td><td width="10%">หน่วยนับ</td><td width="15%">หมายเหตุ</td>
+                        </tr>
+                        ${rowsHtml}
+                    </table>
+
+                    <table class="footer-table">
+                        <tr class="bold" style="background:#f0f0f0;">
+                            <td width="16.6%">ผู้ขอโอน</td><td width="16.6%">ผู้อนุมัติขอโอน</td><td width="16.6%">ผู้จ่ายโอน</td>
+                            <td width="16.6%">ผู้อนุมัติจ่ายโอน</td><td width="16.6%">ผู้รับของ</td><td width="16.6%">ผู้บันทึกรายการ</td>
+                        </tr>
+                        <tr style="height:60px; vertical-align:bottom;">
+                            <td class="text-left">ลงชื่อ ${data.reqBy}<br>วันที่ ..../..../....</td>
+                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
+                            <td class="text-left">ลงชื่อ ${data.issueBy}<br>วันที่ ..../..../....</td>
+                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
+                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
+                            <td class="text-left">ลงชื่อ .....................<br>วันที่ ..../..../....</td>
+                        </tr>
+                    </table>
+                    <div style="font-size:10px; margin-top:5px;">Rev.00/Eff Date:01/06/2020</div>
+                </div>`;
+            });
+
+            document.getElementById('print-area').innerHTML = html;
+            setTimeout(() => { window.print(); }, 800);
         };
     </script>
 </body>
