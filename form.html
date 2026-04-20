@@ -112,9 +112,20 @@
                     rowsHtml += `<tr><td style="color:transparent;">-</td><td></td><td></td><td></td><td></td><td></td></tr>`;
                 }
 
-                let reqName = data.reqBy || "...................";
-                let issName = data.issueBy || "...................";
+                // 🚩 จัดการตัวแปรชื่อผู้เซ็น และวันที่ (รองรับกรณีข้อมูลว่างเปล่า)
+                let reqName = (data.reqBy && data.reqBy !== "....................") ? data.reqBy : ".........................";
+                let issName = (data.issueBy && data.issueBy !== "....................") ? data.issueBy : ".........................";
+                let rcvName = (data.receiveBy && data.receiveBy !== "....................") ? data.receiveBy : ".........................";
+                
+                // วันที่ดำเนินการ (dd/MM/yyyy)
                 let currentFullDate = data.date || "..../..../....";
+                
+                // 🚩 เงื่อนไขวันที่กดรับ: ถ้ามีคนรับแล้ว ให้ใส่วันที่ / ถ้ายังไม่รับ ให้เป็นจุดไข่ปลา
+                let rcvDate = (rcvName !== ".........................") ? currentFullDate : "..../..../....";
+                
+                // 🚩 ผู้บันทึกรายการ = ผู้จ่ายโอน และใช้วันที่เดียวกับวันที่กดรับของ
+                let recorderName = issName;
+                let recorderDate = rcvDate;
 
                 html += `
                 <div class="page-container">
@@ -163,23 +174,23 @@
 
                     <table class="footer-table">
                         <tr>
-                            <td class="footer-title">ผู้ขอโอน</td>
-                            <td class="footer-title">ผู้อนุมัติขอโอน</td>
-                            <td class="footer-title">ผู้จ่ายโอน</td>
-                            <td class="footer-title">ผู้อนุมัติจ่ายโอน</td>
-                            <td class="footer-title">ผู้รับของ</td>
-                            <td class="footer-title">ผู้บันทึกรายการ</td>
+                            <td class="footer-title" width="16.6%">ผู้ขอโอน</td>
+                            <td class="footer-title" width="16.6%">ผู้อนุมัติขอโอน</td>
+                            <td class="footer-title" width="16.6%">ผู้จ่ายโอน</td>
+                            <td class="footer-title" width="16.6%">ผู้อนุมัติจ่ายโอน</td>
+                            <td class="footer-title" width="16.6%">ผู้รับของ</td>
+                            <td class="footer-title" width="16.6%">ผู้บันทึกรายการ</td>
                         </tr>
                         <tr>
                             <td class="footer-box">ลงชื่อ <span class="bold">${reqName}</span><br>วันที่ ${currentFullDate}</td>
                             <td class="footer-box">ลงชื่อ <span class="bold">${reqName}</span><br>วันที่ ${currentFullDate}</td>
                             <td class="footer-box">ลงชื่อ <span class="bold">${issName}</span><br>วันที่ ${currentFullDate}</td>
                             <td class="footer-box">ลงชื่อ <span class="bold">${issName}</span><br>วันที่ ${currentFullDate}</td>
-                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
-                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${rcvName}</span><br>วันที่ ${rcvDate}</td>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${recorderName}</span><br>วันที่ ${recorderDate}</td>
                         </tr>
                     </table>
-                    <div style="font-size:11px; margin-top:8px; text-align:left; font-weight:bold;">Rev.00/Eff Date:01/06/2020</div>
+                    <div style="font-size:11px; margin-top:8px; text-align:left; font-weight:bold;">Rev.00/Eff Date:01/06/2020</div> 
                 </div>`;
             });
 
