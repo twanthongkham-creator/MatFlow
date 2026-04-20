@@ -41,7 +41,8 @@ const MF = (() => {
 
   /* ── Invalidate write-affected caches ── */
   function invalidateInventory() {
-    ['getMonitorData', 'getDashboardData', 'getRequests'].forEach(k => cDel(k));
+    // 🚩 ล้างแคช Transaction ด้วยเมื่อมีการจ่ายของ
+    ['getMonitorData', 'getDashboardData', 'getRequests', 'getTransactions'].forEach(k => cDel(k));
   }
   function invalidateMaster() {
     ['getMasterData', 'getProducts', 'getDashboardData'].forEach(k => cDel(k));
@@ -67,6 +68,9 @@ const MF = (() => {
     /** Fetch MATCALL Requests (cached) */
     getRequests: () => fetchCached('getRequests'),
 
+    /** 🚩 Fetch Transactions history (cached) - ใช้สำหรับดู Batch จริงตอนพิมพ์ใบเบิก */
+    getTransactions: () => fetchCached('getTransactions'),
+
     /** Evaluate multi production — always fresh, no cache */
     evaluateMulti: async (items) => {
       const url = `${API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(items))}`;
@@ -83,7 +87,7 @@ const MF = (() => {
       return j;
     },
 
-    /** 🚩 Cancel Request — invalidates request cache */
+    /** Cancel Request — invalidates request cache */
     cancelRequest: async (reqNo, reason, operator, pin) => {
       const url = `${API}?action=cancelRequest&reqNo=${encodeURIComponent(reqNo)}&reason=${encodeURIComponent(reason)}&operator=${encodeURIComponent(operator)}&pin=${encodeURIComponent(pin)}`;
       const r = await fetch(url, { redirect: 'follow' });
