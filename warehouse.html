@@ -3,140 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MatFlow — คลังสินค้า (Wa// 🚩 ฟังก์ชันพิมพ์แบบฟอร์ม (ส่งข้อมูลไปพิมพ์ที่ form.html)
-function printDocument(reqNo) {
-  const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
-  if(reqItems.length === 0) return;
-  const firstReq = reqItems[0];
-  const dateStr = new Date(firstReq.timestamp).toLocaleDateString('en-GB');
-
-  let reqByText = firstReq.reqBy || "...............................";
-  let issueByText = firstReq.status === 'Completed' ? firstReq.issueBy : "...............................";
-  let isCompleted = firstReq.status === 'Completed';
-
-  let pagesHtml = '';
-
-  reqItems.forEach((item, index) => {
-    const bom = _bomMap[item.productTarget] || [];
-    let tableRows = '';
-    let rowCount = 0;
-
-    bom.forEach(rm => {
-      rowCount++;
-      const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
-      let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
-
-      // 🚩 ดึงข้อมูล Batch 
-      let batchText = '';
-      if (isCompleted) {
-         let txMatches = (typeof _transactions !== 'undefined' ? _transactions : []).filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
-         if (txMatches.length > 0) batchText = [...new Set(txMatches.map(t => t.batch))].join(', ');
-         else batchText = '-';
-      } else {
-         if (typeof document !== 'undefined') {
-             let selects = document.querySelectorAll('.b-select');
-             for (let i = 0; i < selects.length; i++) {
-                 let decCode = decodeURIComponent(selects[i].getAttribute('data-code') || '');
-                 let decPName = decodeURIComponent(selects[i].getAttribute('data-pname') || '');
-                 if (decCode === String(rm.code) && decPName === String(item.productTarget)) {
-                     batchText = selects[i].value === 'FIFO' ? 'Auto FIFO' : selects[i].value;
-                     break;
-                 }
-             }
-         }
-         // หน้าผลิตจะเป็นค่าว่าง ส่วนหน้าโกดังถ้าไม่เลือกจะเป็น Auto FIFO
-         if (!batchText && window.location.pathname.includes('warehouse')) batchText = 'Auto FIFO'; 
-      }
-
-      tableRows += `<tr>
-        <td style='border: 1px solid black;'>${rowCount}</td>
-        <td style='border: 1px solid black;'>${rm.code}</td>
-        <td style='border: 1px solid black; text-align: left; padding-left: 5px;'>${rm.rmName}</td>
-        <td style='border: 1px solid black; font-weight: bold;'>${reqQty.toLocaleString()}</td>
-        <td style='border: 1px solid black;'>${rm.sysUnit}</td>
-        <td style='border: 1px solid black;'>${batchText}</td>
-      </tr>`;
-    });
-
-    if (rowCount < 12) {
-        rowCount++;
-        tableRows += `<tr>
-          <td style='border: 1px solid black; color: white;'>-</td>
-          <td style='border: 1px solid black;'></td>
-          <td style='border: 1px solid black; text-align: left; padding-left: 5px; font-weight: bold; color: #000;'>${item.productTarget}</td>
-          <td style='border: 1px solid black;'></td>
-          <td style='border: 1px solid black;'></td>
-          <td style='border: 1px solid black;'></td>
-        </tr>`;
-    }
-
-    for(let i = rowCount + 1; i <= 12; i++) {
-      tableRows += `<tr>
-        <td style='border: 1px solid black; color: white;'>-</td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-      </tr>`;
-    }
-
-    // ห่อด้วย Page Container และโครงสร้างหัว/ท้ายกระดาษ
-    pagesHtml += `
-      <div class="page-container">
-          <table class="border-thick">
-              <tr>
-                  <td width="20%" style="vertical-align: middle;"><h2 style="color: #0070C0; margin: 0; font-family: Tahoma;">เสริมสุข</h2></td>
-                  <td width="60%" style="line-height: 1.4;">
-                      <div style="font-size: 16px; font-weight: bold;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
-                      <div style="font-size: 16px; font-weight: bold;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
-                      <div style="font-size: 14px;">(Stock Transfer Request)</div>
-                  </td>
-                  <td width="20%" style="text-align: left; vertical-align: top; font-size: 12px; line-height: 1.4;">
-                      <div style="text-align: right; font-size: 10px; margin-bottom: 5px;">FM-Q-RW-001/013</div>
-                      <div>เลขที่ <b>${reqNo}</b></div>
-                      <div style="margin-top: 5px;">วันที่จัดทำ <b>${dateStr}</b></div>
-                  </td>
-              </tr>
-          </table>
-          <table class="border-thick" style="border-top: none; border-bottom: 2px solid black; padding: 8px;">
-              <tr>
-                  <td width="50%" style="border: none; text-align: left;">โรงงาน/ที่เก็บสินค้าผู้ขอโอน ..............................................</td>
-                  <td width="50%" style="border: none; text-align: left;">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน ..............................................</td>
-              </tr>
-              <tr>
-                  <td style="border: none; text-align: left;">วันที่ต้องการพัสดุ ..............................................</td>
-                  <td style="border: none; text-align: left;">เลขที่ใบจ่ายโอนจากระบบ ..............................................</td>
-              </tr>
-          </table>
-          <table class="border-thick" style="border-top: none;">
-              <tr style="font-weight: bold; background-color: #f8f9fa;">
-                  <td width="8%">ลำดับ</td><td width="15%">รหัสพัสดุ</td><td width="37%">รายละเอียด</td><td width="15%">จำนวนขอโอน</td><td width="10%">หน่วยนับ</td><td width="15%">หมายเหตุ</td>
-              </tr>
-              ${tableRows}
-          </table>
-          <table class="border-thick" style="border-top: none; font-size: 12px;">
-              <tr style="font-weight: bold; background-color: #f8f9fa;">
-                  <td width="16.6%">ผู้ขอโอน</td><td width="16.6%">ผู้อนุมัติขอโอน</td><td width="16.6%">ผู้จ่ายโอน</td><td width="16.6%">ผู้อนุมัติจ่ายโอน</td><td width="16.6%">ผู้รับของ</td><td width="16.6%">ผู้บันทึกรายการ</td>
-              </tr>
-              <tr style="height: 50px; vertical-align: bottom;">
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ${reqByText}<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ${issueByText}<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-              </tr>
-          </table>
-          <div style="font-size: 10px; margin-top: 5px; text-align: left;">Rev.00/Eff Date:01/06/2020</div>
-      </div>
-    `;
-  });
-
-  // 🚩 ส่งข้อมูลข้ามไฟล์ และเปิดแท็บ form.html
-  sessionStorage.setItem('print_html_content', pagesHtml);
-  window.open('form.html', '_blank', 'width=900,height=800');
-}rehouse)</title>
+<title>MatFlow — คลังสินค้า (Warehouse)</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
 <style>
@@ -191,6 +58,11 @@ body { overflow-x: hidden; }
 .btn-print { font-size:11px; font-weight:700; color:#0284c7; background:transparent; border:1px solid #7dd3fc; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; }
 .btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
 .btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
+
+/* Styles สำหรับแจ้งเตือน (เผื่อในกรณีที่ไม่ได้อัปเดตไฟล์ mf-theme.css) */
+.nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: 800; color: #fff; margin-left: 8px; font-family: 'IBM Plex Mono', monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-1px); }
+.badge-wh { background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid rgba(255,255,255,0.3); }
+.badge-pd { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 1.5px solid rgba(255,255,255,0.3); }
 </style>
 </head>
 <body>
@@ -202,20 +74,22 @@ body { overflow-x: hidden; }
 <header class="topbar">
   <div class="topbar-inner">
     <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
+    
     <nav class="topnav">
       <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
-      <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-      <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+      <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="nb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
+      <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ <span id="nb-wh" class="nav-badge badge-wh" style="display:none">0</span></a>
       <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
       <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
       <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
     </nav>
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
+  
   <div id="navDrawer" class="nav-drawer">
     <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="mb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
+    <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ <span id="mb-wh" class="nav-badge badge-wh" style="display:none">0</span></a>
     <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
     <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
     <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
@@ -251,7 +125,7 @@ body { overflow-x: hidden; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=2"></script>
+<script src="mf-shared.js?v=3"></script>
 <script>
 let _bomMap = {}; let _stockMap = {}; let _batchMap = {}; let _pendingReqs = [];
 let _activeReq = null;
@@ -435,7 +309,6 @@ function runCalculation() {
         (_batchMap[rm.code] || []).forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | BBF: ${b.exp}</option>`);
         if((_batchMap[rm.code] || []).length === 0) opts = `<option value="">ไม่มีสต๊อกในคลัง</option>`;
 
-        // 🚩 ซ่อนข้อมูลลงใน Data-Attribute แบบเข้ารหัส ป้องกันปัญหาเว้นวรรค
         let safeCode = encodeURIComponent(String(rm.code));
         let safePName = encodeURIComponent(String(item.productTarget));
 
@@ -521,13 +394,13 @@ function printDocument(reqNo) {
   const isWarehouse = window.location.pathname.includes('warehouse');
   const isCompleted = first.status === 'Completed';
 
-  // เตรียมโครงสร้างข้อมูลสำหรับส่งไปพิมพ์
+  // 🚩 แก้ไขบรรทัดที่ทำให้เกิด Syntax Error (toLocaleDateStringมม)
   let printData = {
     reqNo: reqNo,
-    date: new Date(first.timestamp).toLocaleDateString('en-GB'),
+    date: new Date(first.timestamp).toLocaleDateString('en-GB'), 
     reqBy: first.reqBy || "....................",
     issueBy: isCompleted ? first.issueBy : "....................",
-    products: [] // แยกรายการตามสินค้า (ProductName)
+    products: []
   };
 
   reqItems.forEach(item => {
@@ -543,18 +416,15 @@ function printDocument(reqNo) {
 
       let batchVal = '';
       if (isWarehouse && !isCompleted) {
-          // คลังสินค้ากำลังเลือก (หน้า Preparation)
           const sel = Array.from(document.querySelectorAll('.b-select')).find(s => 
             decodeURIComponent(s.getAttribute('data-code')) === String(rm.code) && 
             decodeURIComponent(s.getAttribute('data-pname')) === String(item.productTarget)
           );
           batchVal = sel ? (sel.value === 'FIFO' ? 'Auto FIFO' : sel.value) : 'Auto FIFO';
       } else if (isCompleted) {
-          // จ่ายสำเร็จแล้ว (ดึงจากประวัติ Transactions)
           const txs = _transactions.filter(t => t.reqNo === reqNo && t.code === rm.code);
           batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
       }
-      // ถ้าจากหน้า Production และยังไม่ Completed ให้หมายเหตุเป็นค่าว่าง ('') ตามโจทย์
 
       productEntry.items.push({
         code: rm.code,
@@ -568,10 +438,10 @@ function printDocument(reqNo) {
     printData.products.push(productEntry);
   });
 
-  // ส่ง Data ไปเก็บใน Session แล้วเปิดฟอร์ม
   sessionStorage.setItem('printData', JSON.stringify(printData));
   window.open('form.html', '_blank');
 }
+
 async function executeIssueDirectly() {
   const op = document.getElementById('opName').value.trim();
   const pin = document.getElementById('opPin').value.trim();
@@ -580,7 +450,6 @@ async function executeIssueDirectly() {
   const selects = document.querySelectorAll('.b-select');
   let payload = [];
   
-  // 🚩 ถอดรหัสการส่งข้อมูลให้ตรงเป๊ะ
   _activeReq.items.forEach(item => {
       const bom = _bomMap[item.productTarget] || [];
       bom.forEach(rm => {
@@ -601,7 +470,10 @@ async function executeIssueDirectly() {
     if(j.status === 'success') {
       alert(`✅ ตัดสต๊อกและปิดใบเบิกสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
       _activeReq = null;
-      MF.bust('getRequests'); await loadMasterData(); 
+      MF.bust('getRequests'); 
+      await loadMasterData(); 
+      // 🚩 อัปเดต Nav Badge หลังจากจัดจ่ายสำเร็จ
+      if (typeof MF.updateNavBadges === 'function') MF.updateNavBadges();
     } else { 
       alert('เกิดข้อผิดพลาด: ' + j.message); 
     }
