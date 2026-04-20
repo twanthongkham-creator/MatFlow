@@ -119,14 +119,14 @@ body { overflow-x: hidden; }
         </button>
       </div>
 
-      <div style="border-top:1px dashed #cbd5e1; padding-top:20px;">
-        <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:block;">รหัสพนักงานฝ่ายผลิต (ผู้เบิก)</label>
-        <select id="inpOp" class="op-input" onchange="checkSubmitBtn()">
-          <option value="">-- เลือกพนักงานเบิก --</option>
-          <option value="นาย A">นาย A</option>
-          <option value="นาย B">นาย B</option>
-          <option value="นาย C">นาย C</option>
-        </select>
+     <div style="border-top:1px dashed #cbd5e1; padding-top:20px;">
+        <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:block;">ยืนยันตัวตน (ผู้ทำรายการ)</label>
+        <div style="display:flex; gap:10px; margin-bottom:14px;">
+          <select id="inpOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkSubmitBtn()">
+            <option value="">-- กำลังโหลดรายชื่อ... --</option>
+          </select>
+          <input type="password" id="inpPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkSubmitBtn()">
+        </div>
         
         <button id="btnSubmitReq" class="btn btn-green w-100" onclick="submitRequest()" style="padding:12px; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;" disabled>
           <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
