@@ -83,6 +83,15 @@ const MF = (() => {
       return j;
     },
 
+    /** 🚩 Cancel Request — invalidates request cache */
+    cancelRequest: async (reqNo, reason, operator, pin) => {
+      const url = `${API}?action=cancelRequest&reqNo=${encodeURIComponent(reqNo)}&reason=${encodeURIComponent(reason)}&operator=${encodeURIComponent(operator)}&pin=${encodeURIComponent(pin)}`;
+      const r = await fetch(url, { redirect: 'follow' });
+      const j = await r.json();
+      if (j.status === 'success') cDel('getRequests');
+      return j;
+    },
+
     /** Receive items — invalidates inventory cache */
     receive: async (items, operator) => {
       const url = `${API}?action=receive&operator=${encodeURIComponent(operator)}&items=${encodeURIComponent(JSON.stringify(items))}`;
@@ -92,7 +101,7 @@ const MF = (() => {
       return j;
     },
 
-/** Issue stock — invalidates inventory cache & sends reqNo if available */
+    /** Issue stock — invalidates inventory cache & sends reqNo if available */
     issueMulti: async (items, operator, pin, reqNo) => {
       // ส่งเฉพาะ field ที่ Code.gs ต้องการ
       const payload = items.map(i => ({
@@ -104,7 +113,7 @@ const MF = (() => {
         productTarget: i.productTarget || 'Issue',
       }));
       
-      // 🚩 เพิ่ม pin เข้าไปใน URL สำหรับส่งไปให้หลังบ้านตรวจสอบ
+      // เพิ่ม pin เข้าไปใน URL สำหรับส่งไปให้หลังบ้านตรวจสอบ
       let url = `${API}?action=issueMulti&operator=${encodeURIComponent(operator)}&pin=${encodeURIComponent(pin)}&items=${encodeURIComponent(JSON.stringify(payload))}`;
       
       // ถ้ามีการอ้างอิงใบเบิก (จากหน้าโกดัง) ให้แนบ reqNo ส่งไปอัปเดตสถานะด้วย
