@@ -195,7 +195,7 @@ async function loadMasterData() {
     
     let opHtml = '<option value="">-- เลือกพนักงาน --</option>';
     (jusers.data || []).forEach(u => {
-      if(u.dept === 'Production' || u.dept === 'Planning') {
+      if(u.dept === 'Production') {
         opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`;
       }
     });
