@@ -139,7 +139,7 @@ async function loadMasterData() {
     const [jmaster, jm, jreq, jusers] = await Promise.all([MF.getMasterData(), MF.getMonitorData(), MF.getRequests(), MF.getUsers()]);
     
     // กรองพนักงานคลัง
-    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
+    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse');
 
     _stockMap = {}; _batchMap = {};
     (jm.data || []).forEach(row => {
