@@ -47,17 +47,26 @@ body { overflow-x: hidden; }
 .td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px; }
 .empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
 .empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
+
+/* 🚩 Styles สำหรับปุ่มและ Badges สถานะต่างๆ */
 .status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .s-pending { background:rgba(217,119,6,.12); color:#d97706; border:1px solid rgba(217,119,6,.25); }
+.s-issued { background:rgba(13,148,136,.12); color:#0f766e; border:1px solid rgba(13,148,136,.25); }
 .s-pass { background:rgba(5,150,105,.12); color:#059669; border:1px solid rgba(5,150,105,.25); }
 .s-cancel { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
+
 .btn-cancel { font-size:11px; font-weight:700; color:#dc2626; background:transparent; border:1px solid #fca5a5; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; }
 .btn-cancel:hover { background:#fef2f2; border-color:#dc2626; }
 .btn-print { font-size:11px; font-weight:700; color:#0284c7; background:transparent; border:1px solid #7dd3fc; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; margin-left:8px; }
 .btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
 .btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
 
-/* 🚩 Styles สำหรับแจ้งเตือน (เผื่อในกรณีที่ไม่ได้อัปเดตไฟล์ mf-theme.css) */
+/* 🚩 สไตล์ปุ่มกดรับของใหม่ */
+.btn-rcv { font-size:11px; font-weight:700; color:#059669; background:transparent; border:1px solid #6ee7b7; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; }
+.btn-rcv:hover { background:#ecfdf5; border-color:#059669; }
+.btn-rcv svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
+
+/* Styles สำหรับแจ้งเตือน */
 .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: 800; color: #fff; margin-left: 8px; font-family: 'IBM Plex Mono', monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-1px); }
 .badge-wh { background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid rgba(255,255,255,0.3); }
 .badge-pd { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 1.5px solid rgba(255,255,255,0.3); }
@@ -70,7 +79,6 @@ body { overflow-x: hidden; }
 <header class="topbar">
   <div class="topbar-inner">
     <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
-    
     <nav class="topnav">
       <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
       <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="nb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
@@ -81,7 +89,6 @@ body { overflow-x: hidden; }
     </nav>
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-  
   <div id="navDrawer" class="nav-drawer">
     <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
     <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="mb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
@@ -172,8 +179,37 @@ body { overflow-x: hidden; }
   </div>
 </div>
 
+<div class="modal fade mf-modal" id="receiveModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-hd" style="background:linear-gradient(135deg,#0d9488,#0f766e);">
+        <div class="modal-hd-title" style="color:#fff;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;margin-right:6px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            ตรวจรับวัตถุดิบเข้าไลน์ผลิต
+        </div>
+        <button class="btn-xw" data-bs-dismiss="modal" style="color:#fff; border-color:rgba(255,255,255,.3);">×</button>
+      </div>
+      <div class="modal-bd">
+        <div style="font-size:13px; color:var(--txt); margin-bottom:16px; text-align:center;">
+          ตรวจสอบความถูกต้อง และยืนยันการรับของเลขที่<br><strong id="rcvReqNoDisplay" style="color:var(--b3); font-family:monospace; font-size:16px;">---</strong>
+        </div>
+        <input type="hidden" id="rcvReqNoVal">
+        <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้รับของ)</label>
+        <div style="display:flex; gap:10px;">
+          <select id="rcvOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkRcvBtn()"></select>
+          <input type="password" id="rcvPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkRcvBtn()">
+        </div>
+      </div>
+      <div class="modal-ft">
+        <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:10px 20px;">ปิด</button>
+        <button class="btn btn-green" id="btnRealRcv" onclick="executeReceive()" style="padding:10px 24px; font-size:14px; background:#0d9488; color:#fff; border:none; border-radius:8px; font-weight:700;" disabled>ยืนยันรับของ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=3"></script>
+<script src="mf-shared.js?v=4"></script>
 <script>
 let _productList = []; 
 let _bomMap = {};      
@@ -182,9 +218,11 @@ let _allHistory = [];
 let _transactions = [];
 let planCounter = 0;
 let cancelMdl; 
+let receiveMdl; // 🚩 ตัวแปร Modal รับของ
 
 window.onload = () => { 
   cancelMdl = new bootstrap.Modal(document.getElementById('cancelModal'));
+  receiveMdl = new bootstrap.Modal(document.getElementById('receiveModal')); // 🚩 ผูก Modal
   loadMasterData(); 
 };
 
@@ -215,6 +253,7 @@ async function loadMasterData() {
     });
     document.getElementById('inpOp').innerHTML = opHtml;
     document.getElementById('cancelOp').innerHTML = opHtml; 
+    document.getElementById('rcvOp').innerHTML = opHtml; // 🚩 ใส่ Dropdown เข้า Modal รับของ
 
     _allHistory = jreq.data || [];
     
@@ -237,6 +276,13 @@ function checkCancelBtn() {
   const op = document.getElementById('cancelOp').value;
   const pin = document.getElementById('cancelPin').value;
   document.getElementById('btnRealCancel').disabled = (!reason || !op || pin.length < 4);
+}
+
+// 🚩 ตรวจสอบปุ่มกดยืนยันรับของ
+function checkRcvBtn() {
+  const op = document.getElementById('rcvOp').value;
+  const pin = document.getElementById('rcvPin').value;
+  document.getElementById('btnRealRcv').disabled = (!op || pin.length < 4);
 }
 
 function addPlanItem() {
@@ -322,7 +368,8 @@ function renderHistory() {
   }
   let grouped = {};
   _allHistory.forEach(r => {
-    if(!grouped[r.reqNo]) grouped[r.reqNo] = { reqNo: r.reqNo, timestamp: r.timestamp, reqBy: r.reqBy, status: r.status, issueDoc: r.issueDoc, issueBy: r.issueBy, items: [] };
+    // 🚩 เก็บตัวแปร receiveBy ลง Group ด้วย
+    if(!grouped[r.reqNo]) grouped[r.reqNo] = { reqNo: r.reqNo, timestamp: r.timestamp, reqBy: r.reqBy, status: r.status, issueDoc: r.issueDoc, issueBy: r.issueBy, receiveBy: r.receiveBy, items: [] };
     grouped[r.reqNo].items.push(r);
   });
   let html = '';
@@ -334,24 +381,34 @@ function renderHistory() {
     let badgeHtml = '';
     let actionHtml = '';
 
+    // 🚩 ปรับ Logic การแสดงปุ่มและ Badge ให้รองรับสถานะ Issued (รอรับของ)
     if (g.status === 'Pending') {
-      badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจ่ายของ</div>`;
-      actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ยกเลิก</button>
-                    <button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
+      badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจัดของ</div>`;
+      actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')">ยกเลิก</button>
+                    <button class="btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
+    } else if (g.status === 'Issued') {
+      badgeHtml = `<div class="status-badge s-issued"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>รอรับของเข้าไลน์</div>`;
+      actionHtml = `<button class="btn-rcv" onclick="showReceiveModal('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ตรวจรับของ</button>
+                    <button class="btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
     } else if (g.status === 'Cancelled') {
-      badgeHtml = `<div class="status-badge s-cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>ยกเลิกแล้ว</div>`;
+      badgeHtml = `<div class="status-badge s-cancel">ยกเลิกแล้ว</div>`;
       itemsHtml += `<div style="margin-top:8px; font-size:11px; color:#dc2626; font-weight:600;">เหตุผล: ${g.issueDoc} (โดย ${g.issueBy})</div>`; 
     } else {
       badgeHtml = `<div class="status-badge s-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="20 6 9 17 4 12"/></svg>รับของแล้ว</div>`;
-      actionHtml = `<button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
+      actionHtml = `<button class="btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
     }
+
+    // 🚩 แสดงชื่อผู้เกี่ยวข้องใน History Card
+    let userTags = `ผู้เบิก: ${g.reqBy}`;
+    if (g.status === 'Issued' || g.status === 'Completed') userTags += ` <span style="color:var(--b2)">• จ่ายโดย: ${g.issueBy}</span>`;
+    if (g.status === 'Completed' && g.receiveBy) userTags += ` <span style="color:#059669">• รับโดย: ${g.receiveBy}</span>`;
 
     html += `
       <div class="sim-card" style="padding:16px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
           <div>
             <div style="font-size:11px; color:var(--txt3); font-family:'IBM Plex Mono',monospace; font-weight:600; margin-bottom:2px;">${g.reqNo} &nbsp;|&nbsp; ${dt}</div>
-            <div style="font-size:11px; color:var(--txt3); font-weight:600;">ผู้เบิก: ${g.reqBy} ${g.status==='Completed' ? `<span style="color:var(--b2)">• จ่ายโดย: ${g.issueBy}</span>` : ''}</div>
+            <div style="font-size:11px; color:var(--txt3); font-weight:600;">${userTags}</div>
             <div style="margin-top:6px; display:flex; gap:6px;">${actionHtml}</div>
           </div>
           ${badgeHtml} 
@@ -368,16 +425,16 @@ function printDocument(reqNo) {
   if(reqItems.length === 0) return;
   
   const first = reqItems[0];
-  const isWarehouse = window.location.pathname.includes('warehouse');
   const isCompleted = first.status === 'Completed';
 
-  // เตรียมโครงสร้างข้อมูลสำหรับส่งไปพิมพ์
+  // 🚩 ส่งชื่อ receiveBy ลงใน Session สำหรับพิมพ์ที่ form.html
   let printData = {
     reqNo: reqNo,
     date: new Date(first.timestamp).toLocaleDateString('en-GB'),
     reqBy: first.reqBy || "....................",
-    issueBy: isCompleted ? first.issueBy : "....................",
-    products: [] // แยกรายการตามสินค้า (ProductName)
+    issueBy: (isCompleted || first.status === 'Issued') ? first.issueBy : "....................",
+    receiveBy: first.receiveBy || "....................", 
+    products: []
   };
 
   reqItems.forEach(item => {
@@ -392,15 +449,7 @@ function printDocument(reqNo) {
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
       let batchVal = '';
-      if (isWarehouse && !isCompleted) {
-          // คลังสินค้ากำลังเลือก (หน้า Preparation)
-          const sel = Array.from(document.querySelectorAll('.b-select')).find(s => 
-            decodeURIComponent(s.getAttribute('data-code')) === String(rm.code) && 
-            decodeURIComponent(s.getAttribute('data-pname')) === String(item.productTarget)
-          );
-          batchVal = sel ? (sel.value === 'FIFO' ? 'Auto FIFO' : sel.value) : 'Auto FIFO';
-      } else if (isCompleted) {
-          // จ่ายสำเร็จแล้ว (ดึงจากประวัติ Transactions)
+      if (isCompleted || first.status === 'Issued') {
           const txs = _transactions.filter(t => t.reqNo === reqNo && t.code === rm.code);
           batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
       }
@@ -417,7 +466,6 @@ function printDocument(reqNo) {
     printData.products.push(productEntry);
   });
 
-  // ส่ง Data ไปเก็บใน Session แล้วเปิดฟอร์ม
   sessionStorage.setItem('printData', JSON.stringify(printData));
   window.open('form.html', '_blank');
 }
@@ -438,9 +486,6 @@ async function submitRequest() {
       _plans = []; document.getElementById('planContainer').innerHTML = ''; 
       document.getElementById('inpOp').value = ''; document.getElementById('inpPin').value = '';
       addPlanItem(); MF.bust('getRequests'); await loadMasterData();
-      
-      // 🚩 อัปเดต Nav Badge หลังจากยืนยันเบิกสำเร็จ
-      if (typeof MF.updateNavBadges === 'function') MF.updateNavBadges();
     } else { alert(res.message); }
   } catch(e) { alert('เกิดข้อผิดพลาดในการส่งข้อมูล'); }
   mfHide();
@@ -469,13 +514,40 @@ async function executeCancel() {
       cancelMdl.hide();
       alert('✅ ยกเลิกใบเบิกเรียบร้อยแล้ว');
       MF.bust('getRequests'); await loadMasterData();
-      
-      // 🚩 อัปเดต Nav Badge หลังจากยกเลิกเบิกสำเร็จ
-      if (typeof MF.updateNavBadges === 'function') MF.updateNavBadges();
     } else {
       alert(res.message);
     }
   } catch (e) { alert('เกิดข้อผิดพลาดในการยกเลิก'); }
+  mfHide();
+}
+
+// 🚩 ฟังก์ชันเปิด Modal รับของ 
+function showReceiveModal(reqNo) {
+  document.getElementById('rcvReqNoDisplay').textContent = reqNo;
+  document.getElementById('rcvReqNoVal').value = reqNo;
+  document.getElementById('rcvOp').value = '';
+  document.getElementById('rcvPin').value = '';
+  checkRcvBtn();
+  receiveMdl.show();
+}
+
+// 🚩 ฟังก์ชันสั่งยืนยันรับของ
+async function executeReceive() {
+  const reqNo = document.getElementById('rcvReqNoVal').value;
+  const op = document.getElementById('rcvOp').value;
+  const pin = document.getElementById('rcvPin').value;
+  
+  mfShow('กำลังยืนยันรับวัตถุดิบเข้าไลน์...');
+  try {
+    const res = await MF.confirmReceive(reqNo, op, pin);
+    if(res.status === 'success') {
+      receiveMdl.hide();
+      alert('✅ รับของเข้าไลน์ผลิตสำเร็จ!');
+      MF.bust('getRequests'); await loadMasterData();
+    } else { 
+      alert(res.message); 
+    }
+  } catch (e) { alert('เกิดข้อผิดพลาดในการเชื่อมต่อ'); }
   mfHide();
 }
 </script>
