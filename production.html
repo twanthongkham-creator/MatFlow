@@ -348,139 +348,64 @@ function renderHistory() {
   document.getElementById('rightPanelContent').innerHTML = html;
 }
 
-// 🚩 ฟังก์ชันพิมพ์แบบฟอร์ม (ส่งข้อมูลไปพิมพ์ที่ form.html)
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
-  const firstReq = reqItems[0];
-  const dateStr = new Date(firstReq.timestamp).toLocaleDateString('en-GB');
+  
+  const first = reqItems[0];
+  const isWarehouse = window.location.pathname.includes('warehouse');
+  const isCompleted = first.status === 'Completed';
 
-  let reqByText = firstReq.reqBy || "...............................";
-  let issueByText = firstReq.status === 'Completed' ? firstReq.issueBy : "...............................";
-  let isCompleted = firstReq.status === 'Completed';
+  // เตรียมโครงสร้างข้อมูลสำหรับส่งไปพิมพ์
+  let printData = {
+    reqNo: reqNo,
+    date: new Date(first.timestamp).toLocaleDateString('en-GB'),
+    reqBy: first.reqBy || "....................",
+    issueBy: isCompleted ? first.issueBy : "....................",
+    products: [] // แยกรายการตามสินค้า (ProductName)
+  };
 
-  let pagesHtml = '';
+  reqItems.forEach(item => {
+    let productEntry = {
+      pName: item.productTarget,
+      items: []
+    };
 
-  reqItems.forEach((item, index) => {
     const bom = _bomMap[item.productTarget] || [];
-    let tableRows = '';
-    let rowCount = 0;
-
     bom.forEach(rm => {
-      rowCount++;
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
-      // 🚩 ดึงข้อมูล Batch 
-      let batchText = '';
-      if (isCompleted) {
-         let txMatches = (typeof _transactions !== 'undefined' ? _transactions : []).filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
-         if (txMatches.length > 0) batchText = [...new Set(txMatches.map(t => t.batch))].join(', ');
-         else batchText = '-';
-      } else {
-         if (typeof document !== 'undefined') {
-             let selects = document.querySelectorAll('.b-select');
-             for (let i = 0; i < selects.length; i++) {
-                 let decCode = decodeURIComponent(selects[i].getAttribute('data-code') || '');
-                 let decPName = decodeURIComponent(selects[i].getAttribute('data-pname') || '');
-                 if (decCode === String(rm.code) && decPName === String(item.productTarget)) {
-                     batchText = selects[i].value === 'FIFO' ? 'Auto FIFO' : selects[i].value;
-                     break;
-                 }
-             }
-         }
-         // หน้าผลิตจะเป็นค่าว่าง ส่วนหน้าโกดังถ้าไม่เลือกจะเป็น Auto FIFO
-         if (!batchText && window.location.pathname.includes('warehouse')) batchText = 'Auto FIFO'; 
+      let batchVal = '';
+      if (isWarehouse && !isCompleted) {
+          // คลังสินค้ากำลังเลือก (หน้า Preparation)
+          const sel = Array.from(document.querySelectorAll('.b-select')).find(s => 
+            decodeURIComponent(s.getAttribute('data-code')) === String(rm.code) && 
+            decodeURIComponent(s.getAttribute('data-pname')) === String(item.productTarget)
+          );
+          batchVal = sel ? (sel.value === 'FIFO' ? 'Auto FIFO' : sel.value) : 'Auto FIFO';
+      } else if (isCompleted) {
+          // จ่ายสำเร็จแล้ว (ดึงจากประวัติ Transactions)
+          const txs = _transactions.filter(t => t.reqNo === reqNo && t.code === rm.code);
+          batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
       }
+      // ถ้าจากหน้า Production และยังไม่ Completed ให้หมายเหตุเป็นค่าว่าง ('') ตามโจทย์
 
-      tableRows += `<tr>
-        <td style='border: 1px solid black;'>${rowCount}</td>
-        <td style='border: 1px solid black;'>${rm.code}</td>
-        <td style='border: 1px solid black; text-align: left; padding-left: 5px;'>${rm.rmName}</td>
-        <td style='border: 1px solid black; font-weight: bold;'>${reqQty.toLocaleString()}</td>
-        <td style='border: 1px solid black;'>${rm.sysUnit}</td>
-        <td style='border: 1px solid black;'>${batchText}</td>
-      </tr>`;
+      productEntry.items.push({
+        code: rm.code,
+        rmName: rm.rmName,
+        qty: reqQty,
+        unit: rm.sysUnit,
+        batch: batchVal
+      });
     });
-
-    if (rowCount < 12) {
-        rowCount++;
-        tableRows += `<tr>
-          <td style='border: 1px solid black; color: white;'>-</td>
-          <td style='border: 1px solid black;'></td>
-          <td style='border: 1px solid black; text-align: left; padding-left: 5px; font-weight: bold; color: #000;'>${item.productTarget}</td>
-          <td style='border: 1px solid black;'></td>
-          <td style='border: 1px solid black;'></td>
-          <td style='border: 1px solid black;'></td>
-        </tr>`;
-    }
-
-    for(let i = rowCount + 1; i <= 12; i++) {
-      tableRows += `<tr>
-        <td style='border: 1px solid black; color: white;'>-</td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-        <td style='border: 1px solid black;'></td>
-      </tr>`;
-    }
-
-    // ห่อด้วย Page Container และโครงสร้างหัว/ท้ายกระดาษ
-    pagesHtml += `
-      <div class="page-container">
-          <table class="border-thick">
-              <tr>
-                  <td width="20%" style="vertical-align: middle;"><h2 style="color: #0070C0; margin: 0; font-family: Tahoma;">เสริมสุข</h2></td>
-                  <td width="60%" style="line-height: 1.4;">
-                      <div style="font-size: 16px; font-weight: bold;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
-                      <div style="font-size: 16px; font-weight: bold;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
-                      <div style="font-size: 14px;">(Stock Transfer Request)</div>
-                  </td>
-                  <td width="20%" style="text-align: left; vertical-align: top; font-size: 12px; line-height: 1.4;">
-                      <div style="text-align: right; font-size: 10px; margin-bottom: 5px;">FM-Q-RW-001/013</div>
-                      <div>เลขที่ <b>${reqNo}</b></div>
-                      <div style="margin-top: 5px;">วันที่จัดทำ <b>${dateStr}</b></div>
-                  </td>
-              </tr>
-          </table>
-          <table class="border-thick" style="border-top: none; border-bottom: 2px solid black; padding: 8px;">
-              <tr>
-                  <td width="50%" style="border: none; text-align: left;">โรงงาน/ที่เก็บสินค้าผู้ขอโอน ..............................................</td>
-                  <td width="50%" style="border: none; text-align: left;">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน ..............................................</td>
-              </tr>
-              <tr>
-                  <td style="border: none; text-align: left;">วันที่ต้องการพัสดุ ..............................................</td>
-                  <td style="border: none; text-align: left;">เลขที่ใบจ่ายโอนจากระบบ ..............................................</td>
-              </tr>
-          </table>
-          <table class="border-thick" style="border-top: none;">
-              <tr style="font-weight: bold; background-color: #f8f9fa;">
-                  <td width="8%">ลำดับ</td><td width="15%">รหัสพัสดุ</td><td width="37%">รายละเอียด</td><td width="15%">จำนวนขอโอน</td><td width="10%">หน่วยนับ</td><td width="15%">หมายเหตุ</td>
-              </tr>
-              ${tableRows}
-          </table>
-          <table class="border-thick" style="border-top: none; font-size: 12px;">
-              <tr style="font-weight: bold; background-color: #f8f9fa;">
-                  <td width="16.6%">ผู้ขอโอน</td><td width="16.6%">ผู้อนุมัติขอโอน</td><td width="16.6%">ผู้จ่ายโอน</td><td width="16.6%">ผู้อนุมัติจ่ายโอน</td><td width="16.6%">ผู้รับของ</td><td width="16.6%">ผู้บันทึกรายการ</td>
-              </tr>
-              <tr style="height: 50px; vertical-align: bottom;">
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ${reqByText}<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ${issueByText}<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
-              </tr>
-          </table>
-          <div style="font-size: 10px; margin-top: 5px; text-align: left;">Rev.00/Eff Date:01/06/2020</div>
-      </div>
-    `;
+    
+    printData.products.push(productEntry);
   });
 
-  // 🚩 ส่งข้อมูลข้ามไฟล์ และเปิดแท็บ form.html
-  sessionStorage.setItem('print_html_content', pagesHtml);
-  window.open('form.html', '_blank', 'width=900,height=800');
+  // ส่ง Data ไปเก็บใน Session แล้วเปิดฟอร์ม
+  sessionStorage.setItem('printData', JSON.stringify(printData));
+  window.open('form.html', '_blank');
 }
 async function submitRequest() {
   const op = document.getElementById('inpOp').value.trim();
