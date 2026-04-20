@@ -384,6 +384,35 @@ body{
 ::-webkit-scrollbar-thumb{background:rgba(100,160,240,.28);border-radius:99px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(100,160,240,.50)}
 
+/* --- Navigation Badges --- */
+.nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff;
+    margin-left: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+}
+/* สีสำหรับคลังวัตถุดิบ (งานที่ต้องทำ) */
+.badge-wh { 
+    background: linear-gradient(135deg, #f59e0b, #d97706); 
+    border: 1.5px solid rgba(255,255,255,0.3);
+}
+/* สีสำหรับฝ่ายผลิต (งานที่รออยู่) */
+.badge-pd { 
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); 
+    border: 1.5px solid rgba(255,255,255,0.3);
+}
+
 /* ── Responsive ── */
 @media(max-width:991px){
   .shell{padding:18px 14px 56px}
