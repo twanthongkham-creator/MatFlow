@@ -56,6 +56,11 @@ body { overflow-x: hidden; }
 .btn-print { font-size:11px; font-weight:700; color:#0284c7; background:transparent; border:1px solid #7dd3fc; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; margin-left:8px; }
 .btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
 .btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
+
+/* 🚩 Styles สำหรับแจ้งเตือน (เผื่อในกรณีที่ไม่ได้อัปเดตไฟล์ mf-theme.css) */
+.nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: 800; color: #fff; margin-left: 8px; font-family: 'IBM Plex Mono', monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-1px); }
+.badge-wh { background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid rgba(255,255,255,0.3); }
+.badge-pd { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 1.5px solid rgba(255,255,255,0.3); }
 </style>
 </head>
 <body>
@@ -65,20 +70,22 @@ body { overflow-x: hidden; }
 <header class="topbar">
   <div class="topbar-inner">
     <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
+    
     <nav class="topnav">
       <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
-      <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+      <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="nb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
+      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ <span id="nb-wh" class="nav-badge badge-wh" style="display:none">0</span></a>
       <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
       <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
       <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
     </nav>
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
+  
   <div id="navDrawer" class="nav-drawer">
     <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="mb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
+    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ <span id="mb-wh" class="nav-badge badge-wh" style="display:none">0</span></a>
     <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
     <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
     <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
@@ -166,7 +173,7 @@ body { overflow-x: hidden; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=2"></script>
+<script src="mf-shared.js?v=3"></script>
 <script>
 let _productList = []; 
 let _bomMap = {};      
@@ -397,7 +404,6 @@ function printDocument(reqNo) {
           const txs = _transactions.filter(t => t.reqNo === reqNo && t.code === rm.code);
           batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
       }
-      // ถ้าจากหน้า Production และยังไม่ Completed ให้หมายเหตุเป็นค่าว่าง ('') ตามโจทย์
 
       productEntry.items.push({
         code: rm.code,
@@ -415,6 +421,7 @@ function printDocument(reqNo) {
   sessionStorage.setItem('printData', JSON.stringify(printData));
   window.open('form.html', '_blank');
 }
+
 async function submitRequest() {
   const op = document.getElementById('inpOp').value.trim();
   const pin = document.getElementById('inpPin').value.trim();
@@ -431,6 +438,9 @@ async function submitRequest() {
       _plans = []; document.getElementById('planContainer').innerHTML = ''; 
       document.getElementById('inpOp').value = ''; document.getElementById('inpPin').value = '';
       addPlanItem(); MF.bust('getRequests'); await loadMasterData();
+      
+      // 🚩 อัปเดต Nav Badge หลังจากยืนยันเบิกสำเร็จ
+      if (typeof MF.updateNavBadges === 'function') MF.updateNavBadges();
     } else { alert(res.message); }
   } catch(e) { alert('เกิดข้อผิดพลาดในการส่งข้อมูล'); }
   mfHide();
@@ -459,6 +469,9 @@ async function executeCancel() {
       cancelMdl.hide();
       alert('✅ ยกเลิกใบเบิกเรียบร้อยแล้ว');
       MF.bust('getRequests'); await loadMasterData();
+      
+      // 🚩 อัปเดต Nav Badge หลังจากยกเลิกเบิกสำเร็จ
+      if (typeof MF.updateNavBadges === 'function') MF.updateNavBadges();
     } else {
       alert(res.message);
     }
