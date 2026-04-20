@@ -23,7 +23,6 @@ body { overflow-x: hidden; }
 .q-qty { font-weight:600; color:var(--txt2); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .sim-card { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; }
-.sim-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.85) 45%,rgba(190,220,255,.65) 70%,transparent 95%); }
 .sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(255,255,255,.3); border-bottom:1px solid rgba(180,210,255,.3); }
 .sim-idx { width:32px; height:32px; background:var(--b2); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'IBM Plex Mono',monospace; }
 .sim-title { flex:1; }
@@ -76,6 +75,14 @@ body { overflow-x: hidden; }
     </nav>
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
+  <div id="navDrawer" class="nav-drawer">
+    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
+    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
+    <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
+    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
+    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
+  </div>
 </header>
 
 <div class="shell">
@@ -119,7 +126,12 @@ window.onload = () => { loadMasterData(); };
 async function loadMasterData() {
   mfShow('กำลังอัปเดตข้อมูลคิวงาน...');
   try {
-    const [jmaster, jm, jreq, jusers] = await Promise.all([MF.getMasterData(), MF.getMonitorData(), MF.getRequests(), MF.getUsers()]);
+    const [jmaster, jm, jreq, jusers] = await Promise.all([
+      MF.getMasterData(), 
+      MF.getMonitorData(), 
+      MF.getRequests(), 
+      MF.getUsers()
+    ]);
     
     _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
 
@@ -187,7 +199,10 @@ function renderCompletedHistory() {
     grouped[r.reqNo].items.push(r);
   });
 
-  let html = `<div class="plan-hd" style="margin-bottom:16px;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการจัดจ่าย (Completed)</div>`;
+  let html = `<div class="plan-hd" style="margin-bottom:16px;">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
+                ประวัติการจัดจ่าย (Completed)
+              </div>`;
   
   if(Object.keys(grouped).length === 0) {
     html += `<div class="empty-sim">
@@ -207,7 +222,12 @@ function renderCompletedHistory() {
             <div>
               <div style="font-size:11px; color:var(--txt3); font-family:'IBM Plex Mono',monospace; font-weight:600; margin-bottom:2px;">${g.reqNo} &nbsp;|&nbsp; ${dt}</div>
               <div style="font-size:11px; color:var(--txt3); font-weight:600;">ผู้เบิก: ${g.reqBy} <span style="color:var(--b2)">• จ่ายโดย: ${g.issueBy}</span></div>
-              <div style="margin-top:6px;"><button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก (มีชื่อผู้จัดจ่าย)</button></div>
+              <div style="margin-top:6px;">
+                <button class="btn-print" onclick="printDocument('${g.reqNo}')">
+                  <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> 
+                  พิมพ์ใบเบิก (มีชื่อผู้จัดจ่าย)
+                </button>
+              </div>
             </div>
             <div class="status-badge s-pass"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>จ่ายของแล้ว</div>
           </div>
@@ -241,12 +261,18 @@ function runCalculation() {
   if (!_activeReq) { renderCompletedHistory(); return; }
   
   // 🚩 แก้ไข SVG ตัวนี้ให้แสดงผลถูกต้อง ไม่เป็นก้อนดำ
-  let html = `<div style="display:flex; justify-content:space-between; margin-bottom:16px;">
-                <div class="plan-hd" style="margin-bottom:0;">
-                  <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:var(--b3); fill:none; stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+  let html = `<div style="display:flex; justify-content:space-between; margin-bottom:16px; align-items:center;">
+                <div class="plan-hd" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
+                  <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:var(--b3); fill:none; stroke-width:2;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
                   จัดเตรียมวัตถุดิบ
                 </div>
-                <button class="btn-print" onclick="printDocument('${_activeReq.reqNo}')"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบนำร่องจัดของ</button>
+                <button class="btn-print" onclick="printDocument('${_activeReq.reqNo}')">
+                  <svg viewBox="0 0 24 24" style="stroke:currentColor; fill:none; stroke-width:2;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> 
+                  พิมพ์ใบนำร่องจัดของ
+                </button>
               </div>`;
   let allPass = true;
 
