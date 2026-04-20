@@ -12,9 +12,8 @@ body { overflow-x: hidden; }
 .workspace-grid > div { min-width: 0; }
 @media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
 
-.plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg {
-    fill: none !important;
-}
+/* ล็อกสี SVG ไม่ให้ดำทึบ */
+.plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg { fill: none !important; }
 
 .plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; max-height:85vh; overflow-y:auto; }
 .plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; position:sticky; top:0; background:var(--glass); z-index:10; }
@@ -79,14 +78,6 @@ body { overflow-x: hidden; }
       <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
     </nav>
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
   </div>
 </header>
 
@@ -237,10 +228,7 @@ function renderCompletedHistory() {
                 </button>
               </div>
             </div>
-            <div class="status-badge s-pass">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="20 6 9 17 4 12"/></svg>
-              จ่ายของแล้ว
-            </div>
+            <div class="status-badge s-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="20 6 9 17 4 12"/></svg>จ่ายของแล้ว</div>
           </div>
           <div style="background:rgba(240,244,248,.6); padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0;">${itemsHtml}</div>
         </div>
@@ -306,9 +294,9 @@ function runCalculation() {
         (_batchMap[rm.code] || []).forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | BBF: ${b.exp}</option>`);
         if((_batchMap[rm.code] || []).length === 0) opts = `<option value="">ไม่มีสต๊อกในคลัง</option>`;
 
-        // 🚩 ทำการลบอักขระพิเศษ (เช่น ") ออกจาก Data Attribute เพื่อป้องกัน HTML พัง
-        let safeCode = String(rm.code).replace(/"/g, '&quot;');
-        let safePName = String(item.productTarget).replace(/"/g, '&quot;');
+        // 🚩 ซ่อนข้อมูลลงใน Data-Attribute แบบเข้ารหัส ป้องกันปัญหาเว้นวรรค
+        let safeCode = encodeURIComponent(String(rm.code));
+        let safePName = encodeURIComponent(String(item.productTarget));
 
         let statIcon = isOk 
             ? '<span class="stat-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M20 6L9 17l-5-5"/></svg>พอ</span>' 
@@ -406,7 +394,7 @@ function printDocument(reqNo) {
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
-      // 🚩 ดึงข้อมูล Batch แบบปลอดภัย ทะลุทะลวงตัวอักษรพิเศษ
+      // 🚩 ดึงข้อมูล Batch แบบปลอดภัย ทะลุทะลวงตัวอักษรพิเศษ 100%
       let batchText = '';
       if (isCompleted) {
          let txMatches = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
@@ -418,12 +406,14 @@ function printDocument(reqNo) {
       } else {
          let selects = document.querySelectorAll('.b-select');
          for (let i = 0; i < selects.length; i++) {
-             if (selects[i].getAttribute('data-code') === String(rm.code) && selects[i].getAttribute('data-pname') === String(item.productTarget)) {
+             let decCode = decodeURIComponent(selects[i].getAttribute('data-code') || '');
+             let decPName = decodeURIComponent(selects[i].getAttribute('data-pname') || '');
+             if (decCode === String(rm.code) && decPName === String(item.productTarget)) {
                  batchText = selects[i].value === 'FIFO' ? 'Auto FIFO' : selects[i].value;
                  break;
              }
          }
-         if (!batchText) batchText = 'Auto FIFO'; // Fallback ป้องกันค่าว่าง
+         if (!batchText) batchText = 'Auto FIFO'; // Fallback สุดท้าย
       }
 
       tableRows += `<tr>
@@ -561,12 +551,12 @@ async function executeIssueDirectly() {
   const selects = document.querySelectorAll('.b-select');
   let payload = [];
   
-  // 🚩 แก้การดึงข้อมูลตอนจ่ายเพื่อป้องกันบัค
+  // 🚩 ถอดรหัสการส่งข้อมูลให้ตรงเป๊ะ
   _activeReq.items.forEach(item => {
       const bom = _bomMap[item.productTarget] || [];
       bom.forEach(rm => {
          let batch = 'FIFO';
-         let sel = Array.from(selects).find(s => s.getAttribute('data-code') === String(rm.code) && s.getAttribute('data-pname') === String(item.productTarget));
+         let sel = Array.from(selects).find(s => decodeURIComponent(s.getAttribute('data-code')) === String(rm.code) && decodeURIComponent(s.getAttribute('data-pname')) === String(item.productTarget));
          if(sel) batch = sel.value;
 
          const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
