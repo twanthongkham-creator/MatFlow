@@ -21,7 +21,7 @@
         }
         .page-container:last-child { page-break-after: auto; margin-bottom: 0; }
         
-        /* 🚩 ข้อที่ 1: รหัสเอกสารอยู่นอกกรอบตาราง */
+        /* 🚩 รหัสเอกสารอยู่นอกกรอบตาราง */
         .doc-id-top { text-align: right; font-size: 11px; margin-bottom: 5px; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; table-layout: fixed; }
@@ -31,14 +31,13 @@
         .header-table td { border: none; border-right: 1px solid black; }
         .header-table td:last-child { border-right: none; }
         
-        /* 🚩 ข้อที่ 2: ส่วน Logo เสริมสุข */
-        .logo-placeholder { 
-            width: 100%; 
-            max-height: 50px; 
+        /* 🚩 การตั้งค่า Logo */
+        .logo-img { 
+            max-width: 120px; 
+            max-height: 60px; 
             object-fit: contain; 
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
-        .brand-text { color: #0070C0; font-family: Tahoma, sans-serif; font-weight: bold; font-size: 20px; margin: 0; }
 
         .info-table { border-top: 2px solid black; border-bottom: none; }
         .info-table td { border: none; text-align: left; padding: 6px 10px; }
@@ -99,7 +98,7 @@
                         </tr>`;
                 });
 
-                // 🚩 ข้อที่ 3: ProductName แถวสุดท้าย ไม่ต้องใส่เลขลำดับ
+                // 🚩 ProductName แถวสุดท้าย ไม่ใส่ตัวเลขที่ช่องลำดับ
                 rowsHtml += `
                     <tr>
                         <td></td>
@@ -110,16 +109,14 @@
                         <td></td>
                     </tr>`;
 
-                // เติมแถวว่างให้ครบ 12 แถว
                 for (let i = prod.items.length + 2; i <= 12; i++) {
                     rowsHtml += `<tr><td style="color:transparent;">-</td><td></td><td></td><td></td><td></td><td></td></tr>`;
                 }
 
-                // ตัดชื่อยาวป้องกันตารางเบี้ยว
                 let reqName = data.reqBy && data.reqBy.length > 20 ? data.reqBy.substring(0,20) + '..' : (data.reqBy || "...................");
                 let issName = data.issueBy && data.issueBy.length > 20 ? data.issueBy.substring(0,20) + '..' : (data.issueBy || "...................");
 
-                // 🚩 ข้อที่ 4: แสดงวันที่ดำเนินการจริง dd/mm/yyyy
+                // 🚩 แสดงวันที่แบบ dd/mm/yyyy
                 let currentFullDate = data.date || "..../..../....";
 
                 html += `
@@ -129,7 +126,7 @@
                     <table class="header-table">
                         <tr>
                             <td width="20%">
-                                <div class="brand-text">เสริมสุข</div>
+                                <img src="ssclogo.png" class="logo-img" alt="SSC Logo">
                                 <div style="font-size:10px; font-weight:bold; color:#555;">SERMSUK PLC.</div>
                             </td>
                             <td width="55%">
