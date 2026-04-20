@@ -41,7 +41,6 @@ const MF = (() => {
 
   /* ── Invalidate write-affected caches ── */
   function invalidateInventory() {
-    // 🚩 ล้างแคช Transaction ด้วยเมื่อมีการจ่ายของ
     ['getMonitorData', 'getDashboardData', 'getRequests', 'getTransactions'].forEach(k => cDel(k));
   }
   function invalidateMaster() {
@@ -50,44 +49,30 @@ const MF = (() => {
 
   /* ── Public API ── */
   return {
-    /** Fetch product list (cached) */
     getProducts: () => fetchCached('getProducts'),
-
-    /** Fetch Users (cached) */
     getUsers: () => fetchCached('getUsers'),
-
-    /** Fetch full master data (cached) */
     getMasterData: () => fetchCached('getMasterData'),
-
-    /** Fetch monitor/inventory data (cached) */
     getMonitorData: () => fetchCached('getMonitorData'),
-
-    /** Fetch dashboard stats (cached) */
     getDashboardData: () => fetchCached('getDashboardData'),
-
-    /** Fetch MATCALL Requests (cached) */
     getRequests: () => fetchCached('getRequests'),
 
-    /** 🚩 Fetch Transactions history (cached) - ใช้สำหรับดู Batch จริงตอนพิมพ์ใบเบิก */
+    /** 🚩 ฟังก์ชันที่มีปัญหา (ต้องมีบรรทัดนี้ชัวร์ๆ) */
     getTransactions: () => fetchCached('getTransactions'),
 
-    /** Evaluate multi production — always fresh, no cache */
     evaluateMulti: async (items) => {
       const url = `${API}?action=evaluateMulti&items=${encodeURIComponent(JSON.stringify(items))}`;
       const r = await fetch(url, { redirect: 'follow' });
       return r.json();
     },
 
-    /** Create new MATCALL Request — invalidates request cache */
     createRequest: async (payload) => {
       const url = `${API}?action=createRequest&payload=${encodeURIComponent(JSON.stringify(payload))}`;
       const r = await fetch(url, { redirect: 'follow' });
       const j = await r.json();
-      if (j.status === 'success') cDel('getRequests'); // เคลียร์แคชหน้าผลิต
+      if (j.status === 'success') cDel('getRequests'); 
       return j;
     },
 
-    /** Cancel Request — invalidates request cache */
     cancelRequest: async (reqNo, reason, operator, pin) => {
       const url = `${API}?action=cancelRequest&reqNo=${encodeURIComponent(reqNo)}&reason=${encodeURIComponent(reason)}&operator=${encodeURIComponent(operator)}&pin=${encodeURIComponent(pin)}`;
       const r = await fetch(url, { redirect: 'follow' });
@@ -96,7 +81,6 @@ const MF = (() => {
       return j;
     },
 
-    /** Receive items — invalidates inventory cache */
     receive: async (items, operator) => {
       const url = `${API}?action=receive&operator=${encodeURIComponent(operator)}&items=${encodeURIComponent(JSON.stringify(items))}`;
       const r = await fetch(url, { redirect: 'follow' });
@@ -105,22 +89,17 @@ const MF = (() => {
       return j;
     },
 
-    /** Issue stock — invalidates inventory cache & sends reqNo if available */
     issueMulti: async (items, operator, pin, reqNo) => {
-      // ส่งเฉพาะ field ที่ Code.gs ต้องการ
       const payload = items.map(i => ({
         code:          i.code,
-        cutQty:        i.cutQty,       // Unit ที่จะตัด (ไม่ใช่ Package)
+        cutQty:        i.cutQty,      
         batch:         i.batch,
         name:          i.name,
         unit:          i.unit,
         productTarget: i.productTarget || 'Issue',
       }));
       
-      // เพิ่ม pin เข้าไปใน URL สำหรับส่งไปให้หลังบ้านตรวจสอบ
       let url = `${API}?action=issueMulti&operator=${encodeURIComponent(operator)}&pin=${encodeURIComponent(pin)}&items=${encodeURIComponent(JSON.stringify(payload))}`;
-      
-      // ถ้ามีการอ้างอิงใบเบิก (จากหน้าโกดัง) ให้แนบ reqNo ส่งไปอัปเดตสถานะด้วย
       if (reqNo) url += `&reqNo=${encodeURIComponent(reqNo)}`;
       
       const r = await fetch(url, { redirect: 'follow' });
@@ -129,7 +108,6 @@ const MF = (() => {
       return j;
     },
 
-    /** Update monitor row — invalidates inventory cache */
     updateMonitor: async (rowData) => {
       const r = await fetch(`${API}?action=updateMonitor&rowData=${encodeURIComponent(JSON.stringify(rowData))}`);
       const j = await r.json();
@@ -137,7 +115,6 @@ const MF = (() => {
       return j;
     },
 
-    /** Delete monitor row — invalidates inventory cache */
     deleteMonitor: async (rowIdx) => {
       const r = await fetch(`${API}?action=deleteMonitor&rowIdx=${rowIdx}`);
       const j = await r.json();
@@ -145,7 +122,6 @@ const MF = (() => {
       return j;
     },
 
-    /** Force-refresh a key (call before fetching fresh) */
     bust: (key) => cDel(key),
     bustAll: () => invalidateInventory(),
   };
