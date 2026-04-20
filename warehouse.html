@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MatFlow — คลังสินค้า (Warehouse)</title>
+<title>MatFlow — คลังวัตถุดิบ (Warehouse)</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
 <style>
@@ -43,6 +43,7 @@ body { overflow-x: hidden; }
 .batch-sel:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.12); }
 .stat-ok { color:#059669; background:rgba(5,150,105,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(5,150,105,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
 .stat-ng { color:#dc2626; background:rgba(220,38,38,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(220,38,38,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
+.stat-ng svg, .stat-ok svg { width:12px; height:12px; stroke:currentColor; stroke-width:2.5; fill:none; }
 .status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .s-pass { background:rgba(5,150,105,.12); color:#059669; border:1px solid rgba(5,150,105,.25); }
 .s-fail { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
@@ -56,9 +57,7 @@ body { overflow-x: hidden; }
 </head>
 <body>
 
-<div id="loader" class="loader" style="display:none">
-  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
-</div>
+<div id="loader" class="loader" style="display:none"><div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div></div>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -109,7 +108,7 @@ body { overflow-x: hidden; }
 let _bomMap = {}; let _stockMap = {}; let _batchMap = {}; let _pendingReqs = [];
 let _activeReq = null;
 let _warehouseUsers = []; 
-let _allHistory = []; // 🚩 เก็บประวัติทั้งหมดเพื่อพิมพ์แบบฟอร์ม
+let _allHistory = []; 
 
 window.onload = () => { loadMasterData(); };
 
@@ -143,7 +142,7 @@ async function loadMasterData() {
     _allHistory = jreq.data || [];
     _pendingReqs = _allHistory.filter(r => r.status === 'Pending');
     renderQueue();
-    renderCompletedHistory(); // 🚩 แสดงประวัติเมื่อไม่มีคิว
+    renderCompletedHistory(); 
 
   } catch(e) { alert("Error loading data: " + e.message); }
   mfHide();
@@ -174,7 +173,6 @@ function renderQueue() {
   document.getElementById('queueContainer').innerHTML = html;
 }
 
-// 🚩 ฟังก์ชันแสดงรายการที่จ่ายแล้ว ให้ฝั่งคลังพิมพ์เอกสารย้อนหลังได้
 function renderCompletedHistory() {
   const container = document.getElementById('issueResults');
   let completed = _allHistory.filter(r => r.status === 'Completed');
@@ -194,7 +192,7 @@ function renderCompletedHistory() {
       <p>เลือกรายการจากเมนูด้านซ้ายเพื่อเริ่มจัดเตรียมวัตถุดิบ</p>
     </div>`;
   } else {
-    Object.values(grouped).slice(0, 10).forEach(g => { // แสดง 10 ล่าสุด
+    Object.values(grouped).slice(0, 10).forEach(g => { 
       let itemsHtml = '';
       g.items.forEach(i => itemsHtml += `<div style="font-weight:700; font-size:14px; color:var(--txt); margin-bottom:2px;">• ${i.productTarget} <span style="color:var(--green); font-family:'IBM Plex Mono',monospace;">(${i.targetQty} Unit)</span></div>`);
       const dt = new Date(g.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
@@ -332,47 +330,34 @@ function runCalculation() {
   container.innerHTML = html;
 }
 
-async function executeIssueDirectly() {
-  const op = document.getElementById('opName').value.trim();
-  const pin = document.getElementById('opPin').value.trim();
-  if(!op || pin.length < 4) return alert('กรุณาระบุรหัสพนักงานและ PIN ให้ครบถ้วน');
-
-  const selects = document.querySelectorAll('.b-select');
-  let payload = [];
-  selects.forEach(sel => {
-    payload.push({ code: sel.dataset.code, name: sel.dataset.rmname, cutQty: parseFloat(sel.dataset.req), unit: sel.dataset.unit, batch: sel.value, productTarget: sel.dataset.pname });
-  });
-
-  mfShow('กำลังตัด Stock และปิดใบเบิก...');
-  try {
-    const j = await MF.issueMulti(payload, op, pin, _activeReq.reqNo);
-    if(j.status === 'success') {
-      alert(`✅ ตัดสต๊อกและปิดใบเบิกสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
-      _activeReq = null;
-      MF.bust('getRequests'); await loadMasterData(); 
-    } else { 
-      alert('เกิดข้อผิดพลาด: ' + j.message); 
-    }
-  } catch(e) { alert('การบันทึกล้มเหลว กรุณาลองใหม่'); }
-  mfHide();
-}
-
-// 🚩 ฟังก์ชันสร้างและพิมพ์เอกสาร
+// 🚩 ฟังก์ชันสร้างและพิมพ์เอกสาร (แยกหน้าตาม ProductName)
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
   const firstReq = reqItems[0];
   const dateStr = new Date(firstReq.timestamp).toLocaleDateString('en-GB');
 
-  let tableRows = '';
-  let rowCount = 0;
+  let reqByText = firstReq.reqBy || "...............................";
+  let issueByText = firstReq.status === 'Completed' ? firstReq.issueBy : "...............................";
 
-  reqItems.forEach(item => {
+  let pagesHtml = '';
+
+  reqItems.forEach((item, index) => {
     const bom = _bomMap[item.productTarget] || [];
+    let tableRows = '';
+    let rowCount = 0;
+
     bom.forEach(rm => {
       rowCount++;
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
+
+      // สำหรับคลังสินค้า ดึง Batch จาก Dropdown (ถ้ามีในหน้าจอตอนนั้น) 
+      let batchText = '';
+      if (typeof document !== 'undefined') {
+          let sel = document.querySelector(`.b-select[data-code="${rm.code}"][data-pname="${item.productTarget}"]`);
+          if(sel) batchText = sel.value;
+      }
 
       tableRows += `<tr>
         <td style='border: 1px solid black;'>${rowCount}</td>
@@ -380,43 +365,37 @@ function printDocument(reqNo) {
         <td style='border: 1px solid black; text-align: left; padding-left: 5px;'>${rm.rmName}</td>
         <td style='border: 1px solid black; font-weight: bold;'>${reqQty.toLocaleString()}</td>
         <td style='border: 1px solid black;'>${rm.sysUnit}</td>
-        <td style='border: 1px solid black;'>${item.productTarget}</td>
+        <td style='border: 1px solid black;'>${batchText}</td>
       </tr>`;
     });
-  });
 
-  for(let i = rowCount + 1; i <= 12; i++) {
-    tableRows += `<tr>
-      <td style='border: 1px solid black; color: white;'>-</td>
-      <td style='border: 1px solid black;'></td>
-      <td style='border: 1px solid black;'></td>
-      <td style='border: 1px solid black;'></td>
-      <td style='border: 1px solid black;'></td>
-      <td style='border: 1px solid black;'></td>
-    </tr>`;
-  }
+    // 🚩 แทรกชื่อ ProductName ต่อท้ายรายการ (ตัวหนา)
+    if (rowCount < 12) {
+        rowCount++;
+        tableRows += `<tr>
+          <td style='border: 1px solid black; color: white;'>-</td>
+          <td style='border: 1px solid black;'></td>
+          <td style='border: 1px solid black; text-align: left; padding-left: 5px; font-weight: bold; color: #000;'>${item.productTarget}</td>
+          <td style='border: 1px solid black;'></td>
+          <td style='border: 1px solid black;'></td>
+          <td style='border: 1px solid black;'></td>
+        </tr>`;
+    }
 
-  let reqByText = firstReq.reqBy || "...............................";
-  let issueByText = firstReq.status === 'Completed' ? firstReq.issueBy : "...............................";
+    // เติมแถวว่างให้ครบ 12 แถว
+    for(let i = rowCount + 1; i <= 12; i++) {
+      tableRows += `<tr>
+        <td style='border: 1px solid black; color: white;'>-</td>
+        <td style='border: 1px solid black;'></td>
+        <td style='border: 1px solid black;'></td>
+        <td style='border: 1px solid black;'></td>
+        <td style='border: 1px solid black;'></td>
+        <td style='border: 1px solid black;'></td>
+      </tr>`;
+    }
 
-  let html = `
-  <!DOCTYPE html>
-  <html lang="th">
-  <head>
-      <meta charset="UTF-8">
-      <title>ใบเบิก - ${reqNo}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
-      <style>
-          @page { size: A4 portrait; margin: 10mm; }
-          body { font-family: 'Sarabun', 'Prompt', Tahoma, sans-serif; font-size: 13px; color: black; background: white; margin:0; padding:0; }
-          .container { width: 100%; max-width: 800px; margin: 0 auto; }
-          table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
-          td { border: 1px solid black; padding: 5px; }
-          .border-thick { border: 2px solid black; }
-      </style>
-  </head>
-  <body>
-      <div class="container">
+    pagesHtml += `
+      <div class="page-container">
           <table class="border-thick">
               <tr>
                   <td width="20%" style="vertical-align: middle;">
@@ -478,6 +457,29 @@ function printDocument(reqNo) {
           </table>
           <div style="font-size: 10px; margin-top: 5px; text-align: left;">Rev.00/Eff Date:01/06/2020</div>
       </div>
+    `;
+  });
+
+  let html = `
+  <!DOCTYPE html>
+  <html lang="th">
+  <head>
+      <meta charset="UTF-8">
+      <title>ใบเบิก - ${reqNo}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+      <style>
+          @page { size: A4 portrait; margin: 10mm; }
+          body { font-family: 'Sarabun', 'Prompt', Tahoma, sans-serif; font-size: 13px; color: black; background: white; margin:0; padding:0; }
+          /* 🚩 บังคับให้แบ่งหน้าเมื่อจบ 1 สินค้า */
+          .page-container { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; padding-bottom: 20mm; }
+          .page-container:last-child { page-break-after: auto; }
+          table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
+          td { border: 1px solid black; padding: 5px; }
+          .border-thick { border: 2px solid black; }
+      </style>
+  </head>
+  <body>
+      ${pagesHtml}
       <script>window.onload = function() { window.print(); };<\/script>
   </body>
   </html>`;
@@ -485,6 +487,31 @@ function printDocument(reqNo) {
   let printWindow = window.open('', '', 'width=900,height=800');
   printWindow.document.write(html);
   printWindow.document.close();
+}
+
+async function executeIssueDirectly() {
+  const op = document.getElementById('opName').value.trim();
+  const pin = document.getElementById('opPin').value.trim();
+  if(!op || pin.length < 4) return alert('กรุณาระบุรหัสพนักงานและ PIN ให้ครบถ้วน');
+
+  const selects = document.querySelectorAll('.b-select');
+  let payload = [];
+  selects.forEach(sel => {
+    payload.push({ code: sel.dataset.code, name: sel.dataset.rmname, cutQty: parseFloat(sel.dataset.req), unit: sel.dataset.unit, batch: sel.value, productTarget: sel.dataset.pname });
+  });
+
+  mfShow('กำลังตัด Stock และปิดใบเบิก...');
+  try {
+    const j = await MF.issueMulti(payload, op, pin, _activeReq.reqNo);
+    if(j.status === 'success') {
+      alert(`✅ ตัดสต๊อกและปิดใบเบิกสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
+      _activeReq = null;
+      MF.bust('getRequests'); await loadMasterData(); 
+    } else { 
+      alert('เกิดข้อผิดพลาด: ' + j.message); 
+    }
+  } catch(e) { alert('การบันทึกล้มเหลว กรุณาลองใหม่'); }
+  mfHide();
 }
 </script>
 </body>
