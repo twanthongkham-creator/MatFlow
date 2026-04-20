@@ -12,7 +12,6 @@ body { overflow-x: hidden; }
 .workspace-grid > div { min-width: 0; }
 @media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
 
-/* ล็อกสี SVG ไม่ให้ดำทึบ */
 .plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg { fill: none !important; }
 
 .plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; max-height:85vh; overflow-y:auto; }
@@ -43,15 +42,12 @@ body { overflow-x: hidden; }
 .td-rm { font-weight:700; color:var(--txt); font-size:13.5px; }
 .td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px; }
 
-.batch-sel { font-family:'IBM Plex Sans Thai',sans-serif; font-size:12.5px; padding:6px 10px; background:rgba(255,255,255,.72); border:1.5px solid rgba(180,210,255,.45); border-radius:8px; color:var(--txt); outline:none; width:100%; transition:.15s; text-align:left; }
-.batch-sel:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.12); }
 .stat-ok { color:#059669; background:rgba(5,150,105,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(5,150,105,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
 .stat-ng { color:#dc2626; background:rgba(220,38,38,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(220,38,38,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
 .stat-ng svg, .stat-ok svg { width:12px; height:12px; stroke:currentColor; stroke-width:2.5; fill:none; }
 .status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .s-pass { background:rgba(5,150,105,.12); color:#059669; border:1px solid rgba(5,150,105,.25); }
 .s-fail { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
-/* 🚩 สไตล์สำหรับสถานะ Issued */
 .s-issued { background:rgba(13,148,136,.12); color:#0f766e; border:1px solid rgba(13,148,136,.25); }
 
 .empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
@@ -62,10 +58,14 @@ body { overflow-x: hidden; }
 .btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
 .btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
 
-/* Styles สำหรับแจ้งเตือน */
 .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: 800; color: #fff; margin-left: 8px; font-family: 'IBM Plex Mono', monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-1px); }
 .badge-wh { background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid rgba(255,255,255,0.3); }
 .badge-pd { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 1.5px solid rgba(255,255,255,0.3); }
+
+/* 🚩 สไตล์สำหรับกล่องเลือกหลาย Batch */
+.batch-group { text-align: left; max-height: 90px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: rgba(255,255,255,0.8); }
+.batch-group label { display: block; margin-bottom: 4px; font-size: 11.5px; cursor: pointer; color: var(--txt); }
+.batch-group input[type="checkbox"] { margin-right: 6px; transform: scale(1.1); accent-color: var(--b2); }
 </style>
 </head>
 <body>
@@ -107,7 +107,7 @@ body { overflow-x: hidden; }
       </span>
       จ่ายวัตถุดิบ (Fulfillment)
     </h1>
-    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">รับคิวแจ้งเบิกจากฝ่ายผลิต เลือกล็อตวัตถุดิบ และยืนยันตัด Stock แบบเรียลไทม์</p>
+    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">รับคิวแจ้งเบิก เลือกล็อตวัตถุดิบ (เลือกได้หลาย Lot) และยืนยันส่งเข้าไลน์</p>
   </div>
 
   <div class="workspace-grid">
@@ -177,7 +177,7 @@ async function loadMasterData() {
     renderQueue();
     renderCompletedHistory(); 
 
-  } catch(e) { console.error("Error loading data:", e); }
+  } catch(e) { console.error(e); }
   mfHide();
 }
 
@@ -208,40 +208,29 @@ function renderQueue() {
 
 function renderCompletedHistory() {
   const container = document.getElementById('issueResults');
-  
-  // 🚩 แสดงทั้งของที่เพิ่งจ่าย (Issued) และของที่รับแล้ว (Completed)
   let completed = _allHistory.filter(r => r.status === 'Completed' || r.status === 'Issued');
   
   let grouped = {};
   completed.forEach(r => {
-    // 🚩 ดึง receiveBy มาบันทึกใน group ด้วย
     if(!grouped[r.reqNo]) grouped[r.reqNo] = { reqNo: r.reqNo, timestamp: r.timestamp, reqBy: r.reqBy, status: r.status, issueBy: r.issueBy, issueDoc: r.issueDoc, receiveBy: r.receiveBy, items: [] };
     grouped[r.reqNo].items.push(r);
   });
 
-  let html = `<div class="plan-hd" style="margin-bottom:16px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
-                ประวัติการจัดจ่าย
-              </div>`;
+  let html = `<div class="plan-hd" style="margin-bottom:16px;">ประวัติการจัดจ่าย</div>`;
   
   if(Object.keys(grouped).length === 0) {
-    html += `<div class="empty-sim">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-      <h3>ยังไม่มีประวัติการจัดจ่าย</h3>
-      <p>เลือกรายการจากเมนูด้านซ้ายเพื่อเริ่มจัดเตรียมวัตถุดิบ</p>
-    </div>`;
+    html += `<div class="empty-sim"><p>เลือกรายการจากเมนูด้านซ้ายเพื่อเริ่มจัดเตรียมวัตถุดิบ</p></div>`;
   } else {
     Object.values(grouped).slice(0, 10).forEach(g => { 
       let itemsHtml = '';
       g.items.forEach(i => itemsHtml += `<div style="font-weight:700; font-size:14px; color:var(--txt); margin-bottom:2px;">• ${i.productTarget} <span style="color:var(--green); font-family:'IBM Plex Mono',monospace;">(${i.targetQty} Unit)</span></div>`);
       const dt = new Date(g.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
       
-      // 🚩 กำหนด Badge ให้แตกต่างกันตามสถานะ Issued กับ Completed
       let badgeHtml = '';
       if(g.status === 'Issued') {
-         badgeHtml = `<div class="status-badge s-issued"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>รอผลิตรับของ</div>`;
+         badgeHtml = `<div class="status-badge s-issued">รอผลิตรับของ</div>`;
       } else {
-         badgeHtml = `<div class="status-badge s-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="20 6 9 17 4 12"/></svg>ผลิตรับแล้ว</div>`;
+         badgeHtml = `<div class="status-badge s-pass">ผลิตรับแล้ว</div>`;
       }
 
       html += `
@@ -273,18 +262,28 @@ function renderCompletedHistory() {
 function selectRequest(reqNo) {
   document.querySelectorAll('.q-card').forEach(el => el.classList.remove('active'));
   document.getElementById('q_'+reqNo).classList.add('active');
-  
   const items = _pendingReqs.filter(r => r.reqNo === reqNo);
   _activeReq = { reqNo: reqNo, items: items };
-  
   runCalculation();
 }
 
-window.checkSubmitBtn = function(allPass) {
+window.checkSubmitBtn = function() {
   const op = document.getElementById('opName').value;
   const pin = document.getElementById('opPin').value;
   const btn = document.getElementById('btnRealConfirm');
-  if (btn) btn.disabled = !(allPass && op && pin.length >= 4);
+  if (btn) btn.disabled = !(_activeReq && op && pin.length >= 4); // 🚩 ข้ามเงื่อนไข allPass ไปก่อนถ้าต้องการตัดเศษ
+};
+
+// 🚩 ฟังก์ชันควบคุม Checkbox (ถ้าเลือก Auto FIFO ให้เคลียร์ช่องอื่น, ถ้าเลือกช่องอื่น ให้เคลียร์ Auto FIFO)
+window.handleBatchCb = function(cb) {
+  let group = cb.closest('.batch-group');
+  let cbs = group.querySelectorAll('.b-cb');
+  if(cb.value === "Auto FIFO" && cb.checked) {
+      cbs.forEach(c => { if(c !== cb) c.checked = false; });
+  } else if(cb.checked) {
+      let fifoCb = group.querySelector('input[value="Auto FIFO"]');
+      if(fifoCb) fifoCb.checked = false;
+  }
 };
 
 function runCalculation() {
@@ -293,14 +292,9 @@ function runCalculation() {
   
   let html = `<div style="display:flex; justify-content:space-between; margin-bottom:16px; align-items:center;">
                 <div class="plan-hd" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="2" style="width:20px; height:20px; margin-right:8px;">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                  </svg>
                   จัดเตรียมวัตถุดิบ
                 </div>
                 <button class="btn-print" onclick="printDocument('${_activeReq.reqNo}')">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> 
                   พิมพ์ใบนำร่องจัดของ
                 </button>
               </div>`;
@@ -322,24 +316,29 @@ function runCalculation() {
         const isOk = currentStock >= reqQty;
         if(!isOk) { isGroupPass = false; allPass = false; }
 
-        let opts = `<option value="FIFO">Auto FIFO</option>`;
-        (_batchMap[rm.code] || []).forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | BBF: ${b.exp}</option>`);
-        if((_batchMap[rm.code] || []).length === 0) opts = `<option value="">ไม่มีสต๊อกในคลัง</option>`;
+        // 🚩 สร้างรายการ Checkbox ให้สามารถเลือกได้หลาย Batch
+        let optsHtml = `<label><input type="checkbox" value="Auto FIFO" checked class="b-cb" onchange="handleBatchCb(this)"> Auto FIFO</label>`;
+        (_batchMap[rm.code] || []).forEach(b => {
+             optsHtml += `<label><input type="checkbox" value="${b.batch}" class="b-cb" onchange="handleBatchCb(this)"> Lot: ${b.batch} | มี ${b.qty.toLocaleString()}</label>`;
+        });
+        if((_batchMap[rm.code] || []).length === 0) optsHtml = `<div style="font-size:11px; color:red;">ไม่มีสต๊อกในคลัง</div>`;
 
         let safeCode = encodeURIComponent(String(rm.code));
         let safePName = encodeURIComponent(String(item.productTarget));
 
-        let statIcon = isOk 
-            ? '<span class="stat-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M20 6L9 17l-5-5"/></svg>พอ</span>' 
-            : '<span class="stat-ng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ขาด</span>';
+        let statIcon = isOk ? '<span class="stat-ok">พอ</span>' : '<span class="stat-ng">ขาด</span>';
 
         tableRows += `
           <tr>
-            <td><span style="font-size:10px; font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--b2); background:rgba(66,146,255,.1); padding:4px 8px; border-radius:6px; display:inline-block; white-space:nowrap;">${rm.code}</span></td>
+            <td><span style="font-size:10px; font-weight:700; color:var(--b2); background:rgba(66,146,255,.1); padding:4px 8px; border-radius:6px;">${rm.code}</span></td>
             <td class="td-rm text-left">${rm.rmName}</td>
             <td class="td-num" style="color:var(--txt2);">${prepPackages.toLocaleString()} <span style="font-size:10px;">${rm.packName}</span></td>
             <td class="td-num t-req">${reqQty.toLocaleString()} <span style="font-size:10px;">${rm.sysUnit}</span></td>
-            <td><select class="batch-sel b-select" data-code="${safeCode}" data-pname="${safePName}">${opts}</select></td>
+            <td style="padding: 4px;">
+               <div class="batch-group" data-code="${safeCode}" data-pname="${safePName}">
+                   ${optsHtml}
+               </div>
+            </td>
             <td>${statIcon}</td>
           </tr>
         `;
@@ -347,17 +346,15 @@ function runCalculation() {
     }
 
     const badge = isGroupPass 
-      ? `<div class="status-badge s-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M20 6L9 17l-5-5"/></svg>สต๊อกพร้อมจ่าย</div>` 
-      : `<div class="status-badge s-fail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>วัตถุดิบไม่พอ</div>`;
+      ? `<div class="status-badge s-pass">สต๊อกพร้อมจ่าย</div>` 
+      : `<div class="status-badge s-fail">วัตถุดิบไม่พอ</div>`;
 
     html += `
       <div class="sim-card" style="padding:0; display:block;">
         <div class="sim-hd">
-          <div class="sim-idx" style="background:var(--b2);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-          </div>
+          <div class="sim-idx" style="background:var(--b2);">${index+1}</div>
           <div class="sim-title">
-            <div style="font-size:11px; color:var(--txt3); font-family:'IBM Plex Mono',monospace; font-weight:600; margin-bottom:2px;">อ้างอิง: ${_activeReq.reqNo} (รายการที่ ${index+1})</div>
+            <div style="font-size:11px; color:var(--txt3); font-weight:600; margin-bottom:2px;">อ้างอิง: ${_activeReq.reqNo}</div>
             <div class="sim-pname">${item.productTarget}</div>
             <div style="font-size:12px; color:var(--txt3); font-weight:500;">สั่งผลิต: <span style="font-weight:700; color:var(--b3);">${item.targetQty}</span> Unit</div>
           </div>
@@ -371,7 +368,7 @@ function runCalculation() {
                 <th class="text-left">RM Name</th>
                 <th>คลังเตรียม</th>
                 <th>ตัด Stock (Unit จริง)</th>
-                <th width="35%">เลือก Batch ที่จะตัด</th>
+                <th width="40%">เลือก Batch ที่จะตัด (ติ๊กได้หลายข้อ)</th>
                 <th>สถานะ</th>
               </tr>
             </thead>
@@ -386,16 +383,13 @@ function runCalculation() {
   _warehouseUsers.forEach(u => userOpts += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`);
 
   html += `
-    <div style="background:var(--glass); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:var(--r-xl); padding:20px; box-shadow:var(--sh-sm);">
-      <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:8px; display:block;">ยืนยันตัวตน (พนักงานคลังสินค้า)</label>
+    <div style="background:var(--glass); border-radius:var(--r-xl); padding:20px; box-shadow:var(--sh-sm);">
+      <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:8px; display:block;">ยืนยันตัวตน (พนักงานคลังสินค้า)</label>
       <div style="display:flex; gap:10px; margin-bottom:14px;">
-        <select id="opName" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkSubmitBtn(${allPass})">
-          ${userOpts}
-        </select>
-        <input type="password" id="opPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkSubmitBtn(${allPass})">
+        <select id="opName" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkSubmitBtn()">${userOpts}</select>
+        <input type="password" id="opPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkSubmitBtn()">
       </div>
       <button id="btnRealConfirm" class="btn btn-green w-100" onclick="executeIssueDirectly()" disabled style="padding:14px; font-size:14px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;margin-right:6px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         ยืนยันตัด Stock (ส่งเข้าไลน์ผลิต)
       </button>
     </div>
@@ -409,8 +403,6 @@ function printDocument(reqNo) {
   
   const first = reqItems[0];
   const isWarehouse = window.location.pathname.includes('warehouse');
-  
-  // 🚩 รวมสถานะที่ถือว่าคลังจ่ายของไปแล้ว
   const isCompleted = first.status === 'Completed' || first.status === 'Issued'; 
 
   let printData = {
@@ -418,15 +410,12 @@ function printDocument(reqNo) {
     date: new Date(first.timestamp).toLocaleDateString('en-GB'),
     reqBy: first.reqBy || "....................",
     issueBy: isCompleted ? first.issueBy : "....................",
-    receiveBy: first.receiveBy || "....................", // 🚩 ส่งชื่อคนรับให้แบบฟอร์ม
+    receiveBy: first.receiveBy || "....................", 
     products: []
   };
 
   reqItems.forEach(item => {
-    let productEntry = {
-      pName: item.productTarget,
-      items: []
-    };
+    let productEntry = { pName: item.productTarget, items: [] };
 
     const bom = _bomMap[item.productTarget] || [];
     bom.forEach(rm => {
@@ -434,24 +423,38 @@ function printDocument(reqNo) {
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
       let batchVal = '';
-      if (isWarehouse && !isCompleted) {
-          const sel = Array.from(document.querySelectorAll('.b-select')).find(s => 
-            decodeURIComponent(s.getAttribute('data-code')) === String(rm.code) && 
-            decodeURIComponent(s.getAttribute('data-pname')) === String(item.productTarget)
-          );
-          batchVal = sel ? (sel.value === 'FIFO' ? 'Auto FIFO' : sel.value) : 'Auto FIFO';
-      } else if (isCompleted) {
-          const txs = _transactions.filter(t => t.reqNo === reqNo && t.code === rm.code);
-          batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
+      if (isCompleted) {
+          // 🚩 จัดการรูปแบบ BBF ให้พิมพ์ลงแบบฟอร์ม
+          const txs = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
+          if(txs.length > 0) {
+              let uniqueBatches = [...new Set(txs.map(t => t.batch))];
+              let bbfArr = uniqueBatches.map(b => {
+                  let match = (_batchMap[rm.code] || []).find(x => String(x.batch) === String(b));
+                  let bbfStr = match ? match.exp : "-";
+                  return `${b} (BBF: ${bbfStr})`;
+              });
+              batchVal = bbfArr.join(', ');
+          } else { batchVal = '-'; }
+      } else if (isWarehouse) {
+          // 🚩 ถ้ายังไม่จ่าย ให้อ่านจาก Checkbox ที่เลือกอยู่
+          const group = Array.from(document.querySelectorAll('.batch-group')).find(g => decodeURIComponent(g.getAttribute('data-code')) === String(rm.code) && decodeURIComponent(g.getAttribute('data-pname')) === String(item.productTarget));
+          if(group) {
+              let checked = group.querySelectorAll('.b-cb:checked');
+              let selectedOpts = Array.from(checked).map(c => c.value);
+              if(selectedOpts.includes('Auto FIFO') || selectedOpts.length === 0) {
+                  batchVal = 'Auto FIFO';
+              } else {
+                  let bbfArr = selectedOpts.map(b => {
+                      let match = (_batchMap[rm.code] || []).find(x => String(x.batch) === String(b));
+                      let bbfStr = match ? match.exp : "-";
+                      return `${b} (BBF: ${bbfStr})`;
+                  });
+                  batchVal = bbfArr.join(', ');
+              }
+          } else { batchVal = 'Auto FIFO'; }
       }
 
-      productEntry.items.push({
-        code: rm.code,
-        rmName: rm.rmName,
-        qty: reqQty,
-        unit: rm.sysUnit,
-        batch: batchVal
-      });
+      productEntry.items.push({ code: rm.code, rmName: rm.rmName, qty: reqQty, unit: rm.sysUnit, batch: batchVal });
     });
     
     printData.products.push(productEntry);
@@ -466,20 +469,27 @@ async function executeIssueDirectly() {
   const pin = document.getElementById('opPin').value.trim();
   if(!op || pin.length < 4) return alert('กรุณาระบุรหัสพนักงานและ PIN ให้ครบถ้วน');
 
-  const selects = document.querySelectorAll('.b-select');
+  const groups = document.querySelectorAll('.batch-group');
   let payload = [];
   
   _activeReq.items.forEach(item => {
       const bom = _bomMap[item.productTarget] || [];
       bom.forEach(rm => {
-         let batch = 'FIFO';
-         let sel = Array.from(selects).find(s => decodeURIComponent(s.getAttribute('data-code')) === String(rm.code) && decodeURIComponent(s.getAttribute('data-pname')) === String(item.productTarget));
-         if(sel) batch = sel.value;
+         let group = Array.from(groups).find(g => decodeURIComponent(g.getAttribute('data-code')) === String(rm.code) && decodeURIComponent(g.getAttribute('data-pname')) === String(item.productTarget));
+         
+         let selectedBatches = [];
+         if(group) {
+             let checked = group.querySelectorAll('.b-cb:checked');
+             checked.forEach(c => selectedBatches.push(c.value));
+         }
+         
+         // 🚩 ถ้ารายการที่ติ๊กไว้คือว่างเปล่า หรือมีคำว่า Auto FIFO จะให้ส่งว่า Auto FIFO 
+         let batchStr = selectedBatches.length > 0 ? selectedBatches.join(',') : 'Auto FIFO';
 
          const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
          let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
-         payload.push({ code: rm.code, name: rm.rmName, cutQty: reqQty, unit: rm.sysUnit, batch: batch, productTarget: item.productTarget });
+         payload.push({ code: rm.code, name: rm.rmName, cutQty: reqQty, unit: rm.sysUnit, batch: batchStr, productTarget: item.productTarget });
       });
   });
 
