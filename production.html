@@ -159,8 +159,9 @@ window.onload = () => { loadMasterData(); };
 async function loadMasterData() {
   mfShow('กำลังโหลดข้อมูล...');
   try {
-    const [jmaster, jreq] = await Promise.all([MF.getMasterData(), MF.getRequests()]);
+    const [jmaster, jreq, jusers] = await Promise.all([MF.getMasterData(), MF.getRequests(), MF.getUsers()]);
     
+    // ดึงสินค้า
     _bomMap = {}; _productList = [];
     (jmaster.data || []).forEach(rm => {
       const p = rm.productName; const c = String(rm.code || '').trim();
@@ -173,6 +174,15 @@ async function loadMasterData() {
     });
     _productList.sort();
     
+    // 🚩 ดึงรายชื่อพนักงานผลิต
+    let opHtml = '<option value="">-- เลือกพนักงานเบิก --</option>';
+    (jusers.data || []).forEach(u => {
+      if(u.dept === 'Production' || u.dept === 'Planning') {
+        opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`;
+      }
+    });
+    document.getElementById('inpOp').innerHTML = opHtml;
+
     _allHistory = jreq.data || [];
     if(_plans.length === 0) addPlanItem();
 
@@ -180,6 +190,36 @@ async function loadMasterData() {
   mfHide();
 }
 
+function checkSubmitBtn() {
+  const validPlans = _plans.filter(p => p.pName && p.qty > 0);
+  const op = document.getElementById('inpOp').value.trim();
+  const pin = document.getElementById('inpPin').value.trim();
+  // ล็อกปุ่มถ้าข้อมูลไม่ครบ หรือ PIN ไม่ถึง 4 ตัว
+  document.getElementById('btnSubmitReq').disabled = (validPlans.length === 0 || !op || pin.length < 4);
+}
+
+async function submitRequest() {
+  const op = document.getElementById('inpOp').value.trim();
+  const pin = document.getElementById('inpPin').value.trim();
+  const validPlans = _plans.filter(p => p.pName && p.qty > 0);
+  
+  if(validPlans.length === 0 || !op || !pin) return alert('กรุณาระบุข้อมูลและ PIN ให้ครบถ้วน');
+  
+  let items = validPlans.map(p => ({ productTarget: p.pName, qty: p.qty }));
+  mfShow('กำลังส่ง Request...');
+  try {
+    const res = await MF.createRequest({ items: items, operator: op, pin: pin });
+    if(res.status === 'success') {
+      alert('✅ ส่ง Request เรียบร้อยแล้ว!\nเลขที่: ' + res.reqNo);
+      _plans = []; document.getElementById('planContainer').innerHTML = ''; 
+      document.getElementById('inpOp').value = ''; document.getElementById('inpPin').value = '';
+      addPlanItem(); MF.bust('getRequests'); loadMasterData();
+    } else {
+      alert(res.message); // แสดงข้อความ Error (เช่น PIN ผิด)
+    }
+  } catch(e) { alert('เกิดข้อผิดพลาดในการส่งข้อมูล'); }
+  mfHide();
+}
 function addPlanItem() {
   const pid = 'plan_' + (++planCounter);
   _plans.push({ id: pid, pName: '', qty: 0 });
