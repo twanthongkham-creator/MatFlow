@@ -12,7 +12,6 @@ body { overflow-x: hidden; }
 .workspace-grid > div { min-width: 0; }
 @media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
 
-/* 🚩 ล็อก CSS ให้ SVG ทุกตัวในกล่องพวกนี้ ห้ามเทสีดำทึบเด็ดขาด */
 .plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg {
     fill: none !important;
 }
@@ -28,6 +27,7 @@ body { overflow-x: hidden; }
 .q-qty { font-weight:600; color:var(--txt2); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .sim-card { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; }
+.sim-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.85) 45%,rgba(190,220,255,.65) 70%,transparent 95%); }
 .sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(255,255,255,.3); border-bottom:1px solid rgba(180,210,255,.3); }
 .sim-idx { width:32px; height:32px; background:var(--b2); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'IBM Plex Mono',monospace; }
 .sim-title { flex:1; }
@@ -69,16 +69,24 @@ body { overflow-x: hidden; }
 
 <header class="topbar">
   <div class="topbar-inner">
-    <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
+    <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
     <nav class="topnav">
-      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
-      <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-      <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
-      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
+      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
+      <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
+      <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
+      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
+      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
     </nav>
-    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </div>
+  <div id="navDrawer" class="nav-drawer">
+    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
+    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
+    <a href="warehouse.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
+    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
+    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
+    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
   </div>
 </header>
 
@@ -100,12 +108,12 @@ body { overflow-x: hidden; }
         คิวงานรอจัดเตรียม (Pending)
       </div>
       <div id="queueContainer" style="padding:0 20px 20px 20px;">
-        </div>
+      </div>
     </div>
 
     <div class="a3">
       <div id="issueResults">
-        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -117,20 +125,23 @@ let _bomMap = {}; let _stockMap = {}; let _batchMap = {}; let _pendingReqs = [];
 let _activeReq = null;
 let _warehouseUsers = []; 
 let _allHistory = []; 
+let _transactions = []; 
 
 window.onload = () => { loadMasterData(); };
 
 async function loadMasterData() {
   mfShow('กำลังอัปเดตข้อมูลคิวงาน...');
   try {
-    const [jmaster, jm, jreq, jusers] = await Promise.all([
+    const [jmaster, jm, jreq, jusers, jtx] = await Promise.all([
       MF.getMasterData(), 
       MF.getMonitorData(), 
       MF.getRequests(), 
-      MF.getUsers()
+      MF.getUsers(),
+      MF.getTransactions() 
     ]);
     
     _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
+    _transactions = (jtx && jtx.data) ? jtx.data : [];
 
     _stockMap = {}; _batchMap = {};
     (jm.data || []).forEach(row => {
@@ -196,14 +207,12 @@ function renderCompletedHistory() {
     grouped[r.reqNo].items.push(r);
   });
 
-  // 🚩 Fix SVG
   let html = `<div class="plan-hd" style="margin-bottom:16px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
                 ประวัติการจัดจ่าย (Completed)
               </div>`;
   
   if(Object.keys(grouped).length === 0) {
-    // 🚩 Fix SVG
     html += `<div class="empty-sim">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
       <h3>ยังไม่มีประวัติการจัดจ่าย</h3>
@@ -215,7 +224,6 @@ function renderCompletedHistory() {
       g.items.forEach(i => itemsHtml += `<div style="font-weight:700; font-size:14px; color:var(--txt); margin-bottom:2px;">• ${i.productTarget} <span style="color:var(--green); font-family:'IBM Plex Mono',monospace;">(${i.targetQty} Unit)</span></div>`);
       const dt = new Date(g.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
       
-      // 🚩 Fix SVGs in History
       html += `
         <div class="sim-card" style="padding:16px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
@@ -263,7 +271,6 @@ function runCalculation() {
   const container = document.getElementById('issueResults');
   if (!_activeReq) { renderCompletedHistory(); return; }
   
-  // 🚩 Fix SVG ที่เป็นปัญหา (บังคับ fill="none" ทุกจุด)
   let html = `<div style="display:flex; justify-content:space-between; margin-bottom:16px; align-items:center;">
                 <div class="plan-hd" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
                   <svg viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="2" style="width:20px; height:20px; margin-right:8px;">
@@ -299,7 +306,10 @@ function runCalculation() {
         (_batchMap[rm.code] || []).forEach(b => opts += `<option value="${b.batch}">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} | BBF: ${b.exp}</option>`);
         if((_batchMap[rm.code] || []).length === 0) opts = `<option value="">ไม่มีสต๊อกในคลัง</option>`;
 
-        // 🚩 Fix SVGs inside the table (พอ / ขาด)
+        // 🚩 ทำการลบอักขระพิเศษ (เช่น ") ออกจาก Data Attribute เพื่อป้องกัน HTML พัง
+        let safeCode = String(rm.code).replace(/"/g, '&quot;');
+        let safePName = String(item.productTarget).replace(/"/g, '&quot;');
+
         let statIcon = isOk 
             ? '<span class="stat-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M20 6L9 17l-5-5"/></svg>พอ</span>' 
             : '<span class="stat-ng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ขาด</span>';
@@ -310,19 +320,17 @@ function runCalculation() {
             <td class="td-rm text-left">${rm.rmName}</td>
             <td class="td-num" style="color:var(--txt2);">${prepPackages.toLocaleString()} <span style="font-size:10px;">${rm.packName}</span></td>
             <td class="td-num t-req">${reqQty.toLocaleString()} <span style="font-size:10px;">${rm.sysUnit}</span></td>
-            <td><select class="batch-sel b-select" data-code="${rm.code}" data-req="${reqQty}" data-pname="${item.productTarget}" data-rmname="${rm.rmName}" data-unit="${rm.sysUnit}">${opts}</select></td>
+            <td><select class="batch-sel b-select" data-code="${safeCode}" data-pname="${safePName}">${opts}</select></td>
             <td>${statIcon}</td>
           </tr>
         `;
       });
     }
 
-    // 🚩 Fix Badge SVGs
     const badge = isGroupPass 
       ? `<div class="status-badge s-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M20 6L9 17l-5-5"/></svg>สต๊อกพร้อมจ่าย</div>` 
       : `<div class="status-badge s-fail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>วัตถุดิบไม่พอ</div>`;
 
-    // 🚩 Fix Index SVG
     html += `
       <div class="sim-card" style="padding:0; display:block;">
         <div class="sim-hd">
@@ -358,7 +366,6 @@ function runCalculation() {
   let userOpts = '<option value="">-- เลือกพนักงานคลัง --</option>';
   _warehouseUsers.forEach(u => userOpts += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`);
 
-  // 🚩 Fix Submit SVG
   html += `
     <div style="background:var(--glass); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:var(--r-xl); padding:20px; box-shadow:var(--sh-sm);">
       <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:8px; display:block;">ยืนยันตัวตน (พนักงานคลังสินค้า)</label>
@@ -385,6 +392,7 @@ function printDocument(reqNo) {
 
   let reqByText = firstReq.reqBy || "...............................";
   let issueByText = firstReq.status === 'Completed' ? firstReq.issueBy : "...............................";
+  let isCompleted = firstReq.status === 'Completed';
 
   let pagesHtml = '';
 
@@ -398,12 +406,24 @@ function printDocument(reqNo) {
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
 
+      // 🚩 ดึงข้อมูล Batch แบบปลอดภัย ทะลุทะลวงตัวอักษรพิเศษ
       let batchText = '';
-      if (typeof document !== 'undefined') {
-          let sel = document.querySelector(`.b-select[data-code="${rm.code}"][data-pname="${item.productTarget}"]`);
-          if(sel) {
-            batchText = sel.value === 'FIFO' ? 'Auto FIFO' : sel.value;
-          }
+      if (isCompleted) {
+         let txMatches = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
+         if (txMatches.length > 0) {
+            batchText = [...new Set(txMatches.map(t => t.batch))].join(', ');
+         } else {
+            batchText = '-';
+         }
+      } else {
+         let selects = document.querySelectorAll('.b-select');
+         for (let i = 0; i < selects.length; i++) {
+             if (selects[i].getAttribute('data-code') === String(rm.code) && selects[i].getAttribute('data-pname') === String(item.productTarget)) {
+                 batchText = selects[i].value === 'FIFO' ? 'Auto FIFO' : selects[i].value;
+                 break;
+             }
+         }
+         if (!batchText) batchText = 'Auto FIFO'; // Fallback ป้องกันค่าว่าง
       }
 
       tableRows += `<tr>
@@ -515,7 +535,6 @@ function printDocument(reqNo) {
       <style>
           @page { size: A4 portrait; margin: 10mm; }
           body { font-family: 'Sarabun', 'Prompt', Tahoma, sans-serif; font-size: 13px; color: black; background: white; margin:0; padding:0; }
-          /* กำหนดให้แบ่งหน้าทุกครั้งที่จบ 1 สินค้า */
           .page-container { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; padding-bottom: 20mm; }
           .page-container:last-child { page-break-after: auto; }
           table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
@@ -541,8 +560,20 @@ async function executeIssueDirectly() {
 
   const selects = document.querySelectorAll('.b-select');
   let payload = [];
-  selects.forEach(sel => {
-    payload.push({ code: sel.dataset.code, name: sel.dataset.rmname, cutQty: parseFloat(sel.dataset.req), unit: sel.dataset.unit, batch: sel.value, productTarget: sel.dataset.pname });
+  
+  // 🚩 แก้การดึงข้อมูลตอนจ่ายเพื่อป้องกันบัค
+  _activeReq.items.forEach(item => {
+      const bom = _bomMap[item.productTarget] || [];
+      bom.forEach(rm => {
+         let batch = 'FIFO';
+         let sel = Array.from(selects).find(s => s.getAttribute('data-code') === String(rm.code) && s.getAttribute('data-pname') === String(item.productTarget));
+         if(sel) batch = sel.value;
+
+         const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
+         let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
+
+         payload.push({ code: rm.code, name: rm.rmName, cutQty: reqQty, unit: rm.sysUnit, batch: batch, productTarget: item.productTarget });
+      });
   });
 
   mfShow('กำลังตัด Stock และปิดใบเบิก...');
