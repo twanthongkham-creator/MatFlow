@@ -48,7 +48,9 @@ body { overflow-x: hidden; }
 .s-cancel { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
 .btn-cancel { font-size:11px; font-weight:700; color:#dc2626; background:transparent; border:1px solid #fca5a5; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; }
 .btn-cancel:hover { background:#fef2f2; border-color:#dc2626; }
-.btn-cancel svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
+.btn-print { font-size:11px; font-weight:700; color:#0284c7; background:transparent; border:1px solid #7dd3fc; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; margin-left:8px; }
+.btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
+.btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
 </style>
 </head>
 <body>
@@ -67,14 +69,6 @@ body { overflow-x: hidden; }
       <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
     </nav>
     <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
   </div>
 </header>
 
@@ -136,7 +130,6 @@ body { overflow-x: hidden; }
           ต้องการยกเลิกใบเบิกเลขที่ <br><strong id="cancelReqNoDisplay" style="color:var(--b3); font-family:monospace; font-size:16px;">---</strong> ใช่หรือไม่?
         </div>
         <input type="hidden" id="cancelReqNoVal">
-        
         <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">เหตุผลการยกเลิก</label>
         <select id="cancelReason" class="op-input" style="margin-bottom:16px;" onchange="checkCancelBtn()">
           <option value="">-- เลือกเหตุผล --</option>
@@ -145,11 +138,9 @@ body { overflow-x: hidden; }
           <option value="เครื่องจักรขัดข้อง/เลื่อนการผลิต">เครื่องจักรขัดข้อง/เลื่อนการผลิต</option>
           <option value="อื่นๆ">อื่นๆ</option>
         </select>
-
         <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้ยกเลิก)</label>
         <div style="display:flex; gap:10px;">
-          <select id="cancelOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkCancelBtn()">
-            </select>
+          <select id="cancelOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkCancelBtn()"></select>
           <input type="password" id="cancelPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkCancelBtn()">
         </div>
       </div>
@@ -169,14 +160,13 @@ let _bomMap = {};
 let _plans = [];       
 let _allHistory = [];
 let planCounter = 0;
-let cancelMdl; // Modal instance
+let cancelMdl; 
 
 window.onload = () => { 
   cancelMdl = new bootstrap.Modal(document.getElementById('cancelModal'));
   loadMasterData(); 
 };
 
-// 🚩 ปรับปรุงฟังก์ชันโหลดข้อมูลให้ Hot Reload ข้อมูลผู้เบิกด้วย
 async function loadMasterData() {
   mfShow('กำลังโหลดข้อมูล...');
   try {
@@ -206,7 +196,7 @@ async function loadMasterData() {
     _allHistory = jreq.data || [];
     
     if(_plans.length === 0) addPlanItem();
-    else runSimulation(); // ถ้ารีโหลดหลังกด ให้เรนเดอร์ขวาใหม่เลย
+    else runSimulation();
 
   } catch(e) { alert('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + e.message); }
   mfHide();
@@ -323,12 +313,14 @@ function renderHistory() {
 
     if (g.status === 'Pending') {
       badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจ่ายของ</div>`;
-      actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ยกเลิกรายการ</button>`;
+      actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ยกเลิก</button>
+                    <button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
     } else if (g.status === 'Cancelled') {
       badgeHtml = `<div class="status-badge s-cancel"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>ยกเลิกแล้ว</div>`;
       itemsHtml += `<div style="margin-top:8px; font-size:11px; color:#dc2626; font-weight:600;">เหตุผล: ${g.issueDoc} (โดย ${g.issueBy})</div>`; 
     } else {
       badgeHtml = `<div class="status-badge s-pass"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>รับของแล้ว</div>`;
+      actionHtml = `<button class="btn-print" onclick="printDocument('${g.reqNo}')"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> พิมพ์ใบเบิก</button>`;
     }
 
     html += `
@@ -337,7 +329,7 @@ function renderHistory() {
           <div>
             <div style="font-size:11px; color:var(--txt3); font-family:'IBM Plex Mono',monospace; font-weight:600; margin-bottom:2px;">${g.reqNo} &nbsp;|&nbsp; ${dt}</div>
             <div style="font-size:11px; color:var(--txt3); font-weight:600;">ผู้เบิก: ${g.reqBy} ${g.status==='Completed' ? `<span style="color:var(--b2)">• จ่ายโดย: ${g.issueBy}</span>` : ''}</div>
-            <div style="margin-top:6px;">${actionHtml}</div>
+            <div style="margin-top:6px; display:flex; gap:6px;">${actionHtml}</div>
           </div>
           ${badgeHtml} 
         </div>
@@ -348,7 +340,144 @@ function renderHistory() {
   document.getElementById('rightPanelContent').innerHTML = html;
 }
 
-// 🚩 อัปเดตฟังก์ชันนี้ ให้แน่ใจว่าโหลดข้อมูลใหม่หลังกด Submit
+// 🚩 ฟังก์ชันสร้างและพิมพ์เอกสาร
+function printDocument(reqNo) {
+  const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
+  if(reqItems.length === 0) return;
+  const firstReq = reqItems[0];
+  const dateStr = new Date(firstReq.timestamp).toLocaleDateString('en-GB');
+
+  let tableRows = '';
+  let rowCount = 0;
+
+  // คำนวณ BOM สำหรับพิมพ์ฟอร์ม
+  reqItems.forEach(item => {
+    const bom = _bomMap[item.productTarget] || [];
+    bom.forEach(rm => {
+      rowCount++;
+      const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
+      let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
+
+      tableRows += `<tr>
+        <td style='border: 1px solid black;'>${rowCount}</td>
+        <td style='border: 1px solid black;'>${rm.code}</td>
+        <td style='border: 1px solid black; text-align: left; padding-left: 5px;'>${rm.rmName}</td>
+        <td style='border: 1px solid black; font-weight: bold;'>${reqQty.toLocaleString()}</td>
+        <td style='border: 1px solid black;'>${rm.sysUnit}</td>
+        <td style='border: 1px solid black;'>${item.productTarget}</td>
+      </tr>`;
+    });
+  });
+
+  // เติมแถวว่างให้ครบ 12 แถว
+  for(let i = rowCount + 1; i <= 12; i++) {
+    tableRows += `<tr>
+      <td style='border: 1px solid black; color: white;'>-</td>
+      <td style='border: 1px solid black;'></td>
+      <td style='border: 1px solid black;'></td>
+      <td style='border: 1px solid black;'></td>
+      <td style='border: 1px solid black;'></td>
+      <td style='border: 1px solid black;'></td>
+    </tr>`;
+  }
+
+  let reqByText = firstReq.reqBy || "...............................";
+  let issueByText = firstReq.status === 'Completed' ? firstReq.issueBy : "...............................";
+
+  let html = `
+  <!DOCTYPE html>
+  <html lang="th">
+  <head>
+      <meta charset="UTF-8">
+      <title>ใบเบิก - ${reqNo}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+      <style>
+          @page { size: A4 portrait; margin: 10mm; }
+          body { font-family: 'Sarabun', 'Prompt', Tahoma, sans-serif; font-size: 13px; color: black; background: white; margin:0; padding:0; }
+          .container { width: 100%; max-width: 800px; margin: 0 auto; }
+          table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; }
+          td { border: 1px solid black; padding: 5px; }
+          .no-border-side { border-left: none; border-right: none; }
+          .border-thick { border: 2px solid black; }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <table class="border-thick">
+              <tr>
+                  <td width="20%" style="vertical-align: middle;">
+                      <h2 style="color: #0070C0; margin: 0; font-family: Tahoma;">เสริมสุข</h2>
+                  </td>
+                  <td width="60%" style="line-height: 1.4;">
+                      <div style="font-size: 16px; font-weight: bold;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
+                      <div style="font-size: 16px; font-weight: bold;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
+                      <div style="font-size: 14px;">(Stock Transfer Request)</div>
+                  </td>
+                  <td width="20%" style="text-align: left; vertical-align: top; font-size: 12px; line-height: 1.4;">
+                      <div style="text-align: right; font-size: 10px; margin-bottom: 5px;">FM-Q-RW-001/013</div>
+                      <div>เลขที่ <b>${reqNo}</b></div>
+                      <div style="margin-top: 5px;">วันที่จัดทำ <b>${dateStr}</b></div>
+                  </td>
+              </tr>
+          </table>
+
+          <table class="border-thick" style="border-top: none; border-bottom: 2px solid black; padding: 8px;">
+              <tr>
+                  <td width="50%" style="border: none; text-align: left;">โรงงาน/ที่เก็บสินค้าผู้ขอโอน ..............................................</td>
+                  <td width="50%" style="border: none; text-align: left;">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน ..............................................</td>
+              </tr>
+              <tr>
+                  <td style="border: none; text-align: left;">วันที่ต้องการพัสดุ ..............................................</td>
+                  <td style="border: none; text-align: left;">เลขที่ใบจ่ายโอนจากระบบ ..............................................</td>
+              </tr>
+          </table>
+
+          <table class="border-thick" style="border-top: none;">
+              <tr style="font-weight: bold; background-color: #f8f9fa;">
+                  <td width="8%">ลำดับ</td>
+                  <td width="15%">รหัสพัสดุ</td>
+                  <td width="37%">รายละเอียด</td>
+                  <td width="15%">จำนวนขอโอน</td>
+                  <td width="10%">หน่วยนับ</td>
+                  <td width="15%">หมายเหตุ</td>
+              </tr>
+              ${tableRows}
+          </table>
+
+          <table class="border-thick" style="border-top: none; font-size: 12px;">
+              <tr style="font-weight: bold; background-color: #f8f9fa;">
+                  <td width="16.6%">ผู้ขอโอน</td>
+                  <td width="16.6%">ผู้อนุมัติขอโอน</td>
+                  <td width="16.6%">ผู้จ่ายโอน</td>
+                  <td width="16.6%">ผู้อนุมัติจ่ายโอน</td>
+                  <td width="16.6%">ผู้รับของ</td>
+                  <td width="16.6%">ผู้บันทึกรายการ</td>
+              </tr>
+              <tr style="height: 50px; vertical-align: bottom;">
+                  <td style="text-align: left; padding: 5px;">ลงชื่อ ${reqByText}<br><br>วันที่ ....../......../........</td>
+                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
+                  <td style="text-align: left; padding: 5px;">ลงชื่อ ${issueByText}<br><br>วันที่ ....../......../........</td>
+                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
+                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
+                  <td style="text-align: left; padding: 5px;">ลงชื่อ ...............................<br><br>วันที่ ....../......../........</td>
+              </tr>
+          </table>
+          
+          <div style="font-size: 10px; margin-top: 5px; text-align: left;">Rev.00/Eff Date:01/06/2020</div>
+      </div>
+      <script>
+          window.onload = function() {
+              window.print();
+          };
+      <\/script>
+  </body>
+  </html>`;
+
+  let printWindow = window.open('', '', 'width=900,height=800');
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
 async function submitRequest() {
   const op = document.getElementById('inpOp').value.trim();
   const pin = document.getElementById('inpPin').value.trim();
@@ -362,18 +491,9 @@ async function submitRequest() {
     const res = await MF.createRequest({ items: items, operator: op, pin: pin });
     if(res.status === 'success') {
       alert('✅ ส่ง Request เรียบร้อยแล้ว!\nเลขที่: ' + res.reqNo);
-      // เคลียร์ค่าฝั่งซ้าย
-      _plans = []; 
-      document.getElementById('planContainer').innerHTML = ''; 
-      document.getElementById('inpOp').value = ''; 
-      document.getElementById('inpPin').value = '';
-      
-      // สั่งล้างแคช และโหลดข้อมูลใหม่ทันที
-      MF.bust('getRequests'); 
-      await loadMasterData(); 
-      
-      // เพิ่มช่องว่าง 1 อันกลับมาให้กรอกต่อ
-      addPlanItem(); 
+      _plans = []; document.getElementById('planContainer').innerHTML = ''; 
+      document.getElementById('inpOp').value = ''; document.getElementById('inpPin').value = '';
+      addPlanItem(); MF.bust('getRequests'); loadMasterData();
     } else { alert(res.message); }
   } catch(e) { alert('เกิดข้อผิดพลาดในการส่งข้อมูล'); }
   mfHide();
@@ -389,7 +509,6 @@ function showCancelModal(reqNo) {
   cancelMdl.show();
 }
 
-// 🚩 อัปเดตฟังก์ชันนี้ ให้แน่ใจว่าโหลดข้อมูลใหม่หลังกดยกเลิก
 async function executeCancel() {
   const reqNo = document.getElementById('cancelReqNoVal').value;
   const reason = document.getElementById('cancelReason').value;
@@ -402,9 +521,7 @@ async function executeCancel() {
     if(res.status === 'success') {
       cancelMdl.hide();
       alert('✅ ยกเลิกใบเบิกเรียบร้อยแล้ว');
-      // สั่งล้างแคช และโหลดข้อมูลใหม่ทันที
-      MF.bust('getRequests'); 
-      await loadMasterData();
+      MF.bust('getRequests'); await loadMasterData();
     } else {
       alert(res.message);
     }
