@@ -2,17 +2,19 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>พิมพ์ใบเบิก (MatFlow)</title>
+    <title>พิมพ์ใบเบิก (MatFlow) - Landscape</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @page { size: A4 portrait; margin: 10mm; }
-        body { font-family: 'Sarabun', sans-serif; font-size: 13px; color: black; background: #525659; margin: 0; padding: 20px; }
+        /* 🚩 ตั้งค่าหน้ากระดาษเป็นแนวนอน (Landscape) */
+        @page { size: A4 landscape; margin: 8mm; }
+        
+        body { font-family: 'Sarabun', sans-serif; font-size: 14px; color: black; background: #525659; margin: 0; padding: 20px; }
         
         .page-container { 
-            width: 210mm; 
-            min-height: 296mm; 
-            padding: 10mm; 
-            margin: 0 auto 20px auto; 
+            width: 280mm; 
+            min-height: 190mm; 
+            padding: 8mm; 
+            margin: 0 auto 15px auto; 
             background: white; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
             box-sizing: border-box; 
@@ -21,50 +23,46 @@
         }
         .page-container:last-child { page-break-after: auto; margin-bottom: 0; }
         
-        /* 🚩 รหัสเอกสารอยู่นอกกรอบตาราง */
-        .doc-id-top { text-align: right; font-size: 11px; margin-bottom: 5px; font-weight: bold; }
+        .doc-id-top { text-align: right; font-size: 11px; margin-bottom: 3px; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; table-layout: fixed; }
-        th, td { border: 1px solid black; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; }
+        th, td { border: 1px solid black; padding: 5px 8px; vertical-align: middle; word-wrap: break-word; }
         
         .header-table { border-bottom: none; }
-        .header-table td { border: none; border-right: 1px solid black; }
+        .header-table td { border: none; border-right: 1px solid black; padding: 10px; }
         .header-table td:last-child { border-right: none; }
         
-        /* 🚩 การตั้งค่า Logo */
-        .logo-img { 
-            max-width: 120px; 
-            max-height: 60px; 
-            object-fit: contain; 
-            margin-bottom: 2px;
-        }
+        .logo-img { max-width: 140px; max-height: 70px; object-fit: contain; margin-bottom: 2px; }
+        .brand-text { color: #0070C0; font-family: Tahoma, sans-serif; font-weight: bold; font-size: 22px; margin: 0; }
 
         .info-table { border-top: 2px solid black; border-bottom: none; }
-        .info-table td { border: none; text-align: left; padding: 6px 10px; }
-        .dot-line { display: inline-block; min-width: 120px; border-bottom: 1px dotted black; }
+        .info-table td { border: none; text-align: left; padding: 8px 15px; font-size: 15px; }
         
         .main-table { border-top: 2px solid black; }
-        .main-table th { background: #f8f9fa; font-weight: bold; padding: 6px; font-size: 12px; }
-        .text-left { text-align: left !important; padding-left: 8px !important; }
+        .main-table th { background: #f8f9fa; font-weight: bold; padding: 8px; font-size: 14px; }
+        .text-left { text-align: left !important; padding-left: 12px !important; }
         .bold { font-weight: bold; }
         
         .footer-table { border-top: none; }
-        .footer-title { background: #f8f9fa; font-weight: bold; font-size: 11px; padding: 4px 2px; }
-        .footer-box { height: 65px; vertical-align: bottom !important; padding-bottom: 8px !important; font-size: 11px; line-height: 1.6; }
+        .footer-title { background: #f8f9fa; font-weight: bold; font-size: 13px; padding: 6px 2px; border-bottom: 2px solid black; }
+        .footer-box { height: 75px; vertical-align: bottom !important; padding-bottom: 10px !important; font-size: 12px; line-height: 1.8; }
         
+        /* 🚩 บังคับให้เลขที่ใบเบิกแสดงบรรทัดเดียว */
+        .no-wrap { white-space: nowrap; }
+
         @media print {
             body { background: white; padding: 0; margin: 0; }
-            .page-container { width: 100%; min-height: auto; margin: 0; padding: 10mm; box-shadow: none; }
+            .page-container { width: 100%; min-height: auto; margin: 0; padding: 8mm; box-shadow: none; border: none; }
             .no-print { display: none !important; }
         }
 
-        .print-btn { padding:10px 20px; font-size:16px; cursor:pointer; background:#0070C0; color:white; border:none; border-radius:8px; font-family:'Sarabun', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px; }
+        .print-btn { padding:12px 25px; font-size:16px; cursor:pointer; background:#0070C0; color:white; border:none; border-radius:8px; font-family:'Sarabun', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     
     <div class="no-print" style="text-align:center;">
-        <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์ใบเบิกพัสดุ</button>
+        <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์ใบเบิกพัสดุ (แนวนอน)</button>
     </div>
     
     <div id="print-area"></div>
@@ -75,7 +73,7 @@
             
             if (!data.reqNo) {
                 document.getElementById('print-area').innerHTML = `
-                    <div class="page-container" style="display:flex; align-items:center; justify-content:center;">
+                    <div class="page-container" style="display:flex; align-items:center; justify-content:center; height:100vh;">
                         <h2 style="color:red;">❌ ไม่พบข้อมูลการพิมพ์ กรุณากลับไปกดปุ่มพิมพ์จากหน้าหลักอีกครั้ง</h2>
                     </div>`;
                 return;
@@ -89,34 +87,33 @@
                 prod.items.forEach((item, idx) => {
                     rowsHtml += `
                         <tr>
-                            <td style="width:8%">${idx + 1}</td>
-                            <td style="width:15%">${item.code}</td>
-                            <td class="text-left" style="width:35%">${item.rmName}</td>
-                            <td class="bold" style="width:14%">${item.qty.toLocaleString()}</td>
-                            <td style="width:11%">${item.unit}</td>
-                            <td style="width:17%; font-size: 10px;">${item.batch || ''}</td>
+                            <td style="width:6%">${idx + 1}</td>
+                            <td style="width:14%">${item.code}</td>
+                            <td class="text-left" style="width:36%">${item.rmName}</td>
+                            <td class="bold" style="width:12%">${item.qty.toLocaleString()}</td>
+                            <td style="width:10%">${item.unit}</td>
+                            <td style="width:22%; font-size: 11px;">${item.batch || ''}</td>
                         </tr>`;
                 });
 
-                // 🚩 ProductName แถวสุดท้าย ไม่ใส่ตัวเลขที่ช่องลำดับ
+                // แถว ProductName (ไม่ใส่เลขลำดับ)
                 rowsHtml += `
                     <tr>
                         <td></td>
                         <td></td>
-                        <td class="text-left bold" style="font-size: 14px;">${prod.pName}</td>
+                        <td class="text-left bold" style="font-size: 16px; color:#000;">${prod.pName}</td>
                         <td></td>
                         <td></td>
                         <td></td>
                     </tr>`;
 
+                // เติมแถวว่างให้ครบ 12 แถว
                 for (let i = prod.items.length + 2; i <= 12; i++) {
                     rowsHtml += `<tr><td style="color:transparent;">-</td><td></td><td></td><td></td><td></td><td></td></tr>`;
                 }
 
-                let reqName = data.reqBy && data.reqBy.length > 20 ? data.reqBy.substring(0,20) + '..' : (data.reqBy || "...................");
-                let issName = data.issueBy && data.issueBy.length > 20 ? data.issueBy.substring(0,20) + '..' : (data.issueBy || "...................");
-
-                // 🚩 แสดงวันที่แบบ dd/mm/yyyy
+                let reqName = data.reqBy || "...................";
+                let issName = data.issueBy || "...................";
                 let currentFullDate = data.date || "..../..../....";
 
                 html += `
@@ -127,39 +124,39 @@
                         <tr>
                             <td width="20%">
                                 <img src="https://i.postimg.cc/sxsFWk6Q/ssclogo.png" class="logo-img" alt="SSC Logo">
-                                <div style="font-size:10px; font-weight:bold; color:#555;">บริษัท เสริมสุข จำกัด (มหาชน)</div>
+                                <div style="font-size:11px; font-weight:bold; color:#555;">บริษัท เสริมสุข จำกัด (มหาชน)</div>
                             </td>
-                            <td width="55%">
-                                <div class="bold" style="font-size:16px;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
-                                <div class="bold" style="font-size:15px;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
-                                <div style="font-size:13px;">(Stock Transfer Request)</div>
+                            <td width="50%">
+                                <div class="bold" style="font-size:18px;">บริษัท เสริมสุข จำกัด(มหาชน) โรงงานปทุมธานี</div>
+                                <div class="bold" style="font-size:17px;">ใบขอโอนพัสดุภายในโรงงานเดียวกัน(311)</div>
+                                <div style="font-size:15px;">(Stock Transfer Request)</div>
                             </td>
-                            <td width="25%" style="text-align:right; font-size:12px; padding-right:10px;">
-                                <div>เลขที่ <span class="bold" style="font-size:14px;">${data.reqNo}</span></div>
-                                <div style="margin-top: 5px;">วันที่จัดทำ <span class="bold">${currentFullDate}</span></div>
+                            <td width="30%" style="text-align:right; font-size:14px; padding-right:15px;">
+                                <div class="no-wrap">เลขที่ <span class="bold" style="font-size:15px;">${data.reqNo}</span></div>
+                                <div style="margin-top: 8px;">วันที่จัดทำ <span class="bold">${currentFullDate}</span></div>
                             </td>
                         </tr>
                     </table>
 
                     <table class="info-table">
                         <tr>
-                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้ขอโอน <span class="dot-line"></span></td>
-                            <td width="50%">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน <span class="dot-line"></span></td>
+                            <td width="55%">โรงงาน/ที่เก็บสินค้าผู้ขอโอน: <span class="bold">3201-3101</span></td>
+                            <td width="45%">โรงงาน/ที่เก็บสินค้าผู้จ่ายโอน: <span class="bold">3201-1201</span></td>
                         </tr>
                         <tr>
-                            <td>วันที่ต้องการพัสดุ <span class="dot-line"></span></td>
-                            <td>เลขที่ใบจ่ายโอนจากระบบ <span class="dot-line"></span></td>
+                            <td>วันที่ต้องการพัสดุ: <span class="bold">${currentFullDate}</span></td>
+                            <td>เลขที่ใบจ่ายโอนจากระบบ: ........................................</td>
                         </tr>
                     </table>
 
                     <table class="main-table">
                         <tr>
-                            <th width="8%">ลำดับ</th>
-                            <th width="15%">รหัสพัสดุ</th>
-                            <th width="35%">รายละเอียด</th>
-                            <th width="14%">จำนวนขอโอน</th>
-                            <th width="11%">หน่วยนับ</th>
-                            <th width="17%">หมายเหตุ</th>
+                            <th width="6%">ลำดับ</th>
+                            <th width="14%">รหัสพัสดุ</th>
+                            <th width="36%">รายละเอียด</th>
+                            <th width="12%">จำนวนขอโอน</th>
+                            <th width="10%">หน่วยนับ</th>
+                            <th width="22%">หมายเหตุ</th>
                         </tr>
                         ${rowsHtml}
                     </table>
@@ -175,20 +172,21 @@
                         </tr>
                         <tr>
                             <td class="footer-box">ลงชื่อ <span class="bold">${reqName}</span><br>วันที่ ${currentFullDate}</td>
-                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${reqName}</span><br>วันที่ ${currentFullDate}</td>
                             <td class="footer-box">ลงชื่อ <span class="bold">${issName}</span><br>วันที่ ${currentFullDate}</td>
-                            <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
+                            <td class="footer-box">ลงชื่อ <span class="bold">${issName}</span><br>วันที่ ${currentFullDate}</td>
                             <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
                             <td class="footer-box">ลงชื่อ .........................<br>วันที่ ..../..../....</td>
                         </tr>
                     </table>
-                    <div style="font-size:10px; margin-top:5px; text-align:left;">Rev.00/Eff Date:01/06/2020</div>
-                    
+                    <div style="font-size:11px; margin-top:8px; text-align:left; font-weight:bold;">Rev.00/Eff Date:01/06/2020</div>
                 </div>`;
             });
 
             document.getElementById('print-area').innerHTML = html;
-            setTimeout(() => { window.print(); }, 600);
+            
+            // หน่วงเวลาเพื่อให้แน่ใจว่า Font และรูปภาพโหลดเสร็จก่อนสั่งพิมพ์
+            setTimeout(() => { window.print(); }, 800);
         };
     </script>
 </body>
