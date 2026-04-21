@@ -154,7 +154,7 @@ async function loadMasterData() {
       MF.getTransactions() 
     ]);
     
-    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
+    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse');
     _transactions = (jtx && jtx.data) ? jtx.data : [];
 
     _stockMap = {}; _batchMap = {};
