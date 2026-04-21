@@ -6,11 +6,60 @@
 <title>MatFlow — Receiving</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
+<style>
+/* Custom Styles สำหรับหน้า รับเข้าวัตถุดิบ */
+.scan-wrap { position: relative; margin-bottom: 14px; }
+.scan-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--txt3); }
+.scan-wrap input { padding-left: 44px; font-size: 15px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+
+.preview { background: rgba(240,244,248,.6); border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+.pf-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--txt3); margin-bottom: 2px; }
+.pf-val { font-size: 14px; font-weight: 700; color: var(--txt); }
+.pf-unit { font-size: 13px; font-weight: 700; color: var(--b3); background: rgba(66,146,255,.1); padding: 2px 8px; border-radius: 6px; display: inline-block; }
+
+.op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
+.op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
+.op-input[readonly] { background: #f1f5f9; cursor: not-allowed; border-color: #cbd5e1; color: var(--b2); }
+
+.qi-card { background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 4px 10px rgba(0,0,0,0.03); transition: .2s; }
+.qi-card:hover { border-color: var(--b2); transform: translateY(-1px); }
+.bcode { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: var(--b2); background: rgba(66,146,255,.1); padding: 4px 8px; border-radius: 6px; display: inline-block; }
+.btn-rmv-qi { width: 32px; height: 32px; border-radius: 8px; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: .2s; flex-shrink: 0; }
+.btn-rmv-qi:hover { background: #fee2e2; border-color: #dc2626; }
+.btn-rmv-qi svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5; fill: none; }
+</style>
 </head>
 <body>
 
 <div id="loader" class="loader" style="display:none">
   <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังประมวลผล...</div></div>
+</div>
+
+<div class="modal fade mf-modal" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border: 2px solid var(--amber);">
+      <div class="modal-hd" style="background:linear-gradient(135deg,var(--amber),#b45309);">
+        <div class="modal-hd-title" style="color:#fff; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.5;margin-right:8px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            ยืนยันตัวตนพนักงานคลังสินค้า
+        </div>
+      </div>
+      <div class="modal-bd" style="padding: 24px 20px;">
+        <label style="font-size:11.5px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block; text-transform:uppercase;">เลือกชื่อผู้ใช้งาน (Warehouse)</label>
+        <select id="loginUser" class="op-input" style="margin-bottom:16px;">
+           <option value="">-- กำลังโหลดรายชื่อ... --</option>
+        </select>
+        
+        <label style="font-size:11.5px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block; text-transform:uppercase;">PIN 4 หลัก</label>
+        <input type="password" id="loginPin" class="op-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-size:24px; letter-spacing:12px; font-weight:bold; margin-bottom:0;">
+      </div>
+      <div class="modal-ft" style="background: #fff8f1; padding: 16px 20px;">
+        <button class="btn btn-amber w-100" onclick="verifyLogin()" style="padding:14px; font-size:15px; font-weight:700; box-shadow: 0 4px 12px rgba(217,119,6,0.3);">
+          เข้าสู่ระบบรับเข้าวัตถุดิบ
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <header class="topbar">
@@ -45,7 +94,7 @@
   <div class="ph a1">
     <h1>
       <span class="ph-ico" style="background:linear-gradient(135deg,var(--amber),#b45309)">
-        <svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
       </span>
       รับเข้าวัตถุดิบ
     </h1>
@@ -56,16 +105,16 @@
     <div class="col-lg-6 a2">
       <div class="card-mf h-100">
         <div class="ctitle">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           ค้นหาวัตถุดิบ
         </div>
         <div class="scan-wrap">
-          <div class="scan-ico"><svg viewBox="0 0 24 24"><path d="M3 9V5a2 2 0 012-2h4M3 15v4a2 2 0 002 2h4M15 3h4a2 2 0 012 2v4M15 21h4a2 2 0 002-2v-4"/><line x1="7" y1="12" x2="7.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="17" y1="12" x2="17.01" y2="12"/></svg></div>
-          <input list="masterList" id="codeInput" class="fc" placeholder="พิมพ์หรือสแกนรหัสวัตถุดิบ..." oninput="onCode()">
+          <div class="scan-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9V5a2 2 0 012-2h4M3 15v4a2 2 0 002 2h4M15 3h4a2 2 0 012 2v4M15 21h4a2 2 0 002-2v-4"/><line x1="7" y1="12" x2="7.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="17" y1="12" x2="17.01" y2="12"/></svg></div>
+          <input list="masterList" id="codeInput" class="op-input" style="margin-bottom:0;" placeholder="พิมพ์หรือสแกนรหัสวัตถุดิบ..." oninput="onCode()">
           <datalist id="masterList"></datalist>
         </div>
         
-        <div class="preview">
+        <div class="preview" style="margin-top: 14px;">
           <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px">
             <div><div class="pf-lbl">RM Name</div><div class="pf-val" id="resName">—</div></div>
           </div>
@@ -74,103 +123,154 @@
             <div><div class="pf-lbl">รับเข้าด้วยหน่วย (Package)</div><div class="pf-unit" id="resPackage">—</div></div>
           </div>
           
-          <div class="info-box" style="margin-top:12px; margin-bottom:0; font-size:11px; padding:8px 12px;">
-            <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>ระบบจะแปลงหน่วยจาก <b id="resPackageHint">แพ็คเกจ</b> ให้เป็น <b id="resUnitHint">Unit</b> เพื่อบันทึกลงคลังโดยอัตโนมัติ</span>
+          <div style="background:rgba(255,255,255,0.7); border:1px solid rgba(180,210,255,.5); border-radius:8px; margin-top:12px; font-size:11px; padding:8px 12px; color:var(--b3); font-weight:600; display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>ระบบจะแปลงหน่วยจาก <b id="resPackageHint" style="color:var(--txt);">แพ็คเกจ</b> ให้เป็น <b id="resUnitHint" style="color:var(--txt);">Unit</b> ลงคลังอัตโนมัติ</span>
           </div>
         </div>
 
-        <div style="border-top:1px solid rgba(180,210,255,.30);margin:16px 0"></div>
+        <div style="border-top:1px dashed #cbd5e1; margin:16px 0;"></div>
+        
         <div class="ctitle c-amb">
-          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           รายละเอียดล็อตสินค้า
         </div>
 
-        <div class="row g-2 mb-3">
-          <div class="col-6"><label class="fl">Batch / Lot No.</label><input type="text" id="batchInput" class="fc" placeholder="Lot No..."></div>
-          <div class="col-6"><label class="fl">จำนวน (หน้างาน/Package)</label><input type="number" id="qtyInput" class="fc" value="1" min="0.0001" step="0.0001"></div>
+        <div class="row g-2 mb-2">
+          <div class="col-6"><label style="font-size:11px; font-weight:700; color:var(--txt3);">Batch / Lot No.</label><input type="text" id="batchInput" class="op-input" placeholder="Lot No..."></div>
+          <div class="col-6"><label style="font-size:11px; font-weight:700; color:var(--txt3);">จำนวน (หน้างาน/Package)</label><input type="number" id="qtyInput" class="op-input" value="1" min="0.0001" step="0.0001"></div>
         </div>
         <div class="row g-2 mb-4">
           <div class="col-6">
-            <div class="date-box mfg">
-              <label><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>วันผลิต (MFG)</label>
-              <input type="date" id="mfgInput">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--txt3);">วันผลิต (MFG)</label>
+              <input type="date" id="mfgInput" class="op-input">
             </div>
           </div>
           <div class="col-6">
-            <div class="date-box exp">
-              <label><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>วันหมดอายุ (BBF)</label>
-              <input type="date" id="expInput">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--red);">วันหมดอายุ (BBF)</label>
+              <input type="date" id="expInput" class="op-input" style="border-color: #fca5a5; background: #fff5f5;">
             </div>
           </div>
         </div>
-        <button class="btn btn-amber btn-w" onclick="addToQueue()">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <button class="btn btn-amber w-100" onclick="addToQueue()" style="padding:12px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           เพิ่มลงคิวรับเข้า
         </button>
       </div>
     </div>
 
     <div class="col-lg-6 a3">
-      <div id="qArea" class="card-mf h-100" style="display:none">
+      <div id="qArea" class="card-mf h-100" style="display:none; padding:20px; display:flex; flex-direction:column;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <div class="ctitle" style="margin-bottom:0">
-            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
             รายการเตรียมบันทึก
           </div>
-          <span id="qCountPill" class="bcode">0 รายการ</span>
+          <span id="qCountPill" class="bcode" style="font-size:12px;">0 รายการ</span>
         </div>
-        <div id="qList" style="max-height:360px;overflow-y:auto;padding-right:2px;margin-bottom:4px"></div>
-        <div class="confirm-bar">
-          <div class="op-row">
-            <div><div class="op-lbl-txt">Operator ID</div><input type="text" id="opName" value="Admin" readonly class="op-input"></div>
-            <span id="itemCount" class="item-pill">0 รายการ</span>
+        
+        <div id="qList" style="flex:1; overflow-y:auto; padding-right:4px; margin-bottom:16px;"></div>
+        
+        <div style="background:var(--glass); border:1px solid #cbd5e1; border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="flex:1;">
+                <div style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:4px;">Operator ID (ผู้บันทึก)</div>
+                <input type="text" id="opName" readonly class="op-input" style="margin-bottom:0; padding:6px 12px;">
+            </div>
+            <div style="margin-left:16px; text-align:right;">
+                <div style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:4px;">ยอดรวม</div>
+                <div id="itemCount" style="font-size:16px; font-weight:bold; color:var(--b3); font-family:monospace;">0 รายการ</div>
+            </div>
           </div>
-          <button id="btnSubmit" class="btn btn-green btn-w" onclick="doSubmit()">
-            <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>ยืนยันบันทึกเข้าคลังทั้งหมด
+          <button id="btnSubmit" class="btn btn-green w-100" onclick="doSubmit()" style="padding:12px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M20 6L9 17l-5-5"/></svg>
+            ยืนยันบันทึกเข้าคลังทั้งหมด
           </button>
         </div>
       </div>
-      <div id="qPlaceholder" class="card-mf h-100 cph">
-        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-        <p>คิวรับเข้ายังว่าง</p><span>ค้นหาวัตถุดิบและเพิ่มลงคิว</span>
+
+      <div id="qPlaceholder" class="card-mf h-100" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px; border:2px dashed #cbd5e1; background:rgba(248,250,252,.5);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="width:56px;height:56px;margin-bottom:16px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        <p style="font-size:16px; font-weight:700; color:var(--txt2); margin:0 0 4px;">คิวรับเข้ายังว่าง</p>
+        <span style="font-size:13px; color:var(--txt3);">ค้นหาวัตถุดิบด้านซ้ายและเพิ่มลงคิว</span>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js"></script>
+<script src="mf-shared.js?v=8"></script>
 <script>
 let master=[], queue=[], selected=null;
-const SVG_X=`<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+let _warehouseUsers = [];
+let loggedInUser = "";
+let loginMdl;
+
+// 🚩 ฟังก์ชันจัดรูปแบบวันที่ (DD/MM/YYYY)
+function mfFmtDisplay(dstr) {
+  if (!dstr) return '—';
+  const d = new Date(dstr);
+  if (isNaN(d.getTime())) return '—';
+  const pad = (n) => n < 10 ? '0' + n : n;
+  return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
+}
 
 window.onload=async()=>{
-  mfShow('กำลังเชื่อมต่อฐานข้อมูล...');
+  loginMdl = new bootstrap.Modal(document.getElementById('loginModal'));
+  mfShow('กำลังเตรียมระบบ...');
   try {
-    const j=await MF.getMasterData(); 
-    master=j.data;
-    const dl=document.getElementById('masterList');
-    
-    // สร้าง Dropdown ค้นหา (ไม่ต้องใส่ Product Name เข้าไปแล้ว)
-    master.forEach(i=>{
-        const op=document.createElement('option');
-        op.value=i.code;
-        op.textContent=i.name; 
+    const [jmaster, jusers] = await Promise.all([MF.getMasterData(), MF.getUsers()]);
+    master = jmaster.data || [];
+
+    // 🚩 ดึงชื่อเฉพาะคนในแผนกคลังสินค้า
+    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
+    let opHtml = '<option value="">-- เลือกชื่อพนักงานคลัง --</option>';
+    _warehouseUsers.forEach(u => {
+        opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`;
+    });
+    document.getElementById('loginUser').innerHTML = opHtml;
+
+    // เติมข้อมูลรหัสสินค้าใน Datalist
+    const dl = document.getElementById('masterList');
+    master.forEach(i => {
+        const op = document.createElement('option');
+        op.value = i.code;
+        op.textContent = i.name; 
         dl.appendChild(op);
     });
+
+    mfHide();
+    loginMdl.show(); // บังคับให้ Login ก่อน
+
   } catch(e) {
-      alert('เชื่อมต่อ API ล้มเหลว');
+      alert('เชื่อมต่อ API ล้มเหลว กรุณารีเฟรชหน้าต่างใหม่');
+      mfHide();
   }
-  mfHide();
 };
+
+// 🚩 ฟังก์ชันยืนยัน Login
+function verifyLogin() {
+    const empId = document.getElementById('loginUser').value;
+    const pin = document.getElementById('loginPin').value;
+    
+    if (!empId || pin.length < 4) return alert('กรุณาเลือกชื่อและกรอก PIN ให้ครบ 4 หลัก');
+
+    const user = _warehouseUsers.find(u => u.empId === empId);
+    if(!user) return alert('ไม่พบข้อมูลผู้ใช้งาน');
+
+    loggedInUser = user.name;
+    document.getElementById('opName').value = loggedInUser;
+    
+    loginMdl.hide(); // ปิด Modal เริ่มใช้งานได้
+}
 
 function onCode(){
   const code=document.getElementById('codeInput').value;
   selected=master.find(i=>i.code===code);
   
   document.getElementById('resName').textContent=selected?selected.name:'—';
-  // 🚩 แสดงหน่วยรับเข้าเป็น Package (เช่น ถัง, ขวด) เพื่อให้สอดคล้องกับหน้างาน
   document.getElementById('resPackage').textContent=selected?selected.packageType:'—'; 
   document.getElementById('resSupplier').textContent=selected?selected.supplier:'—';
   
@@ -180,60 +280,77 @@ function onCode(){
 
 function addToQueue(){
   const batch=document.getElementById('batchInput').value.trim();
-  const inputQty=parseFloat(document.getElementById('qtyInput').value); // รับค่าเป็น Package
+  const inputQty=parseFloat(document.getElementById('qtyInput').value); 
   const mfg=document.getElementById('mfgInput').value, exp=document.getElementById('expInput').value;
   
   if(!selected)return alert('กรุณาเลือกรหัสวัตถุดิบก่อน');
-  if(!batch)return alert('กรุณาระบุเลข Batch');
+  if(!batch)return alert('กรุณาระบุเลข Batch / Lot No.');
   if(isNaN(inputQty)||inputQty<=0)return alert('กรุณาระบุจำนวนที่ถูกต้อง (> 0)');
-  if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
+  if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุให้ครบถ้วน');
   if(new Date(mfg)>new Date(exp))return alert('วันผลิต (MFG) ต้องไม่มากกว่าวันหมดอายุ (BBF)');
   
-  // 🚩 สำคัญ: แปลงจาก Package กลับเป็น Unit ทันทีก่อนเก็บเข้า Queue เพื่อให้ RM_Monitoring มีแต่ Unit ล้วนๆ
   const sysUnitQty = inputQty * (selected.unitPerPack || 1);
 
   queue.push({
       ...selected,
       batch,
-      inputPackageQty: inputQty, // เก็บไว้โชว์สวยๆ ว่ากรอกมากี่ถัง
-      qty: sysUnitQty,           // 🚩 ค่าที่จะส่งไปบันทึกลงระบบต้องเป็น Unit
+      inputPackageQty: inputQty, 
+      qty: sysUnitQty,           
       mfgDate: mfg,
       expDate: exp
   }); 
   
   render();
+  
+  // 🚩 ทำการ Reset ช่องกรอกข้อมูลให้ว่างเปล่าทุกครั้งที่กดเพิ่มสำเร็จ
   document.getElementById('codeInput').value=''; 
   document.getElementById('batchInput').value='';
   document.getElementById('qtyInput').value='1'; 
   document.getElementById('mfgInput').value=''; 
   document.getElementById('expInput').value='';
-  onCode(); 
-  document.getElementById('codeInput').focus();
+  onCode(); // ให้ระบบล้าง Preview UI กลับเป็นขีด (—)
+  
+  document.getElementById('codeInput').focus(); // นำ Cursor กลับไปรอที่ช่องรหัส
 }
 
 function render(){
   const has=queue.length>0;
-  document.getElementById('qArea').style.display=has?'block':'none';
+  document.getElementById('qArea').style.display=has?'flex':'none';
   document.getElementById('qPlaceholder').style.display=has?'none':'flex';
   
   if(!has) return;
   document.getElementById('qCountPill').textContent=`${queue.length} รายการ`;
   document.getElementById('itemCount').textContent=`${queue.length} รายการ`;
   
+  // 🚩 สร้าง UI Card คิวงานที่แสดงรายละเอียดแบบครบถ้วนสวยงาม
   document.getElementById('qList').innerHTML=queue.map((item,i)=>`
-    <div class="qi">
-      <div style="flex:1;min-width:0">
-        <div class="qi-name">${item.name}</div>
-        <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px">
-          <span class="bcode">${item.batch}</span>
-          <span class="btag">หน้างานรับมา: <strong>${item.inputPackageQty} ${item.packageType}</strong></span>
-          <span class="btag" style="background:rgba(59,142,248,0.15); color:var(--sky);">แปลงลงระบบ: <strong>${item.qty} ${item.unit}</strong></span>
-          <span class="btag">MFG: ${mfFmtSlash(item.mfgDate)}</span>
-          <span class="btag" style="color:var(--red);font-weight:500">EXP: ${mfFmtSlash(item.expDate)}</span>
+    <div class="qi-card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div style="flex:1; padding-right:10px;">
+          <div style="font-size:14px; font-weight:700; color:var(--txt); margin-bottom:4px;">
+            <span class="bcode" style="margin-right:6px;">${item.code}</span> ${item.name}
+          </div>
+          
+          <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:6px; font-size:12px;">
+            <span style="color:#059669; font-family:'IBM Plex Mono',monospace; font-weight:700;">Lot: ${item.batch}</span>
+            <span style="color:#cbd5e1;">|</span>
+            <span style="color:var(--txt2);">หน้างาน: <b style="color:var(--amber); font-family:'IBM Plex Mono'; font-size:13px;">${item.inputPackageQty}</b> ${item.packageType}</span>
+            <span style="color:#cbd5e1;">|</span>
+            <span style="color:var(--txt2);">ระบบ: <b style="color:var(--b3); font-family:'IBM Plex Mono'; font-size:13px;">${item.qty}</b> ${item.unit}</span>
+          </div>
+
+          <div style="display:flex; gap:12px; font-size:11px; font-weight:600; background:#f8fafc; padding:4px 8px; border-radius:6px; display:inline-flex;">
+            <span style="color:var(--b2);">MFG: ${mfFmtDisplay(item.mfgDate)}</span>
+            <span style="color:var(--red);">EXP: ${mfFmtDisplay(item.expDate)}</span>
+          </div>
         </div>
+        
+        <button class="btn-rmv-qi" data-idx="${i}" onclick="delItem(this)" title="ลบรายการนี้">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
-      <button class="btn btn-ghost-red" data-idx="${i}" onclick="delItem(this)">${SVG_X}</button>
-    </div>`).join('');
+    </div>
+  `).join('');
 }
 
 function delItem(b){
@@ -248,11 +365,12 @@ async function doSubmit(){
   document.getElementById('btnSubmit').disabled=true;
   
   try {
-    // ส่งข้อมูลที่มี qty เป็น Unit ไปบันทึก
-    const j=await MF.receive(queue, document.getElementById('opName').value); 
+    const op = document.getElementById('opName').value;
+    const j=await MF.receive(queue, op); 
+    
     if(j.status==='success'){
-        alert('✅ บันทึกรับเข้าคลังสำเร็จ');
-        location.reload();
+        alert('✅ บันทึกรับเข้าคลังสำเร็จ\nเลขที่เอกสาร: ' + j.docNo);
+        location.reload(); // รีโหลดหน้าเพื่อล้างข้อมูล
     } else {
         alert('เกิดข้อผิดพลาด: '+j.message);
         document.getElementById('btnSubmit').disabled=false;
