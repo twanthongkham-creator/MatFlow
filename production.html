@@ -566,7 +566,7 @@ function showReceiveModal(reqNo) {
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
       
-      const txs = _transactions.filter(t => t.reqNo === reqNo && t.code === rm.code);
+      const txs = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
       let batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
 
       html += `<tr style="border-bottom:1px solid #e2e8f0; transition: background 0.2s;">
@@ -611,9 +611,3 @@ async function executeReceive() {
 </script>
 </body>
 </html>
-
-นี่คือ code production.html เมื่อกดรับของ พบว่า popup ไม่แสดง Batch (ว่างเปล่า) แบบนี้ 
-
-<td style="padding:10px; color:#059669; font-family:monospace; font-weight:bold;"></td>
-
-ช่วยแก้ไขให้ด้วย ขอ code เต็มๆ
