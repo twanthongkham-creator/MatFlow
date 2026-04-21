@@ -53,9 +53,12 @@
         <label style="font-size:11.5px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block; text-transform:uppercase;">PIN 4 หลัก</label>
         <input type="password" id="loginPin" class="op-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-size:24px; letter-spacing:12px; font-weight:bold; margin-bottom:0;">
       </div>
-      <div class="modal-ft" style="background: #fff8f1; padding: 16px 20px;">
+      <div class="modal-ft" style="background: #fff8f1; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <a href="dashboard.html" class="btn btn-outline" style="padding:14px 16px; font-size:14px; font-weight:700; text-decoration:none; color:var(--txt2); white-space:nowrap;">
+            🔙 กลับ
+        </a>
         <button class="btn btn-amber w-100" onclick="verifyLogin()" style="padding:14px; font-size:15px; font-weight:700; box-shadow: 0 4px 12px rgba(217,119,6,0.3);">
-          เข้าสู่ระบบรับเข้าวัตถุดิบ
+          เข้าสู่ระบบรับเข้า
         </button>
       </div>
     </div>
