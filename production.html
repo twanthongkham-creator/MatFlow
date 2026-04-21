@@ -180,7 +180,7 @@ body { overflow-x: hidden; }
         <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้ยกเลิก)</label>
         <div style="display:flex; gap:10px;">
           <select id="cancelOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkCancelBtn()"></select>
-          <input type="password" id="cancelPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkCancelBtn()">
+          <input type="password" id="cancelPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkCancelBtn()">
         </div>
       </div>
       <div class="modal-ft">
