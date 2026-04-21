@@ -221,15 +221,11 @@
 
     <div id="manualConfirmArea" style="display:none; background: rgba(255,255,255,0.7); border: 1px dashed #cbd5e1; border-radius: 10px; padding: 12px;">
       <div class="row g-2 align-items-end">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px;">รหัสพนักงาน (ID)</label>
           <input type="text" id="manualOpInput" class="op-input-sm" style="margin-bottom:0;" placeholder="รหัสพนักงานคลัง" oninput="checkManualSubmit()">
         </div>
-        <div class="col-md-4">
-          <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px;">PIN 4 หลัก</label>
-          <input type="password" id="manualPinInput" class="op-input-sm" style="margin-bottom:0; text-align:center;" placeholder="****" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkManualSubmit()">
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <button id="btnManualSubmit" class="btn btn-green w-100" onclick="executeManualIssue()" disabled style="padding: 7px; font-size: 13px; border-radius: 8px;">ยืนยันตัด Stock ทันที</button>
         </div>
       </div>
@@ -519,11 +515,10 @@ function buildManualPreview() {
     } else {
         confirmArea.style.display = 'none';
         document.getElementById('manualOpInput').value = '';
-        document.getElementById('manualPinInput').value = '';
     }
 }
 
-// 🚩 จัดการการเลือก Checkbox ใน Manual Issue
+// 🚩 จัดการการเลือก Checkbox ใน Manual Issue (ให้ใส่จำนวน Default เท่ากับ reqQty อัตโนมัติ)
 window.handleManualBatchCb = function(cb, code, reqQty) {
   let group = cb.closest('.batch-group');
   let cbs = group.querySelectorAll('.b-cb');
@@ -538,7 +533,10 @@ window.handleManualBatchCb = function(cb, code, reqQty) {
   } else if(cb.checked) {
       let fifoCb = group.querySelector('input[value="Auto FIFO"]');
       if(fifoCb) fifoCb.checked = false;
-      if (inputQtyBox) inputQtyBox.style.display = 'inline-block';
+      if (inputQtyBox) { 
+          inputQtyBox.style.display = 'inline-block'; 
+          inputQtyBox.value = reqQty; // 🚩 กำหนดค่าเริ่มต้น = จำนวนที่ต้องตัด
+      }
   } else {
       if (inputQtyBox) { inputQtyBox.style.display = 'none'; inputQtyBox.value = ''; }
   }
@@ -546,17 +544,16 @@ window.handleManualBatchCb = function(cb, code, reqQty) {
 
 function checkManualSubmit() {
     const op = document.getElementById('manualOpInput').value.trim();
-    const pin = document.getElementById('manualPinInput').value.trim();
-    document.getElementById('btnManualSubmit').disabled = !(op && pin.length >= 4);
+    // 🚩 เช็คแค่การใส่ ID รหัสพนักงาน
+    document.getElementById('btnManualSubmit').disabled = !op;
 }
 
 // 🚩 ฟังก์ชันกดปุ่มยืนยันตัด Stock Manual
 async function executeManualIssue() {
   const op = document.getElementById('manualOpInput').value.trim();
-  const pin = document.getElementById('manualPinInput').value.trim();
   const pName = document.getElementById('manualProdInput').value.trim();
   
-  if(!op || pin.length < 4) return alert('กรุณาระบุรหัสพนักงานและ PIN ให้ครบถ้วน');
+  if(!op) return alert('กรุณาระบุรหัสพนักงานให้ครบถ้วน');
   if(!confirm(`ยืนยันการตัด Stock เพื่อผลิต:\n[ ${pName} ]\nจำนวน: ${document.getElementById('manualQtyInput').value} Unit ?`)) return;
 
   const tbody = document.getElementById('manualBOMTable');
@@ -600,22 +597,24 @@ async function executeManualIssue() {
           
           if(isError) break;
           
-          // Handle floating point precision
+          // 🚩 ป้องกัน Error การบวกเศษทศนิยม
           if(Math.abs(totalCustomCut - targetReqQty) > 0.0001) {
               alert(`จำนวนรวมของ Batch ย่อยที่ระบุ (${totalCustomCut}) ไม่เท่ากับเป้าหมายที่ต้องตัด (${targetReqQty}) สำหรับ ${name}`);
               isError = true;
-              break;
+              break; // หยุดลูปทันที
           }
           
           payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: customBatchArray.join(','), productTarget: pName });
       }
   }
 
+  // 🚩 หยุดการทำงานทั้งหมดถ้ามี Error
   if(isError) return;
 
   mfShow('กำลังทำรายการ Manual Issue...');
   try {
-    const j = await MF.issueMulti(payload, op, pin, "MANUAL-" + Date.now().toString().slice(-6));
+    // 🚩 ลบตัวแปร pin ออก แล้วส่งค่า String ว่างๆ แทน
+    const j = await MF.issueMulti(payload, op, "", "MANUAL-" + Date.now().toString().slice(-6));
     if(j.status === 'success') {
       alert(`✅ ตัดสต๊อกชั่วคราวสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
       
@@ -624,7 +623,6 @@ async function executeManualIssue() {
       document.getElementById('manualPreviewArea').style.display = 'none';
       document.getElementById('manualConfirmArea').style.display = 'none';
       document.getElementById('manualOpInput').value = '';
-      document.getElementById('manualPinInput').value = '';
       
       await loadAll();
     } else { 
