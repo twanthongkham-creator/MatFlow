@@ -101,7 +101,7 @@
       </span>
       รับเข้าวัตถุดิบ
     </h1>
-    <p>ระบบรับเข้าวัตถุดิบ — สแกนบาร์โค้ดหรือพิมพ์รหัสวัตถุดิบ (รับเข้าด้วยหน่วยแพ็คเกจหน้างาน)</p>
+    <p>ระบบรับเข้าวัตถุดิบ — สแกนบาร์โค้ดหรือพิมพ์รหัสวัตถุดิบ (รับเข้าด้วยหน่วย Unit โดยตรง)</p>
   </div>
 
   <div class="row g-3">
@@ -123,12 +123,7 @@
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div><div class="pf-lbl">Supplier</div><div class="pf-val" id="resSupplier">—</div></div>
-            <div><div class="pf-lbl">รับเข้าด้วยหน่วย (Package)</div><div class="pf-unit" id="resPackage">—</div></div>
-          </div>
-          
-          <div style="background:rgba(255,255,255,0.7); border:1px solid rgba(180,210,255,.5); border-radius:8px; margin-top:12px; font-size:11px; padding:8px 12px; color:var(--b3); font-weight:600; display:flex; align-items:center; gap:6px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>ระบบจะแปลงหน่วยจาก <b id="resPackageHint" style="color:var(--txt);">แพ็คเกจ</b> ให้เป็น <b id="resUnitHint" style="color:var(--txt);">Unit</b> ลงคลังอัตโนมัติ</span>
+            <div><div class="pf-lbl">หน่วยเก็บ (Unit)</div><div class="pf-unit" id="resPackage">—</div></div>
           </div>
         </div>
 
@@ -141,7 +136,7 @@
 
         <div class="row g-2 mb-2">
           <div class="col-6"><label style="font-size:11px; font-weight:700; color:var(--txt3);">Batch / Lot No.</label><input type="text" id="batchInput" class="op-input" placeholder="Lot No..."></div>
-          <div class="col-6"><label style="font-size:11px; font-weight:700; color:var(--txt3);">จำนวน (หน้างาน/Package)</label><input type="number" id="qtyInput" class="op-input" value="1" min="0.0001" step="0.0001"></div>
+          <div class="col-6"><label style="font-size:11px; font-weight:700; color:var(--txt3);">จำนวนรับเข้า (Unit)</label><input type="number" id="qtyInput" class="op-input" value="1" min="0.0001" step="0.0001"></div>
         </div>
         <div class="row g-2 mb-4">
           <div class="col-6">
@@ -204,7 +199,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=8"></script>
+<script src="mf-shared.js?v=9"></script>
 <script>
 let master=[], queue=[], selected=null;
 let _warehouseUsers = [];
@@ -274,11 +269,9 @@ function onCode(){
   selected=master.find(i=>i.code===code);
   
   document.getElementById('resName').textContent=selected?selected.name:'—';
-  document.getElementById('resPackage').textContent=selected?selected.packageType:'—'; 
+  // เปลี่ยนไปแสดงหน่วย Unit แทน Package
+  document.getElementById('resPackage').textContent=selected?selected.unit:'—'; 
   document.getElementById('resSupplier').textContent=selected?selected.supplier:'—';
-  
-  document.getElementById('resPackageHint').textContent=selected?selected.packageType:'แพ็คเกจ';
-  document.getElementById('resUnitHint').textContent=selected?selected.unit:'Unit';
 }
 
 function addToQueue(){
@@ -291,14 +284,11 @@ function addToQueue(){
   if(isNaN(inputQty)||inputQty<=0)return alert('กรุณาระบุจำนวนที่ถูกต้อง (> 0)');
   if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุให้ครบถ้วน');
   if(new Date(mfg)>new Date(exp))return alert('วันผลิต (MFG) ต้องไม่มากกว่าวันหมดอายุ (BBF)');
-  
-  const sysUnitQty = inputQty * (selected.unitPerPack || 1);
 
   queue.push({
       ...selected,
       batch,
-      inputPackageQty: inputQty, 
-      qty: sysUnitQty,           
+      qty: inputQty,           
       mfgDate: mfg,
       expDate: exp
   }); 
@@ -337,9 +327,7 @@ function render(){
           <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:6px; font-size:12px;">
             <span style="color:#059669; font-family:'IBM Plex Mono',monospace; font-weight:700;">Lot: ${item.batch}</span>
             <span style="color:#cbd5e1;">|</span>
-            <span style="color:var(--txt2);">หน้างาน: <b style="color:var(--amber); font-family:'IBM Plex Mono'; font-size:13px;">${item.inputPackageQty}</b> ${item.packageType}</span>
-            <span style="color:#cbd5e1;">|</span>
-            <span style="color:var(--txt2);">ระบบ: <b style="color:var(--b3); font-family:'IBM Plex Mono'; font-size:13px;">${item.qty}</b> ${item.unit}</span>
+            <span style="color:var(--txt2);">จำนวนรับเข้า: <b style="color:var(--b3); font-family:'IBM Plex Mono'; font-size:13px;">${item.qty}</b> ${item.unit}</span>
           </div>
 
           <div style="display:flex; gap:12px; font-size:11px; font-weight:600; background:#f8fafc; padding:4px 8px; border-radius:6px; display:inline-flex;">
@@ -362,7 +350,7 @@ function delItem(b){
 }
 
 async function doSubmit(){
-  if(!confirm('ยืนยันการนำเข้าวัตถุดิบทั้งหมดลงในคลัง?\nระบบจะทำการแปลงหน่วยลงไปบันทึกเป็น Unit โดยอัตโนมัติ'))return;
+  if(!confirm('ยืนยันการนำเข้าวัตถุดิบทั้งหมดลงในคลัง?'))return;
   
   mfShow('กำลังบันทึกข้อมูล... ห้ามปิดหน้าต่าง');
   document.getElementById('btnSubmit').disabled=true;
