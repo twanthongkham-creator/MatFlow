@@ -487,7 +487,7 @@ function buildManualPreview() {
         (_batchMap[rm.code] || []).forEach(b => {
              optsHtml += `<label>
                  <input type="checkbox" value="${b.batch}" class="b-cb" data-max="${b.qty}" onchange="handleManualBatchCb(this, '${rm.code}', ${reqQty})"> 
-                 Lot: ${b.batch} | มี ${b.qty.toLocaleString()}
+                 Lot: ${b.batch} | มี ${b.qty.toLocaleString()} <span style="color:#dc2626; font-weight:600;">(BBF: ${b.exp})</span>
                  <input type="number" class="op-input-sm manual-cut-qty" data-batch="${b.batch}" placeholder="ใส่จำนวนตัด" style="display:none; width:90px; margin-left:24px; margin-top:2px; padding:2px 6px; font-size:11px;" max="${b.qty}">
              </label>`;
         });
@@ -564,7 +564,7 @@ async function executeManualIssue() {
   let payload = [];
   let isError = false;
   
-  rows.forEach(tr => {
+  for (let tr of rows) {
       let code = tr.getAttribute('data-code');
       let name = tr.querySelector('.text-left').innerText;
       let targetReqQty = parseFloat(tr.getAttribute('data-req'));
@@ -578,36 +578,38 @@ async function executeManualIssue() {
           batchStr = 'Auto FIFO';
           payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: batchStr, productTarget: pName });
       } else {
-          // มีการติ๊กเลือก Batch ย่อย
           let totalCustomCut = 0;
           let customBatchArray = [];
-          checked.forEach(c => {
+          for (let c of checked) {
               let sibInput = c.closest('label').querySelector('.manual-cut-qty');
               let cutVal = parseFloat(sibInput.value);
               if(isNaN(cutVal) || cutVal <= 0) {
                   alert(`กรุณาระบุจำนวนที่ต้องการตัดให้ครบถ้วน สำหรับ Lot: ${c.value} ของวัตถุดิบ ${name}`);
                   isError = true;
-                  return;
+                  break;
               }
               let maxLot = parseFloat(c.getAttribute('data-max'));
               if(cutVal > maxLot) {
                   alert(`ตัดสต๊อกเกินจำนวนที่มีใน Lot: ${c.value} (มีแค่ ${maxLot})`);
                   isError = true;
-                  return;
+                  break;
               }
               totalCustomCut += cutVal;
-              customBatchArray.push(`${c.value}:${cutVal}`); // ส่งรูปแบบ "LotNo:Qty" ไปให้ Backend
-          });
+              customBatchArray.push(`${c.value}:${cutVal}`); 
+          }
           
-          if(totalCustomCut !== targetReqQty && !isError) {
+          if(isError) break;
+          
+          // Handle floating point precision
+          if(Math.abs(totalCustomCut - targetReqQty) > 0.0001) {
               alert(`จำนวนรวมของ Batch ย่อยที่ระบุ (${totalCustomCut}) ไม่เท่ากับเป้าหมายที่ต้องตัด (${targetReqQty}) สำหรับ ${name}`);
               isError = true;
+              break;
           }
-          if(!isError) {
-              payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: customBatchArray.join(','), productTarget: pName });
-          }
+          
+          payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: customBatchArray.join(','), productTarget: pName });
       }
-  });
+  }
 
   if(isError) return;
 
@@ -617,7 +619,6 @@ async function executeManualIssue() {
     if(j.status === 'success') {
       alert(`✅ ตัดสต๊อกชั่วคราวสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
       
-      // Reset หน้าต่าง Manual Issue
       document.getElementById('manualProdInput').value = '';
       document.getElementById('manualQtyInput').value = '';
       document.getElementById('manualPreviewArea').style.display = 'none';
@@ -625,7 +626,7 @@ async function executeManualIssue() {
       document.getElementById('manualOpInput').value = '';
       document.getElementById('manualPinInput').value = '';
       
-      await loadAll(); // โหลดข้อมูล Dashboard ใหม่
+      await loadAll();
     } else { 
       alert('เกิดข้อผิดพลาด: ' + j.message); 
     }
@@ -676,7 +677,7 @@ function renderChart(capData, capDetails){
         datalabels:{
           anchor:'end',align:'right',color:'#0a1f44',
           font:{weight:'bold',size:11,family:'IBM Plex Mono'},
-          formatter:v=> Math.ceil(v).toLocaleString()+' U' // 🚩 ปัดเศษขึ้นทศนิยมให้สวยงาม
+          formatter:v=> Math.ceil(v).toLocaleString()+' U' 
         }
       },
       scales:{
@@ -999,6 +1000,3 @@ function mfHide(){document.getElementById('loader').style.display='none';}
 </script>
 </body>
 </html>
-
-นี่คือ Code dashboard.html พบว่า เมื่อกด "ตรวจสอบ BOM (สูตรวัตถุดิบ)" เพื่อเตรียมตัวตัด Manual หน้าที่ให้เลือก Batch ไม่มี BBF แสดง ขอให้แสดง BBF ด้วย และ พบว่าเมื่อตัด Stock (โดยกรอกจำนวน Lot ย่อยที่ตัดไม่ครบ ระบบจะมีการแจ้งเตือนว่า “จำนวนรวมของ Batch ย่อยที่ระบุ ... ไม่เท่ากับเป้าหมายที่ต้องตัด ... สำหรับ ...” แต้พบว่าเมื่อกด OK กลับมีการดำเนินการต่อ โดยระบบขึ้น "กำลังทำรายการ Manual Issue..." และทำรายการสำเร็จ ซึ่งมันไม่ควรจะดำเนินการต่อ ขอให้แก้ไข ให้เมื่อกด OK ที่แจ้งเตือน กลับมาที่หน้าจอ Manual Issue และเมื่อตัดเสร็จ (โดยไม่มีข้อผิดพลาด) ก็ให้ปิดหน้าต่าง Manual Issue ด้วย
-ขอ Code เต็มๆ
