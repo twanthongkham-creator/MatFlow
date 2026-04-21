@@ -10,7 +10,10 @@
 body { overflow-x: hidden; }
 .workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
 .workspace-grid > div { min-width: 0; }
-@media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
+@media(max-width:991px){ 
+  .workspace-grid { grid-template-columns:1fr; }
+  .plan-panel { position: relative !important; top: 0 !important; max-height: none !important; margin-bottom: 20px; }
+}
 
 /* ล็อกสี SVG ไม่ให้ดำทึบ */
 .plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg { fill: none !important; }
@@ -25,21 +28,21 @@ body { overflow-x: hidden; }
 .q-title { font-weight:700; color:var(--txt); font-size:14px; margin-bottom:4px; }
 .q-qty { font-weight:600; color:var(--txt2); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-.sim-card { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; }
-.sim-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.85) 45%,rgba(190,220,255,.65) 70%,transparent 95%); }
-.sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(255,255,255,.3); border-bottom:1px solid rgba(180,210,255,.3); }
+/* 🚩 ปรับให้ Card ประวัติทึบแสง ไม่ใสทะลุหลัง */
+.sim-card { background:#ffffff; border:1px solid #cbd5e1; border-radius:var(--r-xl); box-shadow:0 4px 15px rgba(0,0,0,0.05); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; }
+.sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-bottom:1px solid #cbd5e1; }
 .sim-idx { width:32px; height:32px; background:var(--b2); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'IBM Plex Mono',monospace; }
 .sim-title { flex:1; }
 .sim-pname { font-size:16px; font-weight:700; color:var(--txt); margin-bottom:2px; }
-.sim-bd { padding:0 20px 20px; overflow-x: auto; }
-.rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
+.sim-bd { padding:0 20px 20px; overflow-x: auto; background:#ffffff; }
 
+/* ทำให้กล่องพื้นหลังในมือถือขาวทึบ */
+.a3 { background: #fdfdfd; border-radius: var(--r-xl); padding: 15px; border: 1px solid #e2e8f0; }
+
+.rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
 .rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:center; }
 .rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; text-align:center; }
-.rm-table tr:last-child td { border-bottom:none; }
-.rm-table tbody tr:hover { background:rgba(240,248,255,.4); }
 .text-left { text-align: left !important; }
-
 .td-rm { font-weight:700; color:var(--txt); font-size:13.5px; }
 .td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px; }
 
@@ -51,7 +54,7 @@ body { overflow-x: hidden; }
 .s-fail { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
 .s-issued { background:rgba(13,148,136,.12); color:#0f766e; border:1px solid rgba(13,148,136,.25); }
 
-.empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
+.empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:#ffffff; border:1px dashed #cbd5e1; border-radius:var(--r-xl); }
 .empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
 .op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
 .op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
@@ -59,11 +62,12 @@ body { overflow-x: hidden; }
 .btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
 .btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
 
+/* Styles สำหรับแจ้งเตือน */
 .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: 800; color: #fff; margin-left: 8px; font-family: 'IBM Plex Mono', monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-1px); }
 .badge-wh { background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid rgba(255,255,255,0.3); }
 .badge-pd { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 1.5px solid rgba(255,255,255,0.3); }
 
-/* 🚩 สไตล์สำหรับกล่องเลือกหลาย Batch */
+/* สไตล์สำหรับกล่องเลือกหลาย Batch */
 .batch-group { text-align: left; max-height: 90px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: rgba(255,255,255,0.8); }
 .batch-group label { display: block; margin-bottom: 4px; font-size: 11.5px; cursor: pointer; color: var(--txt); }
 .batch-group input[type="checkbox"] { margin-right: 6px; transform: scale(1.1); accent-color: var(--b2); }
@@ -396,13 +400,13 @@ function runCalculation() {
   container.innerHTML = html;
 }
 
-// 🚩 ฟังก์ชันพิมพ์แบบฟอร์ม (ส่งข้อมูลไปพิมพ์ที่ form.html)
+// 🚩 ฟังก์ชันพิมพ์แบบฟอร์ม
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
   
   const first = reqItems[0];
-  const isWarehouse = window.location.pathname.includes('warehouse');
+  const isWarehouse = true; 
   const isCompleted = first.status === 'Completed' || first.status === 'Issued'; 
 
   let printData = {
@@ -417,7 +421,7 @@ function printDocument(reqNo) {
   reqItems.forEach(item => {
     let productEntry = { 
       pName: item.productTarget, 
-      targetQty: item.targetQty, // 🚩 เพิ่มบรรทัดนี้เพื่อให้ form.html แสดงจำนวน Unit ได้
+      targetQty: item.targetQty, 
       items: [] 
     };
 
@@ -428,7 +432,6 @@ function printDocument(reqNo) {
 
       let batchVal = '';
       if (isCompleted) {
-          // 🚩 จัดการรูปแบบ BBF ให้พิมพ์ลงแบบฟอร์ม
           const txs = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
           if(txs.length > 0) {
               let uniqueBatches = [...new Set(txs.map(t => t.batch))];
@@ -440,7 +443,6 @@ function printDocument(reqNo) {
               batchVal = bbfArr.join(', ');
           } else { batchVal = '-'; }
       } else if (isWarehouse) {
-          // 🚩 ถ้ายังไม่จ่าย ให้อ่านจาก Checkbox ที่เลือกอยู่
           const group = Array.from(document.querySelectorAll('.batch-group')).find(g => decodeURIComponent(g.getAttribute('data-code')) === String(rm.code) && decodeURIComponent(g.getAttribute('data-pname')) === String(item.productTarget));
           if(group) {
               let checked = group.querySelectorAll('.b-cb:checked');
@@ -514,5 +516,3 @@ async function executeIssueDirectly() {
 </script>
 </body>
 </html>
-
-ปรับปรุง production จาก code นี้ ให้สอดคล้อง ขอ code เต็มๆ
