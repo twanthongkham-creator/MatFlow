@@ -441,7 +441,7 @@ function renderHistory() {
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
-  
+
   const first = reqItems[0];
   const isCompleted = first.status === 'Completed' || first.status === 'Issued'; 
 
