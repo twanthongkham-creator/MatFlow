@@ -5,7 +5,6 @@
     <title>พิมพ์ใบเบิก (MatFlow) - Landscape</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 🚩 ตั้งค่าหน้ากระดาษเป็นแนวนอน (Landscape) */
         @page { size: A4 landscape; margin: 8mm; }
         
         body { font-family: 'Sarabun', sans-serif; font-size: 14px; color: black; background: #525659; margin: 0; padding: 20px; }
@@ -40,6 +39,8 @@
         
         .main-table { border-top: 2px solid black; }
         .main-table th { background: #f8f9fa; font-weight: bold; padding: 8px; font-size: 14px; }
+        
+        /* 🚩 คลาสสำหรับจัดข้อความชิดซ้าย */
         .text-left { text-align: left !important; padding-left: 12px !important; }
         .bold { font-weight: bold; }
         
@@ -47,7 +48,6 @@
         .footer-title { background: #f8f9fa; font-weight: bold; font-size: 13px; padding: 6px 2px; border-bottom: 2px solid black; }
         .footer-box { height: 75px; vertical-align: bottom !important; padding-bottom: 10px !important; font-size: 12px; line-height: 1.8; }
         
-        /* 🚩 บังคับให้เลขที่ใบเบิกแสดงบรรทัดเดียว */
         .no-wrap { white-space: nowrap; }
 
         @media print {
@@ -92,19 +92,19 @@
                             <td class="text-left" style="width:36%">${item.rmName}</td>
                             <td class="bold" style="width:12%">${item.qty.toLocaleString()}</td>
                             <td style="width:10%">${item.unit}</td>
-                            <td style="width:22%; font-size: 11px;">${item.batch || ''}</td>
+                            <td class="text-left" style="width:22%; font-size: 11px;">${item.batch || ''}</td>
                         </tr>`;
                 });
 
-                // แถว ProductName (ไม่ใส่เลขลำดับ)
+                // 🚩 แถว ProductName ทำให้เด่นขึ้น (พื้นหลังสีอ่อน, ตัวหนา, รวมคอลัมน์, ไม่มีเลขลำดับ)
+                let targetQtyDisplay = prod.targetQty ? prod.targetQty.toLocaleString() : '_____';
                 rowsHtml += `
-                    <tr>
+                    <tr style="background-color: #f8fafc;">
                         <td></td>
-                        <td></td>
-                        <td class="text-left bold" style="font-size: 16px; color:#000;">${prod.pName}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td colspan="5" class="text-left bold" style="font-size: 15px; color: #000;">
+                            ผลิตภัณฑ์: <span style="color:#0070C0; font-size: 16px;">${prod.pName}</span> 
+                            <span style="margin-left: 30px;">จำนวน <span style="color:#0070C0; font-size: 16px;">${targetQtyDisplay}</span> Unit</span>
+                        </td>
                     </tr>`;
 
                 // เติมแถวว่างให้ครบ 12 แถว
@@ -112,18 +112,13 @@
                     rowsHtml += `<tr><td style="color:transparent;">-</td><td></td><td></td><td></td><td></td><td></td></tr>`;
                 }
 
-                // 🚩 จัดการตัวแปรชื่อผู้เซ็น และวันที่ (รองรับกรณีข้อมูลว่างเปล่า)
                 let reqName = (data.reqBy && data.reqBy !== "....................") ? data.reqBy : ".........................";
                 let issName = (data.issueBy && data.issueBy !== "....................") ? data.issueBy : ".........................";
                 let rcvName = (data.receiveBy && data.receiveBy !== "....................") ? data.receiveBy : ".........................";
                 
-                // วันที่ดำเนินการ (dd/MM/yyyy)
                 let currentFullDate = data.date || "..../..../....";
-                
-                // 🚩 เงื่อนไขวันที่กดรับ: ถ้ามีคนรับแล้ว ให้ใส่วันที่ / ถ้ายังไม่รับ ให้เป็นจุดไข่ปลา
                 let rcvDate = (rcvName !== ".........................") ? currentFullDate : "..../..../....";
                 
-                // 🚩 ผู้บันทึกรายการ = ผู้จ่ายโอน และใช้วันที่เดียวกับวันที่กดรับของ
                 let recorderName = issName;
                 let recorderDate = rcvDate;
 
@@ -195,8 +190,6 @@
             });
 
             document.getElementById('print-area').innerHTML = html;
-            
-            // หน่วงเวลาเพื่อให้แน่ใจว่า Font และรูปภาพโหลดเสร็จก่อนสั่งพิมพ์
             setTimeout(() => { window.print(); }, 800);
         };
     </script>
