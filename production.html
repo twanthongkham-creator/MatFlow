@@ -437,6 +437,7 @@ function renderHistory() {
   document.getElementById('rightPanelContent').innerHTML = html;
 }
 
+// 🚩 ฟังก์ชันพิมพ์ใบเบิก (ไม่ให้เปิดหน้าต่างปริ้นท์อัตโนมัติ)
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
@@ -486,6 +487,8 @@ function printDocument(reqNo) {
   });
 
   sessionStorage.setItem('printData', JSON.stringify(printData));
+  
+  // 🚩 เปิดไฟล์ form.html ธรรมดา (โค้ดฝั่ง form.html จะรอรับคำสั่งให้ปริ้นท์เอง)
   window.open('form.html', '_blank');
 }
 
