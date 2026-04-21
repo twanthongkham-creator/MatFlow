@@ -65,6 +65,18 @@
 .spinner{width:38px;height:38px;border:3px solid rgba(59,142,248,0.25);border-top-color:var(--sky-bright);border-radius:50%;animation:spin .65s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:rgba(255,255,255,0.1)}::-webkit-scrollbar-thumb{background:rgba(148,163,184,.6);border-radius:99px}
+
+/* สไตล์สำหรับกล่อง Manual Issue */
+.manual-box { background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); border: 1.5px solid var(--b2); border-radius: var(--r-xl); padding: 20px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(66,146,255,0.15); animation: fadeUp 0.4s ease-out; }
+.manual-hd { font-size: 16px; font-weight: 700; color: var(--b3); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(180,210,255,.3); padding-bottom: 12px; }
+.manual-hd svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+.op-input-sm { font-family:'IBM Plex Sans Thai',sans-serif; font-size:13px; color:var(--txt); background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:6px 10px; outline:none; transition:.15s; width:100%; font-weight:600; }
+.op-input-sm:focus { border-color:var(--b2); box-shadow:0 0 0 3px rgba(66,146,255,.15); }
+.stat-ok { color:#059669; background:rgba(5,150,105,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(5,150,105,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
+.stat-ng { color:#dc2626; background:rgba(220,38,38,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(220,38,38,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
+.batch-group { text-align: left; max-height: 90px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: rgba(255,255,255,0.8); }
+.batch-group label { display: block; margin-bottom: 4px; font-size: 11.5px; cursor: pointer; color: var(--txt); }
+.batch-group input[type="checkbox"] { margin-right: 6px; transform: scale(1.1); accent-color: var(--b2); }
 </style>
 </head>
 <body>
@@ -157,7 +169,7 @@
         </span>
         Analytics Dashboard
       </h1>
-      <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">คลิกที่แท่งกราฟหรือรายการ เพื่อแก้ไขข้อมูล</p>
+      <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">ภาพรวมสต๊อกวัตถุดิบและระบบตัดสต๊อกหน้างานฉุกเฉิน</p>
       <div style="display:flex;align-items:center;gap:7px;margin-top:6px;margin-left:50px;font-size:12.5px;color:var(--txt3);font-weight:500">
         <div class="live-dot"></div><span id="lastUpdate">กำลังโหลด...</span>
       </div>
@@ -166,6 +178,62 @@
       <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       ส่งรายงาน Email
     </button>
+  </div>
+
+  <div class="manual-box a1">
+    <div class="manual-hd">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      ตัดสต๊อกเข้าผลิตฉุกเฉิน (Manual Issue)
+    </div>
+    
+    <div class="row g-2 align-items-end" style="margin-bottom: 16px;">
+      <div class="col-md-5">
+        <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px;">ค้นหาสินค้าที่ต้องการผลิต (Product Name)</label>
+        <input list="manualProductList" id="manualProdInput" class="op-input-sm" style="margin-bottom:0;" placeholder="พิมพ์ค้นหา Product..." onchange="buildManualPreview()">
+        <datalist id="manualProductList"></datalist>
+      </div>
+      <div class="col-md-3">
+        <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px;">เป้าหมายผลิต (Unit)</label>
+        <input type="number" id="manualQtyInput" class="op-input-sm" style="margin-bottom:0;" placeholder="0" min="1" oninput="buildManualPreview()">
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-blue w-100" onclick="buildManualPreview()" style="padding: 7px; font-size: 13px; border-radius: 8px;">ตรวจสอบ BOM (สูตรวัตถุดิบ)</button>
+      </div>
+    </div>
+
+    <div id="manualPreviewArea" style="display:none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+      <div style="font-size:13px; font-weight:700; color:var(--b3); margin-bottom:8px;">สรุปรายการวัตถุดิบที่ต้องตัดสต๊อก</div>
+      <div class="tw-compact">
+        <table class="mt-compact">
+          <thead>
+            <tr>
+              <th width="1%">Code</th>
+              <th class="text-left">RM Name</th>
+              <th>จำนวนที่ต้องตัด</th>
+              <th width="40%">เลือก Batch (แก้ไขจำนวนตัดเองได้)</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="manualBOMTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="manualConfirmArea" style="display:none; background: rgba(255,255,255,0.7); border: 1px dashed #cbd5e1; border-radius: 10px; padding: 12px;">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px;">รหัสพนักงาน (ID)</label>
+          <input type="text" id="manualOpInput" class="op-input-sm" style="margin-bottom:0;" placeholder="รหัสพนักงานคลัง" oninput="checkManualSubmit()">
+        </div>
+        <div class="col-md-4">
+          <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; margin-bottom:6px;">PIN 4 หลัก</label>
+          <input type="password" id="manualPinInput" class="op-input-sm" style="margin-bottom:0; text-align:center;" placeholder="****" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkManualSubmit()">
+        </div>
+        <div class="col-md-4">
+          <button id="btnManualSubmit" class="btn btn-green w-100" onclick="executeManualIssue()" disabled style="padding: 7px; font-size: 13px; border-radius: 8px;">ยืนยันตัด Stock ทันที</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="row g-3">
@@ -280,7 +348,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=8"></script>
+<script src="mf-shared.js?v=9"></script>
 <script>
 // 🚩 ใส่ URL API ของ Google Apps Script ตรงนี้เลยครับ
 const URL_API = 'https://script.google.com/macros/s/AKfycbw2cy6sH-xwGsZoClvdXW1I4XoBbxT1DYOesqjMHpM1KUiRe0gZxjkPvWijne-PExQW/exec';
@@ -294,15 +362,20 @@ let _capDetails=[];
 let _expiryData=[];
 let cachedEmailHTML='';
 
-// 🚩 ฟังก์ชันแปลงวันที่สำหรับการแสดงผล (DD/MM/YYYY)
+// 🚩 ตัวแปรสำหรับ Manual Issue
+let _productList = []; 
+let _bomMap = {};      
+let _stockMap = {};    
+let _batchMap = {};    
+
 function mfFmtDisplay(dstr) {
   if (!dstr) return '—';
   const d = new Date(dstr);
   if (isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('en-GB'); 
+  const pad = (n) => n < 10 ? '0' + n : n;
+  return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
 }
 
-// 🚩 ฟังก์ชันแปลงวันที่สำหรับใส่ใน <input type="date"> (YYYY-MM-DD)
 function mfFmtInput(dstr) {
   if (!dstr) return '';
   const d = new Date(dstr);
@@ -324,8 +397,8 @@ window.onload=()=>{
 async function loadAll(){
   mfShow('กำลังเชื่อมต่อฐานข้อมูล...');
   try{
-    const[jd,jm]=await Promise.all([MF.getDashboardData(),MF.getMonitorData()]);
-    if(jd.status==='success'&&jm.status==='success'){
+    const[jd, jm, jmaster] = await Promise.all([MF.getDashboardData(), MF.getMonitorData(), MF.getMasterData()]);
+    if(jd.status==='success' && jm.status==='success'){
       rawData=jm.data;
       _capData=jd.data.productionCapacity||{};
       _capDetails=jd.data.capDetailsList||[];   
@@ -334,10 +407,229 @@ async function loadAll(){
       renderChart(_capData, _capDetails);
       renderOOS(_capDetails);              
       renderExpiry(_expiryData);
+      
+      // 🚩 เตรียมข้อมูลสำหรับ Manual Issue
+      prepareManualIssueData(jmaster.data || [], jm.data || []);
+
       document.getElementById('lastUpdate').textContent='อัปเดตล่าสุด: '+new Date().toLocaleString('th-TH');
       document.getElementById('btnReport').disabled=false;
     }else throw new Error();
   }catch(e){alert('เกิดข้อผิดพลาดในการดึงข้อมูล: '+e.message);}
+  mfHide();
+}
+
+// 🚩 ฟังก์ชันเตรียมข้อมูล BOM และ Stock สำหรับตัด Manual
+function prepareManualIssueData(masterData, monitorData) {
+    _bomMap = {}; _productList = [];
+    _stockMap = {}; _batchMap = {};
+
+    monitorData.forEach(row => {
+      const c = row.code; const q = parseFloat(row.qty)||0;
+      if (c && q > 0) {
+        _stockMap[c] = (_stockMap[c] || 0) + q;
+        if(!_batchMap[c]) _batchMap[c] = [];
+        _batchMap[c].push({ batch: row.batch||'N/A', qty: q, exp: new Date(row.exp).toLocaleDateString('en-GB') });
+      }
+    });
+
+    masterData.forEach(rm => {
+      const p = rm.productName; const c = rm.code;
+      if (!p || !c) return;
+      if (!_productList.includes(p)) _productList.push(p);
+      if (!_bomMap[p]) _bomMap[p] = [];
+      if (!_bomMap[p].find(x => x.code === c)) {
+        _bomMap[p].push({ code: c, rmName: rm.name, unitPerPack: parseFloat(rm.unitPerPack)||1, packSize: parseFloat(rm.packSize)||1, packName: rm.packageType||'แพ็ค', sysUnit: rm.unit||'Unit' });
+      }
+    });
+    _productList.sort();
+
+    const dl = document.getElementById('manualProductList');
+    dl.innerHTML = '';
+    _productList.forEach(p => {
+        const op = document.createElement('option');
+        op.value = p;
+        dl.appendChild(op);
+    });
+}
+
+// 🚩 ฟังก์ชันวาดตาราง Preview BOM ของ Manual Issue
+function buildManualPreview() {
+    const pName = document.getElementById('manualProdInput').value.trim();
+    const qty = parseFloat(document.getElementById('manualQtyInput').value);
+    
+    const previewArea = document.getElementById('manualPreviewArea');
+    const confirmArea = document.getElementById('manualConfirmArea');
+    const tbody = document.getElementById('manualBOMTable');
+    
+    if (!pName || isNaN(qty) || qty <= 0 || !_productList.includes(pName)) {
+        previewArea.style.display = 'none';
+        confirmArea.style.display = 'none';
+        return;
+    }
+
+    const bom = _bomMap[pName] || [];
+    let tableRows = '';
+    let allPass = true;
+
+    if (bom.length === 0) {
+      tableRows = `<tr><td colspan="5" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ (BOM) สำหรับสินค้านี้</td></tr>`;
+      allPass = false;
+    } else {
+      bom.forEach(rm => {
+        const prepPackages = Number((qty / rm.unitPerPack).toFixed(4));
+        let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
+        
+        const currentStock = _stockMap[rm.code] || 0;
+        const isOk = currentStock >= reqQty;
+        if(!isOk) allPass = false;
+
+        let optsHtml = `<label><input type="checkbox" value="Auto FIFO" checked class="b-cb" onchange="handleManualBatchCb(this, '${rm.code}', ${reqQty})"> Auto FIFO</label>`;
+        (_batchMap[rm.code] || []).forEach(b => {
+             optsHtml += `<label>
+                 <input type="checkbox" value="${b.batch}" class="b-cb" data-max="${b.qty}" onchange="handleManualBatchCb(this, '${rm.code}', ${reqQty})"> 
+                 Lot: ${b.batch} | มี ${b.qty.toLocaleString()}
+                 <input type="number" class="op-input-sm manual-cut-qty" data-batch="${b.batch}" placeholder="ใส่จำนวนตัด" style="display:none; width:90px; margin-left:24px; margin-top:2px; padding:2px 6px; font-size:11px;" max="${b.qty}">
+             </label>`;
+        });
+        if((_batchMap[rm.code] || []).length === 0) optsHtml = `<div style="font-size:11px; color:red;">ไม่มีสต๊อกในคลัง</div>`;
+
+        let statIcon = isOk ? '<span class="stat-ok">พอ</span>' : '<span class="stat-ng">ขาด</span>';
+
+        tableRows += `
+          <tr data-code="${rm.code}" data-req="${reqQty}">
+            <td><span style="font-size:10px; font-weight:700; color:var(--b2); background:rgba(66,146,255,.1); padding:4px 8px; border-radius:6px;">${rm.code}</span></td>
+            <td class="text-left" style="font-weight:700; color:var(--txt);">${rm.rmName}</td>
+            <td style="font-family:'IBM Plex Mono'; font-weight:bold; color:var(--b3);">${reqQty.toLocaleString()} <span style="font-size:10px;">${rm.sysUnit}</span></td>
+            <td style="padding: 4px;">
+               <div class="batch-group" id="mg_${rm.code}">
+                   ${optsHtml}
+               </div>
+            </td>
+            <td>${statIcon}</td>
+          </tr>
+        `;
+      });
+    }
+
+    tbody.innerHTML = tableRows;
+    previewArea.style.display = 'block';
+    
+    if (allPass) {
+        confirmArea.style.display = 'block';
+    } else {
+        confirmArea.style.display = 'none';
+        document.getElementById('manualOpInput').value = '';
+        document.getElementById('manualPinInput').value = '';
+    }
+}
+
+// 🚩 จัดการการเลือก Checkbox ใน Manual Issue
+window.handleManualBatchCb = function(cb, code, reqQty) {
+  let group = cb.closest('.batch-group');
+  let cbs = group.querySelectorAll('.b-cb');
+  let inputQtyBox = cb.closest('label').querySelector('.manual-cut-qty');
+
+  if(cb.value === "Auto FIFO" && cb.checked) {
+      cbs.forEach(c => { 
+          if(c !== cb) c.checked = false; 
+          let sibInput = c.closest('label').querySelector('.manual-cut-qty');
+          if (sibInput) { sibInput.style.display = 'none'; sibInput.value = ''; }
+      });
+  } else if(cb.checked) {
+      let fifoCb = group.querySelector('input[value="Auto FIFO"]');
+      if(fifoCb) fifoCb.checked = false;
+      if (inputQtyBox) inputQtyBox.style.display = 'inline-block';
+  } else {
+      if (inputQtyBox) { inputQtyBox.style.display = 'none'; inputQtyBox.value = ''; }
+  }
+};
+
+function checkManualSubmit() {
+    const op = document.getElementById('manualOpInput').value.trim();
+    const pin = document.getElementById('manualPinInput').value.trim();
+    document.getElementById('btnManualSubmit').disabled = !(op && pin.length >= 4);
+}
+
+// 🚩 ฟังก์ชันกดปุ่มยืนยันตัด Stock Manual
+async function executeManualIssue() {
+  const op = document.getElementById('manualOpInput').value.trim();
+  const pin = document.getElementById('manualPinInput').value.trim();
+  const pName = document.getElementById('manualProdInput').value.trim();
+  
+  if(!op || pin.length < 4) return alert('กรุณาระบุรหัสพนักงานและ PIN ให้ครบถ้วน');
+  if(!confirm(`ยืนยันการตัด Stock เพื่อผลิต:\n[ ${pName} ]\nจำนวน: ${document.getElementById('manualQtyInput').value} Unit ?`)) return;
+
+  const tbody = document.getElementById('manualBOMTable');
+  const rows = tbody.querySelectorAll('tr[data-code]');
+  let payload = [];
+  let isError = false;
+  
+  rows.forEach(tr => {
+      let code = tr.getAttribute('data-code');
+      let name = tr.querySelector('.text-left').innerText;
+      let targetReqQty = parseFloat(tr.getAttribute('data-req'));
+      let unitText = tr.querySelector('td:nth-child(3) span').innerText;
+      
+      let group = tr.querySelector('.batch-group');
+      let checked = group.querySelectorAll('.b-cb:checked');
+      
+      let batchStr = '';
+      if(checked.length === 0 || (checked.length === 1 && checked[0].value === 'Auto FIFO')) {
+          batchStr = 'Auto FIFO';
+          payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: batchStr, productTarget: pName });
+      } else {
+          // มีการติ๊กเลือก Batch ย่อย
+          let totalCustomCut = 0;
+          let customBatchArray = [];
+          checked.forEach(c => {
+              let sibInput = c.closest('label').querySelector('.manual-cut-qty');
+              let cutVal = parseFloat(sibInput.value);
+              if(isNaN(cutVal) || cutVal <= 0) {
+                  alert(`กรุณาระบุจำนวนที่ต้องการตัดให้ครบถ้วน สำหรับ Lot: ${c.value} ของวัตถุดิบ ${name}`);
+                  isError = true;
+                  return;
+              }
+              let maxLot = parseFloat(c.getAttribute('data-max'));
+              if(cutVal > maxLot) {
+                  alert(`ตัดสต๊อกเกินจำนวนที่มีใน Lot: ${c.value} (มีแค่ ${maxLot})`);
+                  isError = true;
+                  return;
+              }
+              totalCustomCut += cutVal;
+              customBatchArray.push(`${c.value}:${cutVal}`); // ส่งรูปแบบ "LotNo:Qty" ไปให้ Backend
+          });
+          
+          if(totalCustomCut !== targetReqQty && !isError) {
+              alert(`จำนวนรวมของ Batch ย่อยที่ระบุ (${totalCustomCut}) ไม่เท่ากับเป้าหมายที่ต้องตัด (${targetReqQty}) สำหรับ ${name}`);
+              isError = true;
+          }
+          if(!isError) {
+              payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: customBatchArray.join(','), productTarget: pName });
+          }
+      }
+  });
+
+  if(isError) return;
+
+  mfShow('กำลังทำรายการ Manual Issue...');
+  try {
+    const j = await MF.issueMulti(payload, op, pin, "MANUAL-" + Date.now().toString().slice(-6));
+    if(j.status === 'success') {
+      alert(`✅ ตัดสต๊อกชั่วคราวสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
+      
+      // Reset หน้าต่าง Manual Issue
+      document.getElementById('manualProdInput').value = '';
+      document.getElementById('manualQtyInput').value = '';
+      document.getElementById('manualPreviewArea').style.display = 'none';
+      document.getElementById('manualConfirmArea').style.display = 'none';
+      document.getElementById('manualOpInput').value = '';
+      document.getElementById('manualPinInput').value = '';
+      
+      await loadAll(); // โหลดข้อมูล Dashboard ใหม่
+    } else { 
+      alert('เกิดข้อผิดพลาด: ' + j.message); 
+    }
+  } catch(e) { alert('การบันทึกล้มเหลว กรุณาลองใหม่'); }
   mfHide();
 }
 
@@ -384,7 +676,7 @@ function renderChart(capData, capDetails){
         datalabels:{
           anchor:'end',align:'right',color:'#0a1f44',
           font:{weight:'bold',size:11,family:'IBM Plex Mono'},
-          formatter:v=>v.toLocaleString()+' U'
+          formatter:v=> Math.ceil(v).toLocaleString()+' U' // 🚩 ปัดเศษขึ้นทศนิยมให้สวยงาม
         }
       },
       scales:{
@@ -521,7 +813,7 @@ function buildEmailHtml(){
       <td style="border:1px solid #cbd5e1; padding:2px 6px; text-align:left; vertical-align:middle; white-space:nowrap;">
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
           <tr>
-            <td width="1%" style="border:none; padding:0 6px 0 0; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; font-weight:bold; color:${col}; text-align:right; vertical-align:middle; white-space:nowrap; line-height:1.1;">${it.val.toLocaleString()}</td>
+            <td width="1%" style="border:none; padding:0 6px 0 0; font-size:12pt; font-family:'Cordia New', Tahoma, sans-serif; font-weight:bold; color:${col}; text-align:right; vertical-align:middle; white-space:nowrap; line-height:1.1;">${Math.ceil(it.val).toLocaleString()}</td>
             <td style="border:none; padding:0; width:100%; vertical-align:middle;">
                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#e2e8f0; height:6px; border-radius:2px;">
                  <tr>
@@ -707,3 +999,6 @@ function mfHide(){document.getElementById('loader').style.display='none';}
 </script>
 </body>
 </html>
+
+นี่คือ Code dashboard.html พบว่า เมื่อกด "ตรวจสอบ BOM (สูตรวัตถุดิบ)" เพื่อเตรียมตัวตัด Manual หน้าที่ให้เลือก Batch ไม่มี BBF แสดง ขอให้แสดง BBF ด้วย และ พบว่าเมื่อตัด Stock (โดยกรอกจำนวน Lot ย่อยที่ตัดไม่ครบ ระบบจะมีการแจ้งเตือนว่า “จำนวนรวมของ Batch ย่อยที่ระบุ ... ไม่เท่ากับเป้าหมายที่ต้องตัด ... สำหรับ ...” แต้พบว่าเมื่อกด OK กลับมีการดำเนินการต่อ โดยระบบขึ้น "กำลังทำรายการ Manual Issue..." และทำรายการสำเร็จ ซึ่งมันไม่ควรจะดำเนินการต่อ ขอให้แก้ไข ให้เมื่อกด OK ที่แจ้งเตือน กลับมาที่หน้าจอ Manual Issue และเมื่อตัดเสร็จ (โดยไม่มีข้อผิดพลาด) ก็ให้ปิดหน้าต่าง Manual Issue ด้วย
+ขอ Code เต็มๆ
