@@ -390,7 +390,7 @@ function runCalculation() {
       <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:8px; display:block;">ยืนยันตัวตน (พนักงานคลังสินค้า)</label>
       <div style="display:flex; gap:10px; margin-bottom:14px;">
         <select id="opName" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkSubmitBtn()">${userOpts}</select>
-        <input type="password" id="opPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkSubmitBtn()">
+        <input type="password" id="inpPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkSubmitBtn()">
       </div>
       <button id="btnRealConfirm" class="btn btn-green w-100" onclick="executeIssueDirectly()" disabled style="padding:14px; font-size:14px;">
         ยืนยันตัด Stock (ส่งเข้าไลน์ผลิต)
