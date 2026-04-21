@@ -10,7 +10,10 @@
 body { overflow-x: hidden; }
 .workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
 .workspace-grid > div { min-width: 0; }
-@media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
+@media(max-width:991px){ 
+  .workspace-grid { grid-template-columns:1fr; }
+  .plan-panel { position: relative !important; top: 0 !important; max-height: none !important; margin-bottom: 20px; }
+}
 
 /* ล็อกสี SVG ไม่ให้ดำทึบ */
 .plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg { fill: none !important; }
@@ -33,19 +36,25 @@ body { overflow-x: hidden; }
 .btn-add-plan svg { width:14px; height:14px; stroke:currentColor; stroke-width:2.5; }
 .op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
 .op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
-.sim-card { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; }
-.sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(255,255,255,.3); border-bottom:1px solid rgba(180,210,255,.3); }
+
+/* 🚩 ปรับให้ Card ประวัติทึบแสง ไม่ใสทะลุหลัง */
+.sim-card { background:#ffffff; border:1px solid #cbd5e1; border-radius:var(--r-xl); box-shadow:0 4px 15px rgba(0,0,0,0.05); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; }
+.sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-bottom:1px solid #cbd5e1; }
 .sim-idx { width:32px; height:32px; background:var(--b2); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'IBM Plex Mono',monospace; }
 .sim-title { flex:1; }
 .sim-pname { font-size:16px; font-weight:700; color:var(--txt); margin-bottom:2px; }
-.sim-bd { padding:0 20px 20px; overflow-x: auto; }
+.sim-bd { padding:0 20px 20px; overflow-x: auto; background:#ffffff; }
+
+/* ทำให้กล่องพื้นหลังในมือถือขาวทึบ */
+.a3 { background: #fdfdfd; border-radius: var(--r-xl); padding: 15px; border: 1px solid #e2e8f0; }
+
 .rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
 .rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:center; }
 .rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; text-align:center; }
 .text-left { text-align: left !important; }
 .td-rm { font-weight:700; color:var(--txt); font-size:13.5px; }
 .td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px; }
-.empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
+.empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:#ffffff; border:1px dashed #cbd5e1; border-radius:var(--r-xl); }
 .empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
 
 /* Styles สำหรับปุ่มและ Badges สถานะต่างๆ */
@@ -223,7 +232,6 @@ let _bomMap = {};
 let _plans = [];       
 let _allHistory = [];
 let _transactions = [];
-// 🚩 เพิ่ม _batchMap เข้ามาในหน้านี้ เพื่อให้ค้นหา BBF เจอ
 let _batchMap = {};
 let planCounter = 0;
 let cancelMdl; 
@@ -238,7 +246,6 @@ window.onload = () => {
 async function loadMasterData() {
   mfShow('กำลังโหลดข้อมูล...');
   try {
-    // 🚩 โหลดข้อมูล Monitor (jm) มาด้วย เพื่อเอาสต๊อกมาหา BBF
     const [jmaster, jreq, jusers, jtx, jm] = await Promise.all([
         MF.getMasterData(), 
         MF.getRequests(), 
@@ -249,7 +256,6 @@ async function loadMasterData() {
     
     _transactions = (jtx && jtx.data) ? jtx.data : [];
 
-    // 🚩 สร้าง _batchMap เหมือนในหน้าคลังสินค้า
     _batchMap = {};
     (jm && jm.data ? jm.data : []).forEach(row => {
       const c = row.code; const q = parseFloat(row.qty)||0;
@@ -456,11 +462,10 @@ function renderHistory() {
   document.getElementById('rightPanelContent').innerHTML = html;
 }
 
-// 🚩 ฟังก์ชันพิมพ์ใบเบิก (ไม่ให้เปิดหน้าต่างปริ้นท์อัตโนมัติ)
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
-  
+
   const first = reqItems[0];
   const isCompleted = first.status === 'Completed' || first.status === 'Issued'; 
 
@@ -506,8 +511,6 @@ function printDocument(reqNo) {
   });
 
   sessionStorage.setItem('printData', JSON.stringify(printData));
-  
-  // 🚩 เปิดไฟล์ form.html ธรรมดา (โค้ดฝั่ง form.html จะรอรับคำสั่งให้ปริ้นท์เอง)
   window.open('form.html', '_blank');
 }
 
