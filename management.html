@@ -15,12 +15,47 @@
   .bext { color: #92400e; font-weight: 700; background: rgba(146,64,14,0.1); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(146,64,14,0.2); }
   .bcode { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: var(--b2); background: rgba(66,146,255,.1); padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
   .bbatch { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #059669; }
+  
+  /* สไตล์สำหรับ Login Modal */
+  .op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
+  .op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
+  .op-input[readonly] { background: #f1f5f9; cursor: not-allowed; border-color: #cbd5e1; color: var(--b2); }
 </style>
 </head>
 <body>
 
 <div id="loader" class="loader" style="display:none">
   <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
+</div>
+
+<div class="modal fade mf-modal" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border: 2px solid var(--amber);">
+      <div class="modal-hd" style="background:linear-gradient(135deg,var(--amber),#b45309);">
+        <div class="modal-hd-title" style="color:#fff; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.5;margin-right:8px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            ยืนยันตัวตนพนักงานคลังสินค้า
+        </div>
+      </div>
+      <div class="modal-bd" style="padding: 24px 20px;">
+        <label style="font-size:11.5px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block; text-transform:uppercase;">เลือกชื่อผู้ใช้งาน (Warehouse / Planning)</label>
+        <select id="loginUser" class="op-input" style="margin-bottom:16px;">
+           <option value="">-- กำลังโหลดรายชื่อ... --</option>
+        </select>
+        
+        <label style="font-size:11.5px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block; text-transform:uppercase;">PIN 4 หลัก</label>
+        <input type="password" id="loginPin" class="op-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-size:24px; letter-spacing:12px; font-weight:bold; margin-bottom:0;">
+      </div>
+      <div class="modal-ft" style="background: #fff8f1; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <a href="dashboard.html" class="btn btn-outline" style="padding:14px 16px; font-size:14px; font-weight:700; text-decoration:none; color:var(--txt2); white-space:nowrap;">
+            🔙 กลับ
+        </a>
+        <button class="btn btn-amber w-100" onclick="verifyLogin()" style="padding:14px; font-size:15px; font-weight:700; box-shadow: 0 4px 12px rgba(217,119,6,0.3);">
+          เข้าสู่ระบบจัดการ
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <header class="topbar">
@@ -64,17 +99,21 @@
 
   <div class="filter-strip a1">
     <div class="fg wide">
-      <label class="fl">RM Name</label>
-      <select id="filterName" class="fc" onchange="applyFilters()"><option value="">วัตถุดิบทั้งหมด</option></select>
+      <label class="fl">RM Name (ค้นหา / เลือก)</label>
+      <div style="display: flex; gap: 8px;">
+        <input list="rmNameList" id="filterName" class="fc" placeholder="วัตถุดิบทั้งหมด..." oninput="applyFilters()">
+        <datalist id="rmNameList"></datalist>
+        <button class="btn btn-outline" onclick="clearRmFilter()" style="padding: 6px 14px; font-size: 13px; font-weight: 700; border-radius: 8px;">ล้าง</button>
+      </div>
     </div>
     <div class="fg wide">
       <label class="fl">ค้นหาด่วน</label>
-      <div class="search-wrap">
-        <div class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <input type="text" id="searchInput" class="fc" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
+      <div class="search-wrap" style="position: relative;">
+        <div class="search-ico" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt3);"><svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input type="text" id="searchInput" class="fc" style="padding-left: 36px;" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
       </div>
     </div>
-    <div style="display:flex;align-items:flex-end;position:relative;z-index:1">
+    <div style="display:flex;align-items:flex-end;position:relative;z-index:1; padding-bottom: 8px;">
       <span id="rowCount" class="row-count">— รายการ</span>
     </div>
   </div>
@@ -164,9 +203,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=7"></script>
+<script src="mf-shared.js?v=8"></script>
 <script>
 let rawData=[], allData=[], editIdx=null;
+let _warehouseUsers = [];
+let loggedInUser = "";
+let loginMdl;
 const modal=new bootstrap.Modal(document.getElementById('editModal'));
 
 // 🚩 ฟังก์ชันแปลงวันที่สำหรับการแสดงผล (DD/MM/YYYY)
@@ -174,7 +216,8 @@ function mfFmtDisplay(dstr) {
   if (!dstr) return '—';
   const d = new Date(dstr);
   if (isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('en-GB'); 
+  const pad = (n) => n < 10 ? '0' + n : n;
+  return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
 }
 
 // 🚩 ฟังก์ชันแปลงวันที่สำหรับใส่ใน <input type="date"> (YYYY-MM-DD)
@@ -186,37 +229,76 @@ function mfFmtInput(dstr) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
-window.onload=loadData;
+window.onload=initSystem;
 
-async function loadData(){
-  mfShow('กำลังโหลดข้อมูลคลัง...');
+// 🚩 โหลดข้อมูลและบังคับ Login
+async function initSystem(){
+  loginMdl = new bootstrap.Modal(document.getElementById('loginModal'));
+  mfShow('กำลังเตรียมระบบ...');
   try{
-    const j=await MF.getMonitorData(); 
-    // 🚩 ตรวจสอบความปลอดภัยกรณีฐานข้อมูลไม่มีข้อมูล
-    rawData = (j && j.data) ? j.data : [];
+    const [jusers, jm] = await Promise.all([MF.getUsers(), MF.getMonitorData()]); 
+    
+    // ตั้งค่าผู้ใช้งาน
+    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
+    let opHtml = '<option value="">-- เลือกชื่อพนักงานคลัง --</option>';
+    _warehouseUsers.forEach(u => {
+        opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`;
+    });
+    document.getElementById('loginUser').innerHTML = opHtml;
+
+    // ตั้งค่าข้อมูลคลัง
+    rawData = (jm && jm.data) ? jm.data : [];
     allData = rawData;
     buildFilters();
     applyFilters();
+
+    mfHide();
+    loginMdl.show(); // แสดง Modal บังคับล็อกอิน
   }catch(e){
       console.error(e);
       alert('โหลดข้อมูลล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ');
+      mfHide();
   }
-  mfHide();
 }
 
+// 🚩 ฟังก์ชันตรวจสอบ PIN (เหมือนหน้า Receiving)
+function verifyLogin() {
+    const empId = document.getElementById('loginUser').value;
+    const pin = document.getElementById('loginPin').value;
+    
+    if (!empId || pin.length < 4) return alert('กรุณาเลือกชื่อและกรอก PIN ให้ครบ 4 หลัก');
+
+    const user = _warehouseUsers.find(u => u.empId === empId);
+    if(!user) return alert('ไม่พบข้อมูลผู้ใช้งาน');
+
+    loggedInUser = user.name;
+    loginMdl.hide(); // ปิด Modal เริ่มใช้งานได้
+}
+
+// 🚩 สร้างตัวเลือกใน Datalist
 function buildFilters(){
   const names=[...new Set(rawData.map(i=>i.name).filter(Boolean))].sort();
-  const fn=document.getElementById('filterName');
-  fn.innerHTML='<option value="">วัตถุดิบทั้งหมด</option>';
-  names.forEach(n=>fn.innerHTML+=`<option value="${n}">${n}</option>`);
+  const dl=document.getElementById('rmNameList');
+  dl.innerHTML = '';
+  names.forEach(n=>{
+      const op = document.createElement('option');
+      op.value = n;
+      dl.appendChild(op);
+  });
+}
+
+// 🚩 ฟังก์ชันเคลียร์ช่อง RM Name Filter แล้วรัน Filter ใหม่
+function clearRmFilter() {
+    document.getElementById('filterName').value = '';
+    applyFilters();
 }
 
 function applyFilters(){
-  const nf=document.getElementById('filterName').value;
-  const s=document.getElementById('searchInput').value.toLowerCase();
+  const nf=document.getElementById('filterName').value.toLowerCase().trim();
+  const s=document.getElementById('searchInput').value.toLowerCase().trim();
   let data=rawData.filter(i=>
-    (!nf||i.name===nf)&&
-    Object.values(i).some(v=>String(v).toLowerCase().includes(s))
+    (!nf||(i.name && i.name.toLowerCase().includes(nf)))&&
+    (!s||Object.values(i).some(v=>String(v).toLowerCase().includes(s)))
   );
   
   data.sort((a,b)=>new Date(a.extExp||a.exp)-new Date(b.extExp||b.exp));
@@ -224,7 +306,7 @@ function applyFilters(){
   
   const tb=document.getElementById('dataTable');
   if(!data.length){
-      tb.innerHTML=`<tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">ไม่พบข้อมูล</td></tr>`;
+      tb.innerHTML=`<tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>`;
       return;
   }
   
