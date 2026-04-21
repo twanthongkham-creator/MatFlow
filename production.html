@@ -223,6 +223,8 @@ let _bomMap = {};
 let _plans = [];       
 let _allHistory = [];
 let _transactions = [];
+// 🚩 เพิ่ม _batchMap เข้ามาในหน้านี้ เพื่อให้ค้นหา BBF เจอ
+let _batchMap = {};
 let planCounter = 0;
 let cancelMdl; 
 let receiveMdl;
@@ -236,9 +238,26 @@ window.onload = () => {
 async function loadMasterData() {
   mfShow('กำลังโหลดข้อมูล...');
   try {
-    const [jmaster, jreq, jusers, jtx] = await Promise.all([MF.getMasterData(), MF.getRequests(), MF.getUsers(), MF.getTransactions()]);
+    // 🚩 โหลดข้อมูล Monitor (jm) มาด้วย เพื่อเอาสต๊อกมาหา BBF
+    const [jmaster, jreq, jusers, jtx, jm] = await Promise.all([
+        MF.getMasterData(), 
+        MF.getRequests(), 
+        MF.getUsers(), 
+        MF.getTransactions(),
+        MF.getMonitorData()
+    ]);
     
     _transactions = (jtx && jtx.data) ? jtx.data : [];
+
+    // 🚩 สร้าง _batchMap เหมือนในหน้าคลังสินค้า
+    _batchMap = {};
+    (jm && jm.data ? jm.data : []).forEach(row => {
+      const c = row.code; const q = parseFloat(row.qty)||0;
+      if (c && q > 0) {
+        if(!_batchMap[c]) _batchMap[c] = [];
+        _batchMap[c].push({ batch: row.batch||'N/A', qty: q, exp: new Date(row.exp).toLocaleDateString('en-GB') });
+      }
+    });
 
     _bomMap = {}; _productList = [];
     (jmaster.data || []).forEach(rm => {
@@ -441,7 +460,7 @@ function renderHistory() {
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
-
+  
   const first = reqItems[0];
   const isCompleted = first.status === 'Completed' || first.status === 'Issued'; 
 
