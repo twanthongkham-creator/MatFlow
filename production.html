@@ -437,13 +437,11 @@ function renderHistory() {
   document.getElementById('rightPanelContent').innerHTML = html;
 }
 
-// 🚩 ฟังก์ชันพิมพ์แบบฟอร์ม
 function printDocument(reqNo) {
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
   if(reqItems.length === 0) return;
   
   const first = reqItems[0];
-  const isWarehouse = window.location.pathname.includes('warehouse');
   const isCompleted = first.status === 'Completed' || first.status === 'Issued'; 
 
   let printData = {
@@ -458,7 +456,7 @@ function printDocument(reqNo) {
   reqItems.forEach(item => {
     let productEntry = { 
       pName: item.productTarget, 
-      targetQty: item.targetQty, // 🚩 ส่ง TargetQty ให้ฟอร์มด้วย
+      targetQty: item.targetQty, 
       items: [] 
     };
 
@@ -479,22 +477,6 @@ function printDocument(reqNo) {
               });
               batchVal = bbfArr.join(', ');
           } else { batchVal = '-'; }
-      } else if (isWarehouse) {
-          const group = Array.from(document.querySelectorAll('.batch-group')).find(g => decodeURIComponent(g.getAttribute('data-code')) === String(rm.code) && decodeURIComponent(g.getAttribute('data-pname')) === String(item.productTarget));
-          if(group) {
-              let checked = group.querySelectorAll('.b-cb:checked');
-              let selectedOpts = Array.from(checked).map(c => c.value);
-              if(selectedOpts.includes('Auto FIFO') || selectedOpts.length === 0) {
-                  batchVal = 'Auto FIFO';
-              } else {
-                  let bbfArr = selectedOpts.map(b => {
-                      let match = (_batchMap[rm.code] || []).find(x => String(x.batch) === String(b));
-                      let bbfStr = match ? match.exp : "-";
-                      return `${b} (BBF: ${bbfStr})`;
-                  });
-                  batchVal = bbfArr.join(', ');
-              }
-          } else { batchVal = 'Auto FIFO'; }
       }
 
       productEntry.items.push({ code: rm.code, rmName: rm.rmName, qty: reqQty, unit: rm.sysUnit, batch: batchVal });
@@ -629,3 +611,9 @@ async function executeReceive() {
 </script>
 </body>
 </html>
+
+นี่คือ code production.html เมื่อกดรับของ พบว่า popup ไม่แสดง Batch (ว่างเปล่า) แบบนี้ 
+
+<td style="padding:10px; color:#059669; font-family:monospace; font-weight:bold;"></td>
+
+ช่วยแก้ไขให้ด้วย ขอ code เต็มๆ
