@@ -15,47 +15,12 @@
   .bext { color: #92400e; font-weight: 700; background: rgba(146,64,14,0.1); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(146,64,14,0.2); }
   .bcode { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: var(--b2); background: rgba(66,146,255,.1); padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
   .bbatch { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #059669; }
-  
-  /* สไตล์สำหรับ Login Modal */
-  .op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
-  .op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
-  .op-input[readonly] { background: #f1f5f9; cursor: not-allowed; border-color: #cbd5e1; color: var(--b2); }
 </style>
 </head>
 <body>
 
 <div id="loader" class="loader" style="display:none">
   <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
-</div>
-
-<div class="modal fade mf-modal" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border: 2px solid var(--amber);">
-      <div class="modal-hd" style="background:linear-gradient(135deg,var(--amber),#b45309);">
-        <div class="modal-hd-title" style="color:#fff; display: flex; align-items: center;">
-            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.5;margin-right:8px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            ยืนยันตัวตนพนักงานคลังสินค้า
-        </div>
-      </div>
-      <div class="modal-bd" style="padding: 24px 20px;">
-        <label style="font-size:11.5px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block; text-transform:uppercase;">เลือกชื่อผู้ใช้งาน (Warehouse / Planning)</label>
-        <select id="loginUser" class="op-input" style="margin-bottom:16px;">
-           <option value="">-- กำลังโหลดรายชื่อ... --</option>
-        </select>
-        
-        <label style="font-size:11.5px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block; text-transform:uppercase;">PIN 4 หลัก</label>
-        <input type="password" id="loginPin" class="op-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-size:24px; letter-spacing:12px; font-weight:bold; margin-bottom:0;">
-      </div>
-      <div class="modal-ft" style="background: #fff8f1; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-        <a href="dashboard.html" class="btn btn-outline" style="padding:14px 16px; font-size:14px; font-weight:700; text-decoration:none; color:var(--txt2); white-space:nowrap;">
-            🔙 กลับ
-        </a>
-        <button class="btn btn-amber w-100" onclick="verifyLogin()" style="padding:14px; font-size:15px; font-weight:700; box-shadow: 0 4px 12px rgba(217,119,6,0.3);">
-          เข้าสู่ระบบจัดการ
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <header class="topbar">
@@ -92,29 +57,40 @@
       <span class="ph-ico" style="background:linear-gradient(135deg,#475569,var(--b0))">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       </span>
-      การจัดการข้อมูล
+      Inventory Management
     </h1>
     <p>จัดการและแก้ไขข้อมูลคลังวัตถุดิบ — เรียงตามวันหมดอายุใกล้ที่สุด</p>
   </div>
 
-  <div class="filter-strip a1">
-    <div class="fg wide">
-      <label class="fl">RM Name (ค้นหา / เลือก)</label>
-      <div style="display: flex; gap: 8px;">
+  <div class="filter-strip a1" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+    <div class="fg" style="flex: 1; min-width: 220px;">
+      <label class="fl">Product Name (สินค้า)</label>
+      <div style="display: flex; gap: 6px;">
+        <input list="prodNameList" id="filterProduct" class="fc" placeholder="สินค้าทั้งหมด..." oninput="applyFilters()">
+        <datalist id="prodNameList"></datalist>
+        <button class="btn btn-outline" onclick="clearProdFilter()" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;">ล้าง</button>
+      </div>
+    </div>
+
+    <div class="fg" style="flex: 1; min-width: 220px;">
+      <label class="fl">RM Name (วัตถุดิบ)</label>
+      <div style="display: flex; gap: 6px;">
         <input list="rmNameList" id="filterName" class="fc" placeholder="วัตถุดิบทั้งหมด..." oninput="applyFilters()">
         <datalist id="rmNameList"></datalist>
-        <button class="btn btn-outline" onclick="clearRmFilter()" style="padding: 6px 14px; font-size: 13px; font-weight: 700; border-radius: 8px;">ล้าง</button>
+        <button class="btn btn-outline" onclick="clearRmFilter()" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;">ล้าง</button>
       </div>
     </div>
-    <div class="fg wide">
+
+    <div class="fg" style="flex: 1; min-width: 180px;">
       <label class="fl">ค้นหาด่วน</label>
       <div class="search-wrap" style="position: relative;">
-        <div class="search-ico" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt3);"><svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <input type="text" id="searchInput" class="fc" style="padding-left: 36px;" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
+        <div class="search-ico" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3);"><svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input type="text" id="searchInput" class="fc" style="padding-left: 32px;" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
       </div>
     </div>
-    <div style="display:flex;align-items:flex-end;position:relative;z-index:1; padding-bottom: 8px;">
-      <span id="rowCount" class="row-count">— รายการ</span>
+
+    <div style="flex: 0 0 auto; padding-bottom: 6px;">
+      <span id="rowCount" class="row-count" style="font-size: 14px; font-weight: 700; color: var(--b3); background: rgba(66,146,255,0.1); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(66,146,255,0.2);">— รายการ</span>
     </div>
   </div>
 
@@ -142,60 +118,57 @@
 <div class="modal fade mf-modal" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-hd">
-        <div class="modal-hd-title">
-          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <div class="modal-hd" style="padding: 12px 16px;">
+        <div class="modal-hd-title" style="font-size:15px;">
+          <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           แก้ไขรายการ — <span class="btitle" id="modalBatchTitle"></span>
         </div>
-        <button class="btn-xw" data-bs-dismiss="modal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button class="btn-xw" data-bs-dismiss="modal" style="width:24px; height:24px;"><svg viewBox="0 0 24 24" style="width:14px; height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
-      <div class="modal-bd">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-          <div><div class="mi-lbl">RM Name</div><div class="mi-val" id="modalRMName">—</div></div>
-          <div><div class="mi-lbl">Supplier</div><div class="mi-val" id="modalSupplier">—</div></div>
+      <div class="modal-bd" style="padding: 14px 16px;">
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">RM NAME</div><div id="modalRMName" style="font-size:13px; font-weight:600; color:var(--txt);">—</div></div>
+          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">SUPPLIER</div><div id="modalSupplier" style="font-size:13px; font-weight:600; color:var(--txt);">—</div></div>
         </div>
-        <div class="qty-hero">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--b2);margin-bottom:6px">จำนวนคงเหลือ (Unit)</div>
-          <input type="number" step="0.0001" id="editQty">
-          <div class="qty-unit" id="modalUnit">UN</div>
+
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:10px; text-align:center; margin-bottom:10px;">
+          <div style="font-size:10px;font-weight:700;color:var(--b2);margin-bottom:4px;text-transform:uppercase;">จำนวนคงเหลือ (Unit)</div>
+          <input type="number" step="0.0001" id="editQty" style="font-size:18px; font-weight:bold; text-align:center; width:140px; border:1px solid #cbd5e1; border-radius:6px; padding:2px; outline:none; color:var(--b3);">
         </div>
-        <div class="row g-2" style="margin-bottom:12px">
+
+        <div class="row g-2" style="margin-bottom:10px">
           <div class="col-6">
-            <div class="date-fw">
-              <label style="color:var(--b3)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>วันผลิต (MFG)</label>
-              <input type="date" id="editMfg">
-            </div>
+            <label style="font-size:10px; font-weight:700; color:var(--b3); margin-bottom:2px; display:block;">วันผลิต (MFG)</label>
+            <input type="date" id="editMfg" class="fc" style="padding:4px 8px; font-size:12px;">
           </div>
           <div class="col-6">
-            <div class="date-fw">
-              <label style="color:var(--red)"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>วันหมดอายุ (BBF)</label>
-              <input type="date" id="editExp">
-            </div>
+            <label style="font-size:10px; font-weight:700; color:var(--red); margin-bottom:2px; display:block;">วันหมดอายุ (BBF)</label>
+            <input type="date" id="editExp" class="fc" style="padding:4px 8px; font-size:12px; border-color:#fca5a5; background:#fff5f5;">
           </div>
         </div>
-        <div class="ext-wrap">
+
+        <div style="background:#fefce8; border:1px solid #fde68a; border-radius:8px; padding:8px; margin-bottom:10px;">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:13.5px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:7px">
-              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              ต่ออายุวัตถุดิบ (Extended BBF)
-            </span>
-            <input class="form-check-input" type="checkbox" id="toggleExtend" style="width:18px;height:18px;margin:0;cursor:pointer;accent-color:var(--b3)" onchange="toggleExt()">
+            <span style="font-size:12px;font-weight:700;color:#92400e;">ต่ออายุวัตถุดิบ (Extended)</span>
+            <input class="form-check-input" type="checkbox" id="toggleExtend" style="margin:0;cursor:pointer;accent-color:var(--b3);" onchange="toggleExt()">
           </div>
-          <div id="extendField" class="ext-inner">
-            <label class="fl" style="color:var(--amber)">วันที่ต่ออายุใหม่</label>
-            <input type="date" id="editExtExp" class="fc" style="border-color:var(--ab)">
+          <div id="extendField" style="display:none; margin-top:6px;">
+            <input type="date" id="editExtExp" class="fc" style="padding:4px 8px; font-size:12px; border-color:#fcd34d;">
           </div>
         </div>
-        <div style="margin-top:13px">
-          <label class="fl">แก้ไขเลข Batch</label>
-          <input type="text" id="editBatch" class="fc" style="font-family:'IBM Plex Mono',monospace">
+
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px; display:block;">แก้ไขเลข Batch</label>
+          <input type="text" id="editBatch" class="fc" style="padding:4px 8px; font-size:12px; font-family:'IBM Plex Mono',monospace">
         </div>
+
       </div>
-      <div class="modal-ft">
-        <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:9px 20px">ยกเลิก</button>
-        <button class="btn btn-blue" onclick="saveEdit()" style="padding:9px 24px">
-          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          บันทึกการเปลี่ยนแปลง
+      <div class="modal-ft" style="padding: 10px 16px;">
+        <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:6px 16px; font-size:13px;">ยกเลิก</button>
+        <button class="btn btn-blue" onclick="saveEdit()" style="padding:6px 20px; font-size:13px;">
+          <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          บันทึกข้อมูล
         </button>
       </div>
     </div>
@@ -203,15 +176,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=8"></script>
+<script src="mf-shared.js?v=9"></script>
 <script>
-let rawData=[], allData=[], editIdx=null;
-let _warehouseUsers = [];
-let loggedInUser = "";
-let loginMdl;
-const modal=new bootstrap.Modal(document.getElementById('editModal'));
+let rawData = [], allData = [], editIdx = null;
+let masterData = []; // เก็บฐานข้อมูลจาก Master_RawMaterial
+let lastProductFilter = null; // เช็คเพื่ออัปเดตตัวเลือก RM
+const modal = new bootstrap.Modal(document.getElementById('editModal'));
 
-// 🚩 ฟังก์ชันแปลงวันที่สำหรับการแสดงผล (DD/MM/YYYY)
+// ฟังก์ชันแปลงวันที่สำหรับการแสดงผล (DD/MM/YYYY)
 function mfFmtDisplay(dstr) {
   if (!dstr) return '—';
   const d = new Date(dstr);
@@ -220,7 +192,7 @@ function mfFmtDisplay(dstr) {
   return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
 }
 
-// 🚩 ฟังก์ชันแปลงวันที่สำหรับใส่ใน <input type="date"> (YYYY-MM-DD)
+// ฟังก์ชันแปลงวันที่สำหรับใส่ใน <input type="date"> (YYYY-MM-DD)
 function mfFmtInput(dstr) {
   if (!dstr) return '';
   const d = new Date(dstr);
@@ -229,82 +201,124 @@ function mfFmtInput(dstr) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
-window.onload=initSystem;
+window.onload = loadData;
 
-// 🚩 โหลดข้อมูลและบังคับ Login
-async function initSystem(){
-  loginMdl = new bootstrap.Modal(document.getElementById('loginModal'));
-  mfShow('กำลังเตรียมระบบ...');
-  try{
-    const [jusers, jm] = await Promise.all([MF.getUsers(), MF.getMonitorData()]); 
+async function loadData() {
+  mfShow('กำลังโหลดข้อมูลคลัง...');
+  try {
+    const [jm, jmaster] = await Promise.all([MF.getMonitorData(), MF.getMasterData()]); 
     
-    // ตั้งค่าผู้ใช้งาน
-    _warehouseUsers = (jusers.data || []).filter(u => u.dept === 'Warehouse' || u.dept === 'Planning');
-    let opHtml = '<option value="">-- เลือกชื่อพนักงานคลัง --</option>';
-    _warehouseUsers.forEach(u => {
-        opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`;
-    });
-    document.getElementById('loginUser').innerHTML = opHtml;
-
-    // ตั้งค่าข้อมูลคลัง
     rawData = (jm && jm.data) ? jm.data : [];
     allData = rawData;
-    buildFilters();
-    applyFilters();
+    masterData = (jmaster && jmaster.data) ? jmaster.data : [];
 
-    mfHide();
-    loginMdl.show(); // แสดง Modal บังคับล็อกอิน
-  }catch(e){
+    buildProdFilters();
+    applyFilters();
+  } catch(e) {
       console.error(e);
       alert('โหลดข้อมูลล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ');
-      mfHide();
   }
+  mfHide();
 }
 
-// 🚩 ฟังก์ชันตรวจสอบ PIN (เหมือนหน้า Receiving)
-function verifyLogin() {
-    const empId = document.getElementById('loginUser').value;
-    const pin = document.getElementById('loginPin').value;
-    
-    if (!empId || pin.length < 4) return alert('กรุณาเลือกชื่อและกรอก PIN ให้ครบ 4 หลัก');
-
-    const user = _warehouseUsers.find(u => u.empId === empId);
-    if(!user) return alert('ไม่พบข้อมูลผู้ใช้งาน');
-
-    loggedInUser = user.name;
-    loginMdl.hide(); // ปิด Modal เริ่มใช้งานได้
-}
-
-// 🚩 สร้างตัวเลือกใน Datalist
-function buildFilters(){
-  const names=[...new Set(rawData.map(i=>i.name).filter(Boolean))].sort();
-  const dl=document.getElementById('rmNameList');
+// 🚩 สร้างตัวกรอง Product Name เริ่มต้น
+function buildProdFilters() {
+  let prodSet = new Set();
+  masterData.forEach(rm => {
+      if (rm.productName) prodSet.add(rm.productName);
+  });
+  
+  const dl = document.getElementById('prodNameList');
   dl.innerHTML = '';
-  names.forEach(n=>{
+  Array.from(prodSet).sort().forEach(p => {
+      const op = document.createElement('option');
+      op.value = p;
+      dl.appendChild(op);
+  });
+  
+  updateRmDropdown(''); // สร้าง RM Name ครั้งแรก (แสดงทั้งหมด)
+}
+
+// 🚩 สร้าง/อัปเดต ตัวกรอง RM Name ให้สัมพันธ์กับ Product Name ที่เลือก
+function updateRmDropdown(prodFilter) {
+  let validCodes = new Set();
+  
+  if (prodFilter) {
+      masterData.forEach(rm => {
+          if (rm.productName && rm.productName.toLowerCase().includes(prodFilter)) {
+              validCodes.add(rm.code);
+          }
+      });
+  }
+  
+  let validNames = new Set();
+  rawData.forEach(i => {
+      // ถ้าไม่มี Product Filter หรือ รหัสนี้อยู่ใน Product ที่เลือก
+      if (!prodFilter || validCodes.has(i.code)) {
+          if (i.name) validNames.add(i.name);
+      }
+  });
+  
+  const dl = document.getElementById('rmNameList');
+  dl.innerHTML = '';
+  Array.from(validNames).sort().forEach(n => {
       const op = document.createElement('option');
       op.value = n;
       dl.appendChild(op);
   });
 }
 
-// 🚩 ฟังก์ชันเคลียร์ช่อง RM Name Filter แล้วรัน Filter ใหม่
+function clearProdFilter() {
+    document.getElementById('filterProduct').value = '';
+    applyFilters();
+}
+
 function clearRmFilter() {
     document.getElementById('filterName').value = '';
     applyFilters();
 }
 
-function applyFilters(){
-  const nf=document.getElementById('filterName').value.toLowerCase().trim();
-  const s=document.getElementById('searchInput').value.toLowerCase().trim();
-  let data=rawData.filter(i=>
-    (!nf||(i.name && i.name.toLowerCase().includes(nf)))&&
-    (!s||Object.values(i).some(v=>String(v).toLowerCase().includes(s)))
-  );
+function applyFilters() {
+  const pf = document.getElementById('filterProduct').value.toLowerCase().trim();
+  const nf = document.getElementById('filterName').value.toLowerCase().trim();
+  const s = document.getElementById('searchInput').value.toLowerCase().trim();
+  
+  // 🚩 อัปเดตตัวเลือก RM Name อัตโนมัติเมื่อเปลี่ยน Product
+  if (pf !== lastProductFilter) {
+      updateRmDropdown(pf);
+      lastProductFilter = pf;
+  }
+
+  // หา RM Codes ที่อยู่ใน Product ที่ค้นหา
+  let filteredRMs = new Set();
+  if (pf) {
+      masterData.forEach(rm => {
+          if (rm.productName && rm.productName.toLowerCase().includes(pf)) {
+              filteredRMs.add(rm.code);
+          }
+      });
+  }
+
+  let data = rawData.filter(i => {
+    let matchProd = true;
+    if (pf) {
+        matchProd = filteredRMs.has(i.code); // เช็คว่า Code นี้อยู่ใน Product ไหม
+    }
+    let matchName = (!nf || (i.name && i.name.toLowerCase().includes(nf)));
+    let matchSearch = (!s || Object.values(i).some(v => String(v).toLowerCase().includes(s)));
+    
+    return matchProd && matchName && matchSearch;
+  });
   
   data.sort((a,b)=>new Date(a.extExp||a.exp)-new Date(b.extExp||b.exp));
-  document.getElementById('rowCount').textContent=`${data.length} รายการ`;
   
-  const tb=document.getElementById('dataTable');
+  // 🚩 คำนวณยอดรวม Qty (SUM)
+  let totalQty = data.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
+  let sumFmt = Number(totalQty.toFixed(4)).toLocaleString();
+  
+  document.getElementById('rowCount').textContent = `${data.length} รายการ รวม ${sumFmt} UN`;
+  
+  const tb = document.getElementById('dataTable');
   if(!data.length){
       tb.innerHTML=`<tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>`;
       return;
@@ -332,7 +346,9 @@ function applyFilters(){
   }).join('');
 }
 
-function toggleExt(){document.getElementById('extendField').style.display=document.getElementById('toggleExtend').checked?'block':'none';}
+function toggleExt(){
+    document.getElementById('extendField').style.display=document.getElementById('toggleExtend').checked?'block':'none';
+}
 
 function openEdit(ri){
   const it=rawData.find(i=>i.rowIdx===ri); editIdx=ri;
