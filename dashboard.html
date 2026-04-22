@@ -74,8 +74,8 @@
 .op-input-sm:focus { border-color:var(--b2); box-shadow:0 0 0 3px rgba(66,146,255,.15); }
 .stat-ok { color:#059669; background:rgba(5,150,105,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(5,150,105,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
 .stat-ng { color:#dc2626; background:rgba(220,38,38,.1); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1px solid rgba(220,38,38,.2); display:inline-flex; align-items:center; justify-content:center; gap:4px; }
-.batch-group { text-align: left; max-height: 90px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: rgba(255,255,255,0.8); }
-.batch-group label { display: block; margin-bottom: 4px; font-size: 11.5px; cursor: pointer; color: var(--txt); }
+.batch-group { text-align: left; max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: rgba(255,255,255,0.8); }
+.batch-group label { display: block; margin-bottom: 6px; font-size: 11.5px; cursor: pointer; color: var(--txt); }
 .batch-group input[type="checkbox"] { margin-right: 6px; transform: scale(1.1); accent-color: var(--b2); }
 </style>
 </head>
@@ -209,9 +209,8 @@
             <tr>
               <th width="1%">Code</th>
               <th class="text-left">RM Name</th>
-              <th>จำนวนที่ต้องตัด</th>
-              <th width="40%">เลือก Batch (แก้ไขจำนวนตัดเองได้)</th>
-              <th>สถานะ</th>
+              <th>จำนวนที่ควรตัด</th>
+              <th width="40%">เลือก Batch ที่จะตัดจริง (แก้ไขจำนวนได้อิสระ)</th>
             </tr>
           </thead>
           <tbody id="manualBOMTable"></tbody>
@@ -465,31 +464,23 @@ function buildManualPreview() {
 
     const bom = _bomMap[pName] || [];
     let tableRows = '';
-    let allPass = true;
 
     if (bom.length === 0) {
-      tableRows = `<tr><td colspan="5" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ (BOM) สำหรับสินค้านี้</td></tr>`;
-      allPass = false;
+      tableRows = `<tr><td colspan="4" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ (BOM) สำหรับสินค้านี้</td></tr>`;
     } else {
       bom.forEach(rm => {
         const prepPackages = Number((qty / rm.unitPerPack).toFixed(4));
         let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
-        
-        const currentStock = _stockMap[rm.code] || 0;
-        const isOk = currentStock >= reqQty;
-        if(!isOk) allPass = false;
 
-        let optsHtml = `<label><input type="checkbox" value="Auto FIFO" checked class="b-cb" onchange="handleManualBatchCb(this, '${rm.code}', ${reqQty})"> Auto FIFO</label>`;
+        let optsHtml = '';
         (_batchMap[rm.code] || []).forEach(b => {
-             optsHtml += `<label>
-                 <input type="checkbox" value="${b.batch}" class="b-cb" data-max="${b.qty}" onchange="handleManualBatchCb(this, '${rm.code}', ${reqQty})"> 
-                 Lot: ${b.batch} | มี ${b.qty.toLocaleString()} <span style="color:#dc2626; font-weight:600;">(BBF: ${b.exp})</span>
-                 <input type="number" class="op-input-sm manual-cut-qty" data-batch="${b.batch}" placeholder="ใส่จำนวนตัด" style="display:none; width:90px; margin-left:24px; margin-top:2px; padding:2px 6px; font-size:11px;" max="${b.qty}">
+             optsHtml += `<label style="display:flex; align-items:center; margin-bottom:6px;">
+                 <input type="checkbox" value="${b.batch}" class="b-cb" data-max="${b.qty}" onchange="handleManualBatchCb(this, '${rm.code}', ${reqQty})" style="margin-right:6px; transform:scale(1.1);"> 
+                 <span style="flex:1;">Lot: ${b.batch} | มี ${b.qty.toLocaleString()} <span style="color:#dc2626; font-weight:600;">(BBF: ${b.exp})</span></span>
+                 <input type="number" class="op-input-sm manual-cut-qty" data-batch="${b.batch}" placeholder="ใส่จำนวนตัด" style="display:none; width:90px; padding:2px 6px; font-size:11px;" max="${b.qty}" step="0.0001">
              </label>`;
         });
         if((_batchMap[rm.code] || []).length === 0) optsHtml = `<div style="font-size:11px; color:red;">ไม่มีสต๊อกในคลัง</div>`;
-
-        let statIcon = isOk ? '<span class="stat-ok">พอ</span>' : '<span class="stat-ng">ขาด</span>';
 
         tableRows += `
           <tr data-code="${rm.code}" data-req="${reqQty}">
@@ -501,7 +492,6 @@ function buildManualPreview() {
                    ${optsHtml}
                </div>
             </td>
-            <td>${statIcon}</td>
           </tr>
         `;
       });
@@ -509,33 +499,16 @@ function buildManualPreview() {
 
     tbody.innerHTML = tableRows;
     previewArea.style.display = 'block';
-    
-    if (allPass) {
-        confirmArea.style.display = 'block';
-    } else {
-        confirmArea.style.display = 'none';
-        document.getElementById('manualOpInput').value = '';
-    }
+    confirmArea.style.display = 'block'; // ให้โชว์ปุ่มยืนยันได้เลยถึงของจะไม่พอก็ตาม
 }
 
-// 🚩 จัดการการเลือก Checkbox ใน Manual Issue (ให้ใส่จำนวน Default เท่ากับ reqQty อัตโนมัติ)
+// 🚩 จัดการการเลือก Checkbox ใน Manual Issue (ให้ใส่จำนวน Default = reqQty ได้)
 window.handleManualBatchCb = function(cb, code, reqQty) {
-  let group = cb.closest('.batch-group');
-  let cbs = group.querySelectorAll('.b-cb');
   let inputQtyBox = cb.closest('label').querySelector('.manual-cut-qty');
-
-  if(cb.value === "Auto FIFO" && cb.checked) {
-      cbs.forEach(c => { 
-          if(c !== cb) c.checked = false; 
-          let sibInput = c.closest('label').querySelector('.manual-cut-qty');
-          if (sibInput) { sibInput.style.display = 'none'; sibInput.value = ''; }
-      });
-  } else if(cb.checked) {
-      let fifoCb = group.querySelector('input[value="Auto FIFO"]');
-      if(fifoCb) fifoCb.checked = false;
+  if(cb.checked) {
       if (inputQtyBox) { 
           inputQtyBox.style.display = 'inline-block'; 
-          inputQtyBox.value = reqQty; // 🚩 กำหนดค่าเริ่มต้น = จำนวนที่ต้องตัด
+          inputQtyBox.value = reqQty; // 🚩 ใส่ค่าตามทฤษฎีให้เป็นค่าเริ่มต้น
       }
   } else {
       if (inputQtyBox) { inputQtyBox.style.display = 'none'; inputQtyBox.value = ''; }
@@ -544,7 +517,6 @@ window.handleManualBatchCb = function(cb, code, reqQty) {
 
 function checkManualSubmit() {
     const op = document.getElementById('manualOpInput').value.trim();
-    // 🚩 เช็คแค่การใส่ ID รหัสพนักงาน
     document.getElementById('btnManualSubmit').disabled = !op;
 }
 
@@ -564,56 +536,49 @@ async function executeManualIssue() {
   for (let tr of rows) {
       let code = tr.getAttribute('data-code');
       let name = tr.querySelector('.text-left').innerText;
-      let targetReqQty = parseFloat(tr.getAttribute('data-req'));
       let unitText = tr.querySelector('td:nth-child(3) span').innerText;
       
       let group = tr.querySelector('.batch-group');
       let checked = group.querySelectorAll('.b-cb:checked');
       
-      let batchStr = '';
-      if(checked.length === 0 || (checked.length === 1 && checked[0].value === 'Auto FIFO')) {
-          batchStr = 'Auto FIFO';
-          payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: batchStr, productTarget: pName });
-      } else {
-          let totalCustomCut = 0;
-          let customBatchArray = [];
-          for (let c of checked) {
-              let sibInput = c.closest('label').querySelector('.manual-cut-qty');
-              let cutVal = parseFloat(sibInput.value);
-              if(isNaN(cutVal) || cutVal <= 0) {
-                  alert(`กรุณาระบุจำนวนที่ต้องการตัดให้ครบถ้วน สำหรับ Lot: ${c.value} ของวัตถุดิบ ${name}`);
-                  isError = true;
-                  break;
-              }
-              let maxLot = parseFloat(c.getAttribute('data-max'));
-              if(cutVal > maxLot) {
-                  alert(`ตัดสต๊อกเกินจำนวนที่มีใน Lot: ${c.value} (มีแค่ ${maxLot})`);
-                  isError = true;
-                  break;
-              }
-              totalCustomCut += cutVal;
-              customBatchArray.push(`${c.value}:${cutVal}`); 
-          }
+      if(checked.length === 0) continue; // ถ้าไม่ได้ติ๊กเลือกเลย ให้ข้ามวัตถุดิบตัวนี้ไป (ไม่บันทึก)
+
+      let totalCustomCut = 0;
+      let customBatchArray = [];
+      for (let c of checked) {
+          let sibInput = c.closest('label').querySelector('.manual-cut-qty');
+          let cutVal = parseFloat(sibInput.value);
           
-          if(isError) break;
-          
-          // 🚩 ป้องกัน Error การบวกเศษทศนิยม
-          if(Math.abs(totalCustomCut - targetReqQty) > 0.0001) {
-              alert(`จำนวนรวมของ Batch ย่อยที่ระบุ (${totalCustomCut}) ไม่เท่ากับเป้าหมายที่ต้องตัด (${targetReqQty}) สำหรับ ${name}`);
+          if(isNaN(cutVal) || cutVal <= 0) {
+              alert(`กรุณาระบุจำนวนที่ต้องการตัดให้ถูกต้อง สำหรับ Lot: ${c.value} ของวัตถุดิบ ${name}`);
               isError = true;
-              break; // หยุดลูปทันที
+              break;
           }
           
-          payload.push({ code: code, name: name, cutQty: targetReqQty, unit: unitText, batch: customBatchArray.join(','), productTarget: pName });
+          let maxLot = parseFloat(c.getAttribute('data-max'));
+          if(cutVal > maxLot) {
+              alert(`ตัดสต๊อกเกินจำนวนที่มีใน Lot: ${c.value} (มีแค่ ${maxLot})`);
+              isError = true;
+              break;
+          }
+          
+          totalCustomCut += cutVal;
+          customBatchArray.push(`${c.value}:${cutVal}`); 
       }
+      
+      if(isError) break;
+      
+      // 🚩 ให้บันทึกตามจำนวนจริงที่พนักงานกรอก (ไม่สนใจว่าจะเท่ากับเป้าหมายที่ต้องตัดไหม)
+      payload.push({ code: code, name: name, cutQty: totalCustomCut, unit: unitText, batch: customBatchArray.join(','), productTarget: pName });
   }
 
-  // 🚩 หยุดการทำงานทั้งหมดถ้ามี Error
+  // หยุดการทำงานทั้งหมดถ้ามี Error
   if(isError) return;
+
+  if(payload.length === 0) return alert('กรุณาเลือก Batch ที่จะตัดอย่างน้อย 1 รายการ');
 
   mfShow('กำลังทำรายการ Manual Issue...');
   try {
-    // 🚩 ลบตัวแปร pin ออก แล้วส่งค่า String ว่างๆ แทน
     const j = await MF.issueMulti(payload, op, "", "MANUAL-" + Date.now().toString().slice(-6));
     if(j.status === 'success') {
       alert(`✅ ตัดสต๊อกชั่วคราวสำเร็จ!\nเลขที่เอกสาร: ${j.docNo}`);
