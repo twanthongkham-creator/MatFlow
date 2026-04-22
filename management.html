@@ -63,34 +63,25 @@
   </div>
 
   <div class="filter-strip a1" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
-    <div class="fg" style="flex: 1; min-width: 220px;">
-      <label class="fl">Product Name (สินค้า)</label>
-      <div style="display: flex; gap: 6px;">
-        <input list="prodNameList" id="filterProduct" class="fc" placeholder="สินค้าทั้งหมด..." oninput="applyFilters()">
-        <datalist id="prodNameList"></datalist>
-        <button class="btn btn-outline" onclick="clearProdFilter()" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;">ล้าง</button>
-      </div>
-    </div>
-
-    <div class="fg" style="flex: 1; min-width: 220px;">
-      <label class="fl">RM Name (วัตถุดิบ)</label>
-      <div style="display: flex; gap: 6px;">
+    <div class="fg" style="flex: 1; min-width: 250px;">
+      <label class="fl">RM Name (ค้นหา / เลือก)</label>
+      <div style="display: flex; gap: 8px;">
         <input list="rmNameList" id="filterName" class="fc" placeholder="วัตถุดิบทั้งหมด..." oninput="applyFilters()">
         <datalist id="rmNameList"></datalist>
-        <button class="btn btn-outline" onclick="clearRmFilter()" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;">ล้าง</button>
+        <button class="btn btn-outline" onclick="clearRmFilter()" style="padding: 6px 14px; font-size: 13px; font-weight: 700; border-radius: 8px;">ล้าง</button>
       </div>
     </div>
 
-    <div class="fg" style="flex: 1; min-width: 180px;">
+    <div class="fg" style="flex: 1; min-width: 220px;">
       <label class="fl">ค้นหาด่วน</label>
       <div class="search-wrap" style="position: relative;">
-        <div class="search-ico" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3);"><svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <input type="text" id="searchInput" class="fc" style="padding-left: 32px;" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
+        <div class="search-ico" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt3);"><svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input type="text" id="searchInput" class="fc" style="padding-left: 36px;" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
       </div>
     </div>
-
+    
     <div style="flex: 0 0 auto; padding-bottom: 6px;">
-      <span id="rowCount" class="row-count" style="font-size: 14px; font-weight: 700; color: var(--b3); background: rgba(66,146,255,0.1); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(66,146,255,0.2);">— รายการ</span>
+      <span id="rowCount" class="row-count" style="font-size: 14px; font-weight: 700; color: var(--b3); background: rgba(66,146,255,0.1); padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(66,146,255,0.2);">— รายการ</span>
     </div>
   </div>
 
@@ -99,7 +90,7 @@
       <table class="mt">
         <thead><tr>
           <th>Code</th>
-          <th>RM Name</th>
+          <th class="text-left">RM Name</th>
           <th>Batch</th>
           <th style="text-align:center">Qty (Unit)</th>
           <th style="text-align:center">MFG</th>
@@ -128,8 +119,8 @@
       <div class="modal-bd" style="padding: 14px 16px;">
         
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">RM NAME</div><div id="modalRMName" style="font-size:13px; font-weight:600; color:var(--txt);">—</div></div>
-          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">SUPPLIER</div><div id="modalSupplier" style="font-size:13px; font-weight:600; color:var(--txt);">—</div></div>
+          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">RM NAME</div><div id="modalRMName" style="font-size:13px; font-weight:600; color:var(--txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div></div>
+          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">SUPPLIER</div><div id="modalSupplier" style="font-size:13px; font-weight:600; color:var(--txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div></div>
         </div>
 
         <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:10px; text-align:center; margin-bottom:10px;">
@@ -178,10 +169,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="mf-shared.js?v=9"></script>
 <script>
-let rawData = [], allData = [], editIdx = null;
-let masterData = []; // เก็บฐานข้อมูลจาก Master_RawMaterial
-let lastProductFilter = null; // เช็คเพื่ออัปเดตตัวเลือก RM
-const modal = new bootstrap.Modal(document.getElementById('editModal'));
+let rawData = [], editIdx = null;
+let editMdl;
 
 // ฟังก์ชันแปลงวันที่สำหรับการแสดงผล (DD/MM/YYYY)
 function mfFmtDisplay(dstr) {
@@ -201,76 +190,31 @@ function mfFmtInput(dstr) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
-window.onload = loadData;
-
-async function loadData() {
+window.onload = async () => {
+  editMdl = new bootstrap.Modal(document.getElementById('editModal'));
   mfShow('กำลังโหลดข้อมูลคลัง...');
   try {
-    const [jm, jmaster] = await Promise.all([MF.getMonitorData(), MF.getMasterData()]); 
-    
-    rawData = (jm && jm.data) ? jm.data : [];
-    allData = rawData;
-    masterData = (jmaster && jmaster.data) ? jmaster.data : [];
-
-    buildProdFilters();
+    const res = await MF.getMonitorData(); 
+    rawData = (res && res.data) ? res.data : [];
+    buildFilters();
     applyFilters();
   } catch(e) {
       console.error(e);
       alert('โหลดข้อมูลล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ');
   }
   mfHide();
-}
+};
 
-// 🚩 สร้างตัวกรอง Product Name เริ่มต้น
-function buildProdFilters() {
-  let prodSet = new Set();
-  masterData.forEach(rm => {
-      if (rm.productName) prodSet.add(rm.productName);
-  });
-  
-  const dl = document.getElementById('prodNameList');
-  dl.innerHTML = '';
-  Array.from(prodSet).sort().forEach(p => {
-      const op = document.createElement('option');
-      op.value = p;
-      dl.appendChild(op);
-  });
-  
-  updateRmDropdown(''); // สร้าง RM Name ครั้งแรก (แสดงทั้งหมด)
-}
-
-// 🚩 สร้าง/อัปเดต ตัวกรอง RM Name ให้สัมพันธ์กับ Product Name ที่เลือก
-function updateRmDropdown(prodFilter) {
-  let validCodes = new Set();
-  
-  if (prodFilter) {
-      masterData.forEach(rm => {
-          if (rm.productName && rm.productName.toLowerCase().includes(prodFilter)) {
-              validCodes.add(rm.code);
-          }
-      });
-  }
-  
-  let validNames = new Set();
-  rawData.forEach(i => {
-      // ถ้าไม่มี Product Filter หรือ รหัสนี้อยู่ใน Product ที่เลือก
-      if (!prodFilter || validCodes.has(i.code)) {
-          if (i.name) validNames.add(i.name);
-      }
-  });
-  
+// 🚩 สร้างตัวเลือกใน Datalist เฉพาะรายการที่มีในคลัง
+function buildFilters() {
+  const names = [...new Set(rawData.map(i => i.name).filter(Boolean))].sort();
   const dl = document.getElementById('rmNameList');
   dl.innerHTML = '';
-  Array.from(validNames).sort().forEach(n => {
+  names.forEach(n => {
       const op = document.createElement('option');
       op.value = n;
       dl.appendChild(op);
   });
-}
-
-function clearProdFilter() {
-    document.getElementById('filterProduct').value = '';
-    applyFilters();
 }
 
 function clearRmFilter() {
@@ -279,40 +223,18 @@ function clearRmFilter() {
 }
 
 function applyFilters() {
-  const pf = document.getElementById('filterProduct').value.toLowerCase().trim();
   const nf = document.getElementById('filterName').value.toLowerCase().trim();
   const s = document.getElementById('searchInput').value.toLowerCase().trim();
   
-  // 🚩 อัปเดตตัวเลือก RM Name อัตโนมัติเมื่อเปลี่ยน Product
-  if (pf !== lastProductFilter) {
-      updateRmDropdown(pf);
-      lastProductFilter = pf;
-  }
-
-  // หา RM Codes ที่อยู่ใน Product ที่ค้นหา
-  let filteredRMs = new Set();
-  if (pf) {
-      masterData.forEach(rm => {
-          if (rm.productName && rm.productName.toLowerCase().includes(pf)) {
-              filteredRMs.add(rm.code);
-          }
-      });
-  }
-
   let data = rawData.filter(i => {
-    let matchProd = true;
-    if (pf) {
-        matchProd = filteredRMs.has(i.code); // เช็คว่า Code นี้อยู่ใน Product ไหม
-    }
     let matchName = (!nf || (i.name && i.name.toLowerCase().includes(nf)));
     let matchSearch = (!s || Object.values(i).some(v => String(v).toLowerCase().includes(s)));
-    
-    return matchProd && matchName && matchSearch;
+    return matchName && matchSearch;
   });
   
-  data.sort((a,b)=>new Date(a.extExp||a.exp)-new Date(b.extExp||b.exp));
+  data.sort((a,b) => new Date(a.extExp||a.exp) - new Date(b.extExp||b.exp));
   
-  // 🚩 คำนวณยอดรวม Qty (SUM)
+  // 🚩 คำนวณยอดรวม Qty (SUM) สำหรับรายการที่กรองมา
   let totalQty = data.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
   let sumFmt = Number(totalQty.toFixed(4)).toLocaleString();
   
@@ -324,15 +246,15 @@ function applyFilters() {
       return;
   }
   
-  tb.innerHTML=data.map(i=>{
-    const eff=i.extExp||i.exp;
-    const d=eff?Math.ceil((new Date(eff)-new Date())/864e5):null;
-    const ec=d===null?'':d<=0?'exp-expired':d<=7?'exp-danger':d<=15?'exp-warn':'exp-ok';
-    const safeBatch=String(i.batch||'').replace(/'/g,"\\'");
+  tb.innerHTML = data.map(i => {
+    const eff = i.extExp || i.exp;
+    const d = eff ? Math.ceil((new Date(eff) - new Date()) / 864e5) : null;
+    const ec = d === null ? '' : d <= 0 ? 'exp-expired' : d <= 7 ? 'exp-danger' : d <= 15 ? 'exp-warn' : 'exp-ok';
+    const safeBatch = String(i.batch || '').replace(/'/g, "\\'");
     
-    return`<tr>
+    return `<tr>
       <td><span class="bcode">${i.code||'—'}</span></td>
-      <td><div style="font-weight:700;font-size:14px">${i.name||'—'}</div></td>
+      <td class="text-left"><div style="font-weight:700;font-size:14px">${i.name||'—'}</div></td>
       <td><span class="bbatch">${i.batch||'—'}</span></td>
       <td style="text-align:center;font-weight:700;font-family:'IBM Plex Mono';color:var(--b2)">${i.qty??'—'} <span style="font-size:10px; color:#94a3b8;">${i.unit||'UN'}</span></td>
       <td style="text-align:center;font-size:13px">${mfFmtDisplay(i.mfg)}</td>
@@ -347,64 +269,76 @@ function applyFilters() {
 }
 
 function toggleExt(){
-    document.getElementById('extendField').style.display=document.getElementById('toggleExtend').checked?'block':'none';
+    document.getElementById('extendField').style.display = document.getElementById('toggleExtend').checked ? 'block' : 'none';
 }
 
 function openEdit(ri){
-  const it=rawData.find(i=>i.rowIdx===ri); editIdx=ri;
-  document.getElementById('modalBatchTitle').textContent=it.batch;
-  document.getElementById('modalRMName').textContent=it.name;
-  document.getElementById('modalSupplier').textContent=it.supplier||'—';
-  document.getElementById('modalUnit').textContent=it.unit||'Unit';
-  document.getElementById('editBatch').value=it.batch;
-  document.getElementById('editQty').value=it.qty;
-  document.getElementById('editMfg').value=mfFmtInput(it.mfg);
-  document.getElementById('editExp').value=mfFmtInput(it.exp);
-  const hasExt=!!it.extExp;
-  document.getElementById('toggleExtend').checked=hasExt;
-  document.getElementById('editExtExp').value=hasExt?mfFmtInput(it.extExp):'';
-  document.getElementById('extendField').style.display=hasExt?'block':'none';
-  modal.show();
+  const it = rawData.find(i => i.rowIdx === ri);
+  if (!it) return;
+  editIdx = ri;
+  
+  document.getElementById('modalBatchTitle').textContent = it.batch;
+  document.getElementById('modalRMName').textContent = it.name || '—';
+  document.getElementById('modalSupplier').textContent = it.supplier || '—';
+  
+  document.getElementById('editBatch').value = it.batch;
+  document.getElementById('editQty').value = it.qty;
+  document.getElementById('editMfg').value = mfFmtInput(it.mfg);
+  document.getElementById('editExp').value = mfFmtInput(it.exp);
+  
+  const hasExt = !!it.extExp;
+  document.getElementById('toggleExtend').checked = hasExt;
+  document.getElementById('editExtExp').value = hasExt ? mfFmtInput(it.extExp) : '';
+  document.getElementById('extendField').style.display = hasExt ? 'block' : 'none';
+  
+  editMdl.show();
 }
 
 async function saveEdit(){
-  const qty=parseFloat(document.getElementById('editQty').value);
-  const batch=document.getElementById('editBatch').value.trim();
-  const mfg=document.getElementById('editMfg').value, exp=document.getElementById('editExp').value;
+  const qty = parseFloat(document.getElementById('editQty').value);
+  const batch = document.getElementById('editBatch').value.trim();
+  const mfg = document.getElementById('editMfg').value;
+  const exp = document.getElementById('editExp').value;
   
-  if(isNaN(qty)||qty<0)return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
-  if(!batch)return alert('กรุณาระบุเลข Batch');
-  if(!mfg||!exp)return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
-  if(new Date(mfg)>new Date(exp))return alert('วันผลิต ต้องไม่มากกว่าวันหมดอายุ');
+  if(isNaN(qty)||qty<0) return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
+  if(!batch) return alert('กรุณาระบุเลข Batch');
+  if(!mfg||!exp) return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
+  if(new Date(mfg) > new Date(exp)) return alert('วันผลิต ต้องไม่มากกว่าวันหมดอายุ');
   
-  const isExt=document.getElementById('toggleExtend').checked;
-  const it=rawData.find(i=>i.rowIdx===editIdx);
+  const isExt = document.getElementById('toggleExtend').checked;
+  const it = rawData.find(i => i.rowIdx === editIdx);
   
-  const updated={...it,batch,qty,mfg,exp,extExp:isExt?document.getElementById('editExtExp').value:''};
+  const updated = {...it, batch, qty, mfg, exp, extExp: isExt ? document.getElementById('editExtExp').value : ''};
   
-  modal.hide(); mfShow('กำลังบันทึกข้อมูล...');
-  try{
-    const j=await MF.updateMonitor(updated); 
-    if(j.status==='success'){
-        rawData[rawData.findIndex(i=>i.rowIdx===editIdx)]=updated;
+  editMdl.hide(); 
+  mfShow('กำลังบันทึกข้อมูล...');
+  try {
+    const j = await MF.updateMonitor(updated); 
+    if(j.status === 'success'){
+        rawData[rawData.findIndex(i => i.rowIdx === editIdx)] = updated;
         applyFilters();
+    } else {
+        alert('เกิดข้อผิดพลาด: ' + (j.message || ''));
     }
-    else alert('เกิดข้อผิดพลาด: '+(j.message||''));
-  }catch(e){alert('บันทึกล้มเหลว');}
+  } catch(e) { alert('บันทึกล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ'); }
   mfHide();
 }
 
-function confirmDel(ri,batch){if(confirm(`ยืนยันการลบ Batch [${batch}] ออกจากระบบอย่างถาวร?`))doDelete(ri);}
+function confirmDel(ri, batch){
+    if(confirm(`ยืนยันการลบ Batch [${batch}] ออกจากระบบอย่างถาวร?`)) doDelete(ri);
+}
 
 async function doDelete(ri){
   mfShow('กำลังลบข้อมูล...');
-  try{
-    const j=await MF.deleteMonitor(ri); 
-    if(j.status==='success'){
-      rawData=rawData.filter(i=>i.rowIdx!==ri).map(i=>i.rowIdx>ri?{...i,rowIdx:i.rowIdx-1}:i);
+  try {
+    const j = await MF.deleteMonitor(ri); 
+    if(j.status === 'success'){
+      rawData = rawData.filter(i => i.rowIdx !== ri).map(i => i.rowIdx > ri ? {...i, rowIdx: i.rowIdx - 1} : i);
       applyFilters();
-    }else alert('ลบไม่สำเร็จ: '+(j.message||''));
-  }catch(e){alert('ลบล้มเหลว');}
+    } else {
+        alert('ลบไม่สำเร็จ: ' + (j.message || ''));
+    }
+  } catch(e) { alert('ลบล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ'); }
   mfHide();
 }
 </script>
