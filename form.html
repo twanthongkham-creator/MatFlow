@@ -2,18 +2,30 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>พิมพ์ใบเบิก (MatFlow) - Landscape</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         /* 🚩 ตั้งค่าหน้ากระดาษเป็นแนวนอน (Landscape) */
-        @page { size: A4 landscape; margin: 5mm; } /* ปรับ margin ลดลงเพื่อเพิ่มพื้นที่แถวบน-ล่าง */
+        @page { size: A4 landscape; margin: 5mm; } 
         
         body { font-family: 'Sarabun', sans-serif; font-size: 13px; color: black; background: #525659; margin: 0; padding: 20px; }
         
+        /* ซ่อนปุ่มพิมพ์เวลาสั่ง Print จริง */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .page-container { box-shadow: none; margin: 0; padding: 0; }
+        }
+
         .page-container { 
             width: 280mm; 
-            min-height: 180mm; /* ปรับลดความสูงลงนิดหน่อยกันล้นขอบ */
-            padding: 5mm 8mm; /* ลด padding บนล่าง */
+            min-height: 180mm; 
+            padding: 5mm 8mm; 
             margin: 0 auto 15px auto; 
             background: white; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
@@ -23,49 +35,42 @@
         }
         .page-container:last-child { page-break-after: auto; margin-bottom: 0; }
         
-        .doc-id-top { text-align: right; font-size: 11px; margin-bottom: 2px; font-weight: bold; }
-
-        table { width: 100%; border-collapse: collapse; border: 2px solid black; text-align: center; table-layout: fixed; }
-        th, td { border: 1px solid black; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; } /* ลด padding ของเซลล์ */
+        .doc-id-top { position: absolute; top: 10px; right: 15px; font-size: 12px; font-weight: bold; }
         
-        .header-table { border-bottom: none; }
-        .header-table td { border: none; border-right: 1px solid black; padding: 8px; }
-        .header-table td:last-child { border-right: none; }
+        table { width: 100%; border-collapse: collapse; }
+        .header-table { margin-bottom: 5px; }
+        .header-table td { vertical-align: top; }
+        .logo-img { max-height: 40px; margin-bottom: 2px; }
         
-        .logo-img { max-width: 130px; max-height: 65px; object-fit: contain; margin-bottom: 2px; }
-        .brand-text { color: #0070C0; font-family: Tahoma, sans-serif; font-weight: bold; font-size: 22px; margin: 0; }
-
-        .info-table { border-top: 2px solid black; border-bottom: none; }
-        .info-table td { border: none; text-align: left; padding: 6px 12px; font-size: 14px; }
+        .info-table { margin-bottom: 5px; font-size: 13px; }
+        .info-table td { padding: 2px 0; }
         
-        .main-table { border-top: 2px solid black; }
-        .main-table th { background: #f8f9fa; font-weight: bold; padding: 6px; font-size: 13px; }
+        .main-table { border: 1px solid #000; text-align: center; margin-bottom: 10px; }
+        .main-table th { border: 1px solid #000; padding: 6px 4px; font-size: 13px; font-weight: bold; background-color: #f2f2f2; }
+        .main-table td { border: 1px solid #000; padding: 4px; font-size: 13px; height: 26px; }
         
-        /* 🚩 คลาสสำหรับจัดข้อความชิดซ้าย */
-        .text-left { text-align: left !important; padding-left: 10px !important; }
+        .text-left { text-align: left !important; padding-left: 5px !important; }
         .bold { font-weight: bold; }
-        
-        .footer-table { border-top: none; }
-        .footer-title { background: #f8f9fa; font-weight: bold; font-size: 12px; padding: 4px 2px; border-bottom: 2px solid black; }
-        .footer-box { height: 65px; vertical-align: bottom !important; padding-bottom: 8px !important; font-size: 12px; line-height: 1.6; } /* ลดความสูงกล่องลายเซ็น */
-        
         .no-wrap { white-space: nowrap; }
-
-        @media print {
-            body { background: white; padding: 0; margin: 0; }
-            .page-container { width: 100%; min-height: auto; margin: 0; padding: 5mm; box-shadow: none; border: none; }
-            .no-print { display: none !important; }
+        
+        .footer-table { width: 100%; text-align: center; border: 1px solid #000; margin-top: auto; }
+        .footer-title { border: 1px solid #000; padding: 4px; font-size: 12px; font-weight: bold; background-color: #f2f2f2; }
+        .footer-box { border: 1px solid #000; height: 50px; vertical-align: bottom; padding-bottom: 5px; font-size: 12px; }
+        
+        /* ปุ่มสั่งพิมพ์ลอยๆ บนหน้าจอ */
+        .btn-print {
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            background: #0070C0; color: white; border: none;
+            padding: 10px 20px; font-size: 16px; font-family: 'Prompt', sans-serif;
+            border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-
-        .print-btn { padding:12px 25px; font-size:16px; cursor:pointer; background:#0070C0; color:white; border:none; border-radius:8px; font-family:'Sarabun', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px; font-weight: bold; }
+        .btn-print:hover { background: #005a9c; }
     </style>
 </head>
 <body>
-    
-    <div class="no-print" style="text-align:center;">
-        <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์ใบเบิกพัสดุ (แนวนอน)</button>
-    </div>
-    
+
+    <button class="btn-print no-print" onclick="window.print()">🖨️ สั่งพิมพ์ใบเบิก</button>
+
     <div id="print-area"></div>
 
     <script>
@@ -75,7 +80,7 @@
             if (!data.reqNo) {
                 document.getElementById('print-area').innerHTML = `
                     <div class="page-container" style="display:flex; align-items:center; justify-content:center; height:100vh;">
-                        <h2 style="color:red;">❌ ไม่พบข้อมูลการพิมพ์ กรุณากลับไปกดปุ่มพิมพ์จากหน้าหลักอีกครั้ง</h2>
+                        <h2 style="color:red; font-family: 'Prompt', sans-serif;">❌ ไม่พบข้อมูลการพิมพ์ กรุณากลับไปกดปุ่มพิมพ์จากหน้าหลักอีกครั้ง</h2>
                     </div>`;
                 return;
             }
@@ -191,8 +196,6 @@
             });
 
             document.getElementById('print-area').innerHTML = html;
-            
-            // 🚩 ลบคำสั่ง setTimeout ที่ทำให้เด้งพิมพ์อัตโนมัติออกไปแล้ว
         };
     </script>
 </body>
