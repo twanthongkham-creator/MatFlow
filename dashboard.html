@@ -708,7 +708,7 @@ function openList(label){
   const filtered = rawData.filter(i => (parseFloat(i.qty)||0) > 0 && i.name === label);
   const tb = document.getElementById('listModalBody');
   if(!filtered.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--txt2);font-weight:600">ไม่มีสต๊อก<br><br><a href="receiving.html" class="btn btn-blue" style="text-decoration:none;display:inline-flex;gap:6px;padding:8px 16px;margin-top:8px">ไปที่หน้ารับเข้า</a></td></tr>`;}
-  else tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit(${i.rowIdx})" style="cursor:pointer">
+  else tb.innerHTML=filtered.map(i=>`<tr onclick="openEdit('${i.rowIdx}')" style="cursor:pointer">
     <td><span class="bcode">${i.code||'—'}</span></td>
     <td style="font-weight:600">${i.name||'—'}</td>
     <td><span class="bbatch">${i.batch||'—'}</span></td>
