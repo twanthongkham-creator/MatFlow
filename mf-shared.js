@@ -1,51 +1,60 @@
 // =========================================================================
-// MatFlow API Service — Supabase Integration (Fixed v2.0)
+// MatFlow API Service — Supabase Integration (Fixed v2.1)
 // =========================================================================
 
-const supabaseUrl = 'https://bdjyxkkzbbzlmxszmvhx.supabase.co';
-const supabaseKey = 'sb_publishable_inYG_le-QyiIvjkaUHXyfQ_Nvm4FpR2';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const SUPA_URL = 'https://bdjyxkkzbbzlmxszmvhx.supabase.co';
+const SUPA_KEY = 'sb_publishable_inYG_le-QyiIvjkaUHXyfQ_Nvm4FpR2';
+
+// ── Lazy Supabase Init ────────────────────────────────────────────────────
+// สร้าง client ตอนเรียกครั้งแรก ไม่ใช่ตอนโหลดไฟล์
+// → ป้องกัน "MF is not defined" เมื่อ SDK CDN ยังไม่โหลดเสร็จ
+let _client = null;
+function db() {
+  if (!_client) {
+    if (!window.supabase)
+      throw new Error('Supabase SDK ยังไม่โหลด — ตรวจสอบ script CDN ใน <head>');
+    _client = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  }
+  return _client;
+}
 
 const MF = (() => {
 
   // ── PIN Validator ─────────────────────────────────────────────────────
-  // pin อาจเป็น "" (empty) กรณี Manual Issue จาก Dashboard → ข้าม PIN check
+  // pin="" (empty string) → ข้าม PIN check (สำหรับ Manual Issue จาก Dashboard)
   async function validatePIN(empId, pin, requiredDept) {
-    const { data: user, error } = await supabase
+    const { data: user, error } = await db()
       .from('users').select('*').eq('emp_id', empId).single();
     if (error || !user) return { valid: false, msg: '❌ ไม่พบรหัสพนักงานนี้ในระบบ' };
     if (pin && String(user.pin) !== String(pin))
       return { valid: false, msg: '❌ รหัส PIN 4 หลัก ไม่ถูกต้อง' };
     if (pin && requiredDept && user.department !== requiredDept && user.department !== 'Planning')
-      return { valid: false, msg: `❌ พนักงานไม่มีสิทธิ์เข้าถึง (ต้องเป็นแผนก ${requiredDept} หรือ Planning)` };
+      return { valid: false, msg: `❌ ต้องเป็นแผนก ${requiredDept} หรือ Planning` };
     return { valid: true, name: user.name };
   }
 
-  // ── Doc No Generator ──────────────────────────────────────────────────
   function generateDocNo(prefix) {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `${prefix}-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${Math.floor(Math.random() * 100)}`;
+    const d = new Date(), pad = n => String(n).padStart(2,'0');
+    return `${prefix}-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${Math.floor(Math.random()*100)}`;
   }
 
   return {
 
-    // ── Master Raw Material ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     getMasterData: async () => {
-      const { data, error } = await supabase.from('master_raw_material').select('*');
+      const { data, error } = await db().from('master_raw_material').select('*');
       if (error) throw error;
       return {
         status: 'success',
         data: data.map(item => ({
           code:        item.code,
           productName: item.product_name,
-          name:        item.name,                              // ชื่อ RM เต็ม
-          rmName:      item.rm_name,                          // ชื่อ RM ย่อ
+          name:        item.name,
+          rmName:      item.rm_name,
           rmCode:      item.rm_code,
           category:    item.category,
           unit:        item.unit,
-          // FIX #3: packSize = item.produced (น้ำหนัก/ปริมาณต่อแพ็ค) ไม่ใช่ unit_package (string)
-          packSize:    parseFloat(item.produced)      || 1,
+          packSize:    parseFloat(item.produced)      || 1,   // น้ำหนักต่อแพ็ค (ตัวเลข)
           unitPerPack: parseFloat(item.unit_per_pack) || 1,
           packageType: item.unit_package,                     // ชื่อแพ็ค เช่น "ถัง 3U"
           supplier:    item.supplier,
@@ -55,30 +64,25 @@ const MF = (() => {
       };
     },
 
-    // ── Products List ─────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     getProducts: async () => {
-      const { data, error } = await supabase
-        .from('master_raw_material').select('product_name');
+      const { data, error } = await db().from('master_raw_material').select('product_name');
       if (error) throw error;
-      return {
-        status: 'success',
-        data: [...new Set(data.map(d => d.product_name).filter(Boolean))].sort()
-      };
+      return { status: 'success', data: [...new Set(data.map(d => d.product_name).filter(Boolean))].sort() };
     },
 
-    // ── RM Monitoring (Stock) ─────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     getMonitorData: async () => {
-      const { data, error } = await supabase
-        .from('rm_monitoring').select('*')
-        .order('date_of_receive', { ascending: true });
+      const { data, error } = await db()
+        .from('rm_monitoring').select('*').order('date_of_receive', { ascending: true });
       if (error) throw error;
       return {
         status: 'success',
         data: data.map(item => ({
           id:          item.id,
-          rowIdx:      item.id,           // FIX #1: ใช้ UUID แทน row index เดิม
+          rowIdx:      item.id,       // UUID ใช้แทน row index เดิม
           code:        item.mat_code,
-          name:        item.rm_name,      // FIX #2: ไม่มีคอลัมน์ name ใน DB → ใช้ rm_name
+          name:        item.rm_name,  // ไม่มีคอลัมน์ name ใน DB → ใช้ rm_name
           batch:       item.batch,
           recDate:     item.date_of_receive,
           mfg:         item.mfg,
@@ -94,63 +98,46 @@ const MF = (() => {
       };
     },
 
-    // ── Dashboard Analytics ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     getDashboardData: async () => {
-      const [monRes, masterRes] = await Promise.all([
-        MF.getMonitorData(),
-        MF.getMasterData()
-      ]);
-      const monitorData = monRes.data;
-      const masterData  = masterRes.data;
-
-      const today    = new Date();
-      const stockMap = {};
-      const expiryList = [];
+      const [monRes, masterRes] = await Promise.all([MF.getMonitorData(), MF.getMasterData()]);
+      const monitorData = monRes.data, masterData = masterRes.data;
+      const today = new Date(), stockMap = {}, expiryList = [];
 
       monitorData.forEach(item => {
         const qty = parseFloat(item.qty) || 0;
         if (qty > 0) {
           stockMap[item.code] = (stockMap[item.code] || 0) + qty;
-          const effDate = item.extExp ? new Date(item.extExp) : new Date(item.exp);
-          if (!isNaN(effDate.getTime())) {
-            const diffDays = Math.ceil((effDate - today) / 864e5);
-            if (diffDays <= 31)
-              expiryList.push({ name: item.name || item.code, batch: item.batch, days: diffDays });
+          const eff = item.extExp ? new Date(item.extExp) : new Date(item.exp);
+          if (!isNaN(eff)) {
+            const days = Math.ceil((eff - today) / 864e5);
+            if (days <= 31) expiryList.push({ name: item.name || item.code, batch: item.batch, days });
           }
         }
       });
-      expiryList.sort((a, b) => a.days - b.days);
+      expiryList.sort((a,b) => a.days - b.days);
 
-      // BOM Map
       const productBOM = {};
       masterData.forEach(rm => {
         if (!productBOM[rm.productName]) productBOM[rm.productName] = [];
         productBOM[rm.productName].push(rm);
       });
 
-      // Production Capacity Calculation
       const capDetailsList = [];
       for (const pName in productBOM) {
-        let maxPossible  = Infinity;
-        let bottleneckRM = '—';
+        let maxPossible = Infinity, bottleneckRM = '—';
         productBOM[pName].forEach(rm => {
           const stock = stockMap[rm.code] || 0;
-          // reqPerUnit = จำนวน RM ที่ต้องใช้ต่อ 1 unit ของผลิตภัณฑ์
-          const reqPerUnit = rm.unit.toUpperCase() === 'UN'
-            ? 1
-            : (rm.packSize / rm.unitPerPack);
-          if (reqPerUnit > 0) {
-            const possible = Math.floor(stock / reqPerUnit);
-            if (possible < maxPossible) {
-              maxPossible  = possible;
-              bottleneckRM = rm.name || rm.rmName || rm.code;
-            }
+          const req   = rm.unit.toUpperCase() === 'UN' ? 1 : (rm.packSize / rm.unitPerPack);
+          if (req > 0) {
+            const possible = Math.floor(stock / req);
+            if (possible < maxPossible) { maxPossible = possible; bottleneckRM = rm.name || rm.code; }
           }
         });
         if (maxPossible === Infinity) maxPossible = 0;
         capDetailsList.push({ pName, potential: maxPossible, bottleneck: bottleneckRM });
       }
-      capDetailsList.sort((a, b) => b.potential - a.potential);
+      capDetailsList.sort((a,b) => b.potential - a.potential);
 
       const productionCapacity = {};
       capDetailsList.forEach(d => { productionCapacity[d.pName] = d.potential; });
@@ -158,38 +145,29 @@ const MF = (() => {
       return { status: 'success', data: { productionCapacity, expiryTable: expiryList, capDetailsList } };
     },
 
-    // ── Users ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     getUsers: async () => {
-      const { data, error } = await supabase.from('users').select('*');
+      const { data, error } = await db().from('users').select('*');
       if (error) throw error;
-      return {
-        status: 'success',
-        data: data.map(u => ({ empId: u.emp_id, name: u.name, dept: u.department }))
-      };
+      return { status: 'success', data: data.map(u => ({ empId: u.emp_id, name: u.name, dept: u.department })) };
     },
 
-    // ── MatCall Requests ──────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     getRequests: async () => {
-      const { data, error } = await supabase
-        .from('matcall_requests').select('*')
-        .order('timestamp', { ascending: false });
+      const { data, error } = await db()
+        .from('matcall_requests').select('*').order('timestamp', { ascending: false });
       if (error) throw error;
       return {
         status: 'success',
         data: data.map(item => ({
-          reqNo:         item.req_no,
-          timestamp:     item.timestamp,
-          productTarget: item.product_target,
-          targetQty:     item.target_qty,
-          reqBy:         item.req_by,
-          status:        item.status,
-          issueDoc:      item.issue_doc,
-          issueBy:       item.issue_by,
-          receiveBy:     item.receive_by || ''
+          reqNo: item.req_no, timestamp: item.timestamp, productTarget: item.product_target,
+          targetQty: item.target_qty, reqBy: item.req_by, status: item.status,
+          issueDoc: item.issue_doc, issueBy: item.issue_by, receiveBy: item.receive_by || ''
         }))
       };
     },
 
+    // ─────────────────────────────────────────────────────────────────────
     createRequest: async (payload) => {
       const auth = await validatePIN(payload.operator, payload.pin, 'Production');
       if (!auth.valid) return { status: 'error', message: auth.msg };
@@ -198,49 +176,45 @@ const MF = (() => {
         req_no: reqNo, product_target: item.productTarget,
         target_qty: item.qty, req_by: auth.name, status: 'Pending'
       }));
-      const { error } = await supabase.from('matcall_requests').insert(rows);
+      const { error } = await db().from('matcall_requests').insert(rows);
       if (error) throw error;
       return { status: 'success', reqNo };
     },
 
+    // ─────────────────────────────────────────────────────────────────────
     cancelRequest: async (reqNo, reason, operator, pin) => {
       const auth = await validatePIN(operator, pin, 'Production');
       if (!auth.valid) return { status: 'error', message: auth.msg };
-      const { data: rows } = await supabase
+      const { data: rows } = await db()
         .from('matcall_requests').select('status').eq('req_no', reqNo).limit(1);
       if (!rows?.length) return { status: 'error', message: '❌ ไม่พบเลขที่ใบเบิกนี้' };
-      if (['Completed', 'Issued'].includes(rows[0].status))
+      if (['Completed','Issued'].includes(rows[0].status))
         return { status: 'error', message: '❌ ยกเลิกไม่ได้ คลังจัดจ่ายแล้ว' };
-      const { error } = await supabase.from('matcall_requests')
-        .update({ status: 'Cancelled', issue_doc: reason, issue_by: auth.name })
-        .eq('req_no', reqNo);
+      const { error } = await db().from('matcall_requests')
+        .update({ status: 'Cancelled', issue_doc: reason, issue_by: auth.name }).eq('req_no', reqNo);
       if (error) throw error;
       return { status: 'success' };
     },
 
+    // ─────────────────────────────────────────────────────────────────────
     confirmReceive: async (reqNo, operator, pin) => {
       const auth = await validatePIN(operator, pin, 'Production');
       if (!auth.valid) return { status: 'error', message: auth.msg };
-      const { error } = await supabase.from('matcall_requests')
-        .update({ status: 'Completed', receive_by: auth.name })
-        .eq('req_no', reqNo);
+      const { error } = await db().from('matcall_requests')
+        .update({ status: 'Completed', receive_by: auth.name }).eq('req_no', reqNo);
       if (error) throw error;
       return { status: 'success' };
     },
 
-    // ── Transactions ──────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     getTransactions: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db()
         .from('transactions').select('*').eq('transaction_type', 'OUT');
       if (error) throw error;
-      return {
-        status: 'success',
-        data: data.map(tx => ({ reqNo: tx.doc_no, code: tx.mat_code, batch: tx.batch_no }))
-      };
+      return { status: 'success', data: data.map(tx => ({ reqNo: tx.doc_no, code: tx.mat_code, batch: tx.batch_no })) };
     },
 
-    // ── Receive (รับเข้าคลัง) ─────────────────────────────────────────────
-    // FIX #4: แก้ field names ให้ตรงกับ DB schema ของ rm_monitoring
+    // ─────────────────────────────────────────────────────────────────────
     receive: async (items, operator) => {
       const docNo = generateDocNo('REC');
       const now   = new Date().toISOString();
@@ -253,10 +227,10 @@ const MF = (() => {
         bbf:             item.expDate,
         quantity:        item.qty,
         supplier:        item.supplier    || null,
-        rm_name:         item.rmName      || item.name || null,   // FIX: rmName จาก master
-        rm_code:         item.rmCode      || null,                // FIX: rmCode จาก master
+        rm_name:         item.rmName      || item.name || null,
+        rm_code:         item.rmCode      || null,
         unit:            item.unit,
-        unit_package:    item.packageType || null                 // FIX: packageType ไม่ใช่ unitPackage
+        unit_package:    item.packageType || null
       }));
 
       const txLogs = items.map(item => ({
@@ -273,39 +247,36 @@ const MF = (() => {
         remark:           item.supplier || 'Receive'
       }));
 
-      const { error: e1 } = await supabase.from('rm_monitoring').insert(monitorRows);
+      const { error: e1 } = await db().from('rm_monitoring').insert(monitorRows);
       if (e1) throw e1;
-      const { error: e2 } = await supabase.from('transactions').insert(txLogs);
+      const { error: e2 } = await db().from('transactions').insert(txLogs);
       if (e2) throw e2;
       return { status: 'success', docNo };
     },
 
-    // ── Issue Multi (ตัด Stock) ───────────────────────────────────────────
-    // FIX #6: รองรับ 3 formats ของ batch string:
-    //   "Auto FIFO"           → ตัด FIFO อัตโนมัติ
-    //   "lot1,lot2"           → เลือก lot จาก warehouse.html
-    //   "lot1:5.5,lot2:3.0"  → Manual issue พร้อมจำนวนจาก dashboard.html
+    // ─────────────────────────────────────────────────────────────────────
+    // batch string formats:
+    //   "Auto FIFO"          → FIFO อัตโนมัติ
+    //   "lot1,lot2"          → เลือก lot (warehouse)
+    //   "lot1:5.5,lot2:3.0" → manual + qty (dashboard)
     issueMulti: async (items, operator, pin, reqNo) => {
       const auth = await validatePIN(operator, pin, pin ? 'Warehouse' : null);
       if (!auth.valid) return { status: 'error', message: auth.msg };
 
       const docNo = generateDocNo('ISS');
-      const { data: stockData, error: stockErr } = await supabase
-        .from('rm_monitoring').select('*')
-        .gt('quantity', 0)
-        .order('date_of_receive', { ascending: true });
-      if (stockErr) throw stockErr;
+      const { data: stock, error: sErr } = await db()
+        .from('rm_monitoring').select('*').gt('quantity', 0).order('date_of_receive', { ascending: true });
+      if (sErr) throw sErr;
 
       const txLogs = [];
 
       for (const req of items) {
-        const tokens   = req.batch.split(',').map(b => b.trim()).filter(Boolean);
-        const isAutoFIFO = tokens.some(b => b === 'Auto FIFO' || b === 'FIFO');
+        const tokens    = req.batch.split(',').map(b => b.trim()).filter(Boolean);
+        const isAuto    = tokens.some(b => b === 'Auto FIFO' || b === 'FIFO');
+        const manualMap = {};
+        let   isManual  = false;
 
-        // สร้าง map { batchNo → maxCutQty } สำหรับ manual mode
-        const manualMap  = {};
-        let   isManual   = false;
-        if (!isAutoFIFO) {
+        if (!isAuto) {
           tokens.forEach(tok => {
             if (tok.includes(':')) {
               isManual = true;
@@ -317,93 +288,74 @@ const MF = (() => {
           });
         }
 
-        let qtyNeeded = parseFloat(req.cutQty);
+        let need = parseFloat(req.cutQty);
 
-        for (const stock of stockData) {
-          if (stock.mat_code !== req.code || qtyNeeded <= 0.0001) continue;
+        for (const s of stock) {
+          if (s.mat_code !== req.code || need <= 0.0001) continue;
+          if (!isAuto && !manualMap.hasOwnProperty(s.batch)) continue;
 
-          const allowed = isAutoFIFO || manualMap.hasOwnProperty(stock.batch);
-          if (!allowed) continue;
+          const maxBatch = isManual ? (manualMap[s.batch] ?? Infinity) : Infinity;
+          const cut      = Math.min(need, parseFloat(s.quantity), maxBatch);
+          if (cut <= 0) continue;
 
-          const maxForBatch = isManual ? (manualMap[stock.batch] ?? Infinity) : Infinity;
-          const cutUnits    = Math.min(qtyNeeded, parseFloat(stock.quantity), maxForBatch);
-          if (cutUnits <= 0) continue;
-
-          const { error: upErr } = await supabase
-            .from('rm_monitoring')
-            .update({ quantity: parseFloat(stock.quantity) - cutUnits })
-            .eq('id', stock.id);
-          if (upErr) throw upErr;
+          const { error: uErr } = await db().from('rm_monitoring')
+            .update({ quantity: parseFloat(s.quantity) - cut }).eq('id', s.id);
+          if (uErr) throw uErr;
 
           txLogs.push({
             transaction_id:   generateDocNo('TX'),
             transaction_type: 'OUT',
             doc_no:           reqNo || docNo,
-            mat_code:         stock.mat_code,
+            mat_code:         s.mat_code,
             mat_name:         req.name,
-            batch_no:         stock.batch,
-            quantity:         cutUnits,
+            batch_no:         s.batch,
+            quantity:         cut,
             unit:             req.unit,
             target_product:   req.productTarget || '—',
             operator:         auth.name,
-            remark:           `Issue ${cutUnits} ${req.unit} (Lot: ${stock.batch})`
+            remark:           `Issue ${cut} ${req.unit} (Lot: ${s.batch})`
           });
-
-          qtyNeeded -= cutUnits;
+          need -= cut;
         }
       }
 
       if (txLogs.length) {
-        const { error: txErr } = await supabase.from('transactions').insert(txLogs);
-        if (txErr) throw txErr;
+        const { error: tErr } = await db().from('transactions').insert(txLogs);
+        if (tErr) throw tErr;
       }
 
-      // อัปเดตสถานะเฉพาะ MTC Request (ไม่ใช่ MANUAL-)
       if (reqNo && reqNo.startsWith('MTC-')) {
-        const { error: updErr } = await supabase
-          .from('matcall_requests')
-          .update({ status: 'Issued', issue_doc: docNo, issue_by: auth.name })
-          .eq('req_no', reqNo);
-        if (updErr) throw updErr;
+        const { error: uErr } = await db().from('matcall_requests')
+          .update({ status: 'Issued', issue_doc: docNo, issue_by: auth.name }).eq('req_no', reqNo);
+        if (uErr) throw uErr;
       }
 
       return { status: 'success', docNo };
     },
 
-    // ── Update Monitor ────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     updateMonitor: async (rowData) => {
-      const { error } = await supabase
-        .from('rm_monitoring')
-        .update({
-          batch:        rowData.batch,
-          mfg:          rowData.mfg,
-          bbf:          rowData.exp,
-          extended_bbf: rowData.extExp || null,
-          quantity:     rowData.qty
-        })
-        .eq('id', rowData.id);   // id = UUID ถูกต้องแล้ว
+      const { error } = await db().from('rm_monitoring')
+        .update({ batch: rowData.batch, mfg: rowData.mfg, bbf: rowData.exp,
+                  extended_bbf: rowData.extExp || null, quantity: rowData.qty })
+        .eq('id', rowData.id);
       if (error) throw error;
       return { status: 'success' };
     },
 
-    // ── Delete Monitor ────────────────────────────────────────────────────
     deleteMonitor: async (rowId) => {
-      const { error } = await supabase
-        .from('rm_monitoring').delete().eq('id', rowId);
+      const { error } = await db().from('rm_monitoring').delete().eq('id', rowId);
       if (error) throw error;
       return { status: 'success' };
     },
 
-    // ── Compatibility stubs (เดิมใช้ SessionStorage cache) ───────────────
-    bust: () => {},
-    bustAll: () => {}
+    bust: () => {}, bustAll: () => {}
   };
 })();
 
 // ── UI Helpers ────────────────────────────────────────────────────────────
 function mfToggleDrawer() {
-  const d  = document.getElementById('navDrawer');
-  const ic = document.getElementById('hIcon');
+  const d = document.getElementById('navDrawer'), ic = document.getElementById('hIcon');
   if (!d) return;
   const open = d.classList.toggle('open');
   if (ic) ic.innerHTML = open
@@ -411,10 +363,8 @@ function mfToggleDrawer() {
     : '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>';
 }
 
-// FIX #5: ใช้ style.display แทน classList (ไม่มี CSS .loader.active)
 function mfShow(text = 'กำลังประมวลผล...') {
-  const el = document.getElementById('loader');
-  const tx = document.getElementById('loaderText');
+  const el = document.getElementById('loader'), tx = document.getElementById('loaderText');
   if (tx) tx.textContent = text;
   if (el) el.style.display = 'flex';
 }
