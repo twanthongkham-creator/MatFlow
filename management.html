@@ -334,7 +334,7 @@ async function doDelete(ri){
   try {
     const j = await MF.deleteMonitor(ri); 
     if(j.status === 'success'){
-      rawData = rawData.filter(i => i.rowIdx !== ri).map(i => i.rowIdx > ri ? {...i, rowIdx: i.rowIdx - 1} : i);
+      rawData = rawData.filter(i => i.rowIdx !== ri);
       applyFilters();
     } else {
         alert('ลบไม่สำเร็จ: ' + (j.message || ''));
