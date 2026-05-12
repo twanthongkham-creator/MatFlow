@@ -948,3 +948,50 @@ body {
   .modal-bd { padding: 16px; }
   .modal-ft { padding: 12px 16px; }
 }
+/* ═══════════════════════════════════════════════════════════════
+   Sidebar Collapse (Desktop)
+   ═══════════════════════════════════════════════════════════════ */
+/* ตั้งค่าให้ Sidebar และ Main ยืดหดแบบมีอนิเมชัน */
+.sidebar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-x: hidden; }
+.main-wrapper { transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* เมื่อ Sidebar ถูกย่อ (เหลือ 80px) */
+.sidebar.collapsed { width: 80px; }
+.sidebar.collapsed + .main-wrapper { margin-left: 80px; }
+
+/* ซ่อนข้อความต่างๆ เมื่อโดนย่อ */
+.sidebar.collapsed .sb-brand-name,
+.sidebar.collapsed .sb-label,
+.sidebar.collapsed .sb-text,
+.sidebar.collapsed .sb-badge,
+.sidebar.collapsed .sb-user-info {
+  display: none;
+  opacity: 0;
+}
+
+/* จัดให้อยู่กึ่งกลางเมื่อย่อ */
+.sidebar.collapsed .sb-header { padding: 24px 0; justify-content: center; }
+.sidebar.collapsed .sb-brand-ico { margin-right: 0; }
+.sidebar.collapsed .sb-item { justify-content: center; padding: 14px 0; }
+.sidebar.collapsed .sb-item .sb-ico { margin-right: 0; }
+.sidebar.collapsed .sb-footer { justify-content: center; padding: 20px 0; }
+.sidebar.collapsed .sb-avatar { margin-right: 0; }
+
+/* ปุ่มลูกศรสำหรับกด ย่อ/ขยาย */
+.sb-collapse-btn {
+  background: transparent; border: none; border-top: 1px solid var(--border);
+  color: var(--txt-3); width: 100%; padding: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: .2s;
+}
+.sb-collapse-btn:hover { background: var(--bg-2); color: var(--brand); }
+.sb-collapse-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; transition: transform 0.3s ease; }
+
+/* หมุนลูกศรกลับเมื่อย่อ */
+.sidebar.collapsed .sb-collapse-btn svg { transform: rotate(180deg); }
+
+/* ไม่ให้กระทบกับมือถือ (ปิดการทำงานโหมดย่อบนมือถือ) */
+@media (max-width: 991px) {
+  .sb-collapse-btn { display: none; }
+  .sidebar.collapsed { width: 280px; } /* กลับไปใช้ความกว้างเดิมของลิ้นชักมือถือ */
+  .sidebar.collapsed + .main-wrapper { margin-left: 0; }
+}
