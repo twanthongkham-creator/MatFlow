@@ -3,367 +3,497 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MatFlow — แผนกวางแผน (Planning)</title>
+<title>MatFlow — วางแผนการผลิต</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* 🚩 ป้องกันหน้าจอมือถือขยายออกด้านข้าง */
-body { overflow-x: hidden; }
-
-.workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
-/* 🚩 ล็อกความกว้างของ Grid ไม่ให้ขยายตามตารางที่อยู่ด้านใน */
+/* ── Page-specific: Planning Workspace ── */
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
 .workspace-grid > div { min-width: 0; }
-@media(max-width:991px){ .workspace-grid { grid-template-columns:1fr; } }
+@media (max-width: 991px) {
+  .workspace-grid { grid-template-columns: 1fr; }
+  .plan-panel { position: relative !important; top: 0 !important; }
+}
 
-/* Plan Builder Panel (Left) */
+/* Plan Panel */
 .plan-panel {
-  background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%);
-  border:1px solid var(--glass-border); border-radius:var(--r-xl);
-  box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-sm);
+  padding: 20px;
+  position: sticky;
+  top: 84px; /* below sticky header */
 }
-.plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; }
-.plan-hd svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; }
+.plan-panel-hd {
+  font-size: 14px; font-weight: 700; color: var(--txt);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
+}
+.plan-panel-hd svg { width: 18px; height: 18px; stroke: var(--brand); fill: none; stroke-width: 2; }
 
-/* Plan Item Row */
-.p-item { background:rgba(255,255,255,.6); border:1px solid rgba(180,210,255,.4); border-radius:12px; padding:12px; margin-bottom:10px; position:relative; transition:.2s; }
-.p-item:hover { background:rgba(255,255,255,.85); border-color:var(--b2); box-shadow:0 4px 12px rgba(0,40,160,.05); }
-.p-item .btn-rmv { position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%; background:var(--red); color:#fff; border:2px solid #fff; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transform:scale(.8); transition:.2s; box-shadow:var(--sh-xs); }
-.p-item:hover .btn-rmv { opacity:1; transform:scale(1); }
-.p-item .btn-rmv svg { width:12px; height:12px; stroke:currentColor; stroke-width:2.5; }
+/* Plan Item */
+.p-item {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 13px;
+  margin-bottom: 10px;
+  position: relative;
+  transition: border-color 0.15s;
+}
+.p-item:hover { border-color: var(--brand-100); }
+.p-item .btn-rmv {
+  position: absolute; top: -8px; right: -8px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  border: 2px solid var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  opacity: 0; transform: scale(0.8);
+  transition: 0.15s;
+  box-shadow: var(--sh-sm);
+}
+.p-item:hover .btn-rmv { opacity: 1; transform: scale(1); }
+.p-item .btn-rmv svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 3; fill: none; }
+.p-sel {
+  width: 100%; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--border-2);
+  background: var(--white);
+  color: var(--txt); outline: none; transition: 0.15s;
+  margin-bottom: 8px;
+}
+.p-sel:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0,97,255,0.1); }
+.p-qty-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--white);
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--border-2);
+}
+.p-qty-wrap label { font-size: 10.5px; font-weight: 700; color: var(--txt-4); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.p-qty-input {
+  flex: 1; border: none; background: transparent;
+  font-size: 16px; font-weight: 700; color: var(--brand);
+  text-align: right; outline: none; width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+}
+.p-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.p-unit { font-size: 11px; font-weight: 700; color: var(--txt-4); white-space: nowrap; }
 
-.p-sel { width:100%; font-size:13px; font-weight:600; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; outline:none; transition:.2s; margin-bottom:8px; color:var(--txt); font-family:'IBM Plex Sans Thai',sans-serif; }
-.p-sel:focus { border-color:var(--b2); box-shadow:0 0 0 3px rgba(66,146,255,.15); background:#fff; }
-.p-qty-wrap { display:flex; align-items:center; gap:8px; background:#f0f4f8; padding:6px 10px; border-radius:8px; border:1px solid #e2e8f0; }
-.p-qty-wrap label { font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; }
-.p-qty-input { flex:1; border:none; background:transparent; font-size:16px; font-weight:700; color:var(--b3); text-align:right; outline:none; font-family:'IBM Plex Mono',monospace; width:100%; min-width: 0; }
-.p-qty-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
-.p-unit { font-size:12px; font-weight:600; color:var(--txt3); }
+/* Add button */
+.btn-add-plan {
+  width: 100%;
+  background: var(--brand-50);
+  border: 1.5px dashed var(--brand-100);
+  color: var(--brand);
+  padding: 10px;
+  border-radius: var(--r-md);
+  font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; transition: 0.15s; margin-bottom: 18px;
+}
+.btn-add-plan:hover { background: var(--brand-100); border-color: var(--brand); }
+.btn-add-plan svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
-/* Add Button */
-.btn-add-plan { width:100%; background:rgba(66,146,255,.1); border:1.5px dashed rgba(66,146,255,.4); color:var(--b2); padding:10px; border-radius:12px; font-size:13.5px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:.2s; margin-bottom:20px; }
-.btn-add-plan:hover { background:rgba(66,146,255,.2); border-color:var(--b2); }
-.btn-add-plan svg { width:16px; height:16px; stroke:currentColor; stroke-width:2; }
-
-/* Simulation Results Panel (Right) */
+/* Simulation Cards */
 .sim-card {
-  background:var(--glass); backdrop-filter:blur(20px) saturate(150%); -webkit-backdrop-filter:blur(20px) saturate(150%);
-  border:1px solid var(--glass-border); border-radius:var(--r-xl);
-  box-shadow:var(--sh-sm),var(--sh-inset); overflow:hidden; margin-bottom:16px;
-  animation:fadeUp .3s ease-out;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-xs);
+  overflow: hidden;
+  margin-bottom: 14px;
+  animation: fadeUp 0.3s ease-out both;
 }
-.sim-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.85) 45%,rgba(190,220,255,.65) 70%,transparent 95%); }
+.sim-hd {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.sim-idx {
+  width: 30px; height: 30px;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+.sim-title { flex: 1; }
+.sim-pname { font-size: 15px; font-weight: 700; color: var(--txt); margin-bottom: 2px; }
+.sim-pqty { font-size: 12px; color: var(--txt-4); font-weight: 500; }
+.sim-pqty span { font-weight: 700; color: var(--brand); font-family: 'JetBrains Mono', monospace; }
+.status-badge {
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; gap: 5px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.status-badge svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+.s-pass { background: var(--green-bg); color: #059669; border: 1px solid var(--green-border); }
+.s-fail { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.sim-bd { padding: 0 20px 20px; overflow-x: auto; }
 
-.sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:rgba(255,255,255,.3); border-bottom:1px solid rgba(180,210,255,.3); }
-.sim-idx { width:32px; height:32px; background:var(--b2); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'IBM Plex Mono',monospace; }
-.sim-title { flex:1; }
-.sim-pname { font-size:16px; font-weight:700; color:var(--txt); margin-bottom:2px; }
-.sim-pqty { font-size:12.5px; color:var(--txt3); font-weight:500; }
-.sim-pqty span { font-weight:700; color:var(--b3); font-size:14px; font-family:'IBM Plex Mono',monospace; }
+/* Results Table */
+.rm-table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 13px; margin-top: 16px; }
+.rm-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--txt-4); padding: 8px 10px; border-bottom: 2px solid var(--border); text-align: left; }
+.rm-table td { padding: 10px; vertical-align: middle; border-bottom: 1px solid var(--border); }
+.rm-table tbody tr:last-child td { border-bottom: none; }
+.rm-table tbody tr:hover { background: var(--bg); }
+.td-rm { font-weight: 600; color: var(--txt); }
+.td-num { font-family: 'JetBrains Mono', monospace; font-weight: 700; text-align: right; }
+.t-req { color: var(--brand); }
+.t-stk { color: var(--txt-3); }
+.t-diff-ok { color: var(--green); font-weight: 700; }
+.t-diff-ng { color: var(--red); background: var(--red-bg); padding: 2px 6px; border-radius: 5px; display: inline-block; border: 1px solid var(--red-border); }
 
-.status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
-.status-badge svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2.5; }
-.s-pass { background:rgba(5,150,105,.12); color:#059669; border:1px solid rgba(5,150,105,.25); }
-.s-fail { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
+/* Summary chips */
+.stat-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.stat-chip {
+  flex: 1;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  box-shadow: var(--sh-xs);
+}
+.stat-chip .val { font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono', monospace; line-height: 1; margin-bottom: 4px; color: var(--txt); }
+.stat-chip .lbl { font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--txt-4); letter-spacing: 0.4px; }
 
-/* Table Results */
-.sim-bd { padding:0 20px 20px; overflow-x: auto; }
-.rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
-.rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:left; }
-.rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; }
-.rm-table tr:last-child td { border-bottom:none; }
-.rm-table tbody tr:hover { background:rgba(240,248,255,.4); }
-
-.td-rm { font-weight:700; color:var(--txt); font-size:13.5px; }
-.td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; text-align:right; font-size:13.5px; }
-.t-req { color:var(--b3); }
-.t-stk { color:var(--txt2); }
-.t-diff-ok { color:#059669; }
-.t-diff-ng { color:#dc2626; background:#fef2f2; padding:2px 6px; border-radius:4px; display:inline-block; border:1px solid #fecaca; }
-
-/* Empty State */
-.empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:var(--glass); border:1px dashed var(--glass-border); border-radius:var(--r-xl); }
-.empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
-.empty-sim h3 { font-size:18px; font-weight:700; color:var(--txt2); margin-bottom:6px; }
-
-/* Summary Stat Chips */
-.stat-row { display:flex; gap:10px; margin-bottom:20px; }
-.stat-chip { flex:1; background:var(--glass); border:1px solid var(--glass-border); border-radius:12px; padding:12px 16px; box-shadow:var(--sh-xs); display:flex; flex-direction:column; justify-content:center; }
-.stat-val { font-size:24px; font-weight:700; font-family:'IBM Plex Mono',monospace; line-height:1; margin-bottom:4px; color:var(--txt); }
-.stat-lbl { font-size:11px; font-weight:600; text-transform:uppercase; color:var(--txt3); }
+/* Empty simulation */
+.empty-sim {
+  text-align: center; padding: 60px 24px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+}
+.empty-sim svg { width: 44px; height: 44px; stroke: var(--txt-4); fill: none; stroke-width: 1.5; margin-bottom: 12px; }
+.empty-sim h3 { font-size: 17px; font-weight: 700; color: var(--txt-2); margin-bottom: 6px; }
+.empty-sim p { font-size: 13px; color: var(--txt-4); margin: 0; }
 </style>
 </head>
 <body>
 
+<!-- Loader -->
 <div id="loader" class="loader" style="display:none">
-  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
+  <div class="loader-box">
+    <div class="spinner"></div>
+    <div class="loader-txt" id="loaderText">กำลังโหลด...</div>
+  </div>
 </div>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="index.html" class="brand">
-      <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
-      <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
+<!-- Sidebar Overlay (mobile) -->
+<div id="sbOverlay" class="sb-overlay"></div>
+
+<!-- ═══ SIDEBAR ════════════════════════════════════════════ -->
+<aside id="sidebar" class="sidebar">
+  <div class="sb-header">
+    <a href="index.html" class="sb-brand">
+      <div class="sb-brand-ico">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg>
+      </div>
+      <span class="sb-brand-name">Mat<span>Flow</span></span>
     </a>
-    <nav class="topnav">
-      <a href="index.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
-      <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังสินค้า</a>
-      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
-    </nav>
-    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู">
-      <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <button class="sb-close-btn" onclick="mfToggleDrawer()" aria-label="Close sidebar">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a active"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังสินค้า</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
-  </div>
-</header>
 
-<div class="shell">
-  <div class="ph a1" style="margin-bottom:20px">
-    <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
-      <span class="ph-ico" style="background:linear-gradient(135deg,var(--b3),var(--b1));width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(26,108,245,.28)">
-        <svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
-      </span>
-      Production Planning Workspace
-    </h1>
-    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">เพิ่มแผนการผลิตและตรวจสอบสถานะวัตถุดิบ (Real-time Simulation)</p>
-  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">MENU</div>
 
-  <div class="workspace-grid">
-    <div class="plan-panel a2">
-      <div class="plan-hd">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ระบุแผนการผลิต
+    <a href="index.html" class="sb-item active">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
       </div>
-      
-      <div id="planContainer"></div>
-      
-      <button class="btn-add-plan" onclick="addPlanItem()">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        เพิ่มรายการผลิต
-      </button>
+      วางแผนการผลิต
+    </a>
 
-      <div style="background:rgba(5,150,105,.08); border:1px solid rgba(5,150,105,.2); padding:10px; border-radius:8px; font-size:11px; color:#065f46; font-weight:600; line-height:1.4;">
-        💡 คำแนะนำ: เมื่อคุณเลือกสินค้าและกรอกจำนวน ระบบจะคำนวณวัตถุดิบทางขวาให้ทันทีโดยอัตโนมัติ
+    <a href="production.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      ฝ่ายผลิต
+      <span class="nav-badge badge-pd" id="nb-pd" style="display:none">0</span>
+    </a>
+
+    <a href="warehouse.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      คลังวัตถุดิบ
+      <span class="nav-badge badge-wh" id="nb-wh" style="display:none">0</span>
+    </a>
+
+    <a href="receiving.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+      </div>
+      รับวัตถุดิบ
+    </a>
+
+    <div class="sb-label" style="margin-top:8px">TOOLS</div>
+
+    <a href="management.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </div>
+      การจัดการ
+    </a>
+
+    <a href="dashboard.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+      </div>
+      ภาพรวม Analytics
+    </a>
+  </nav>
+
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">T</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name">Theerayut</div>
+        <div class="sb-user-role">Planning</div>
+      </div>
+      <div class="sb-user-ico">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
       </div>
     </div>
+  </div>
+</aside>
 
-    <div class="a3">
-      
-      <div class="stat-row" id="statRow" style="display:none;">
-        <div class="stat-chip"><div class="stat-val" id="sTotal" style="color:var(--b2)">0</div><div class="stat-lbl">แผนทั้งหมด</div></div>
-        <div class="stat-chip"><div class="stat-val" id="sPass" style="color:#059669">0</div><div class="stat-lbl">พร้อมผลิต (พอ)</div></div>
-        <div class="stat-chip"><div class="stat-val" id="sFail" style="color:#dc2626">0</div><div class="stat-lbl">ติดปัญหา (ไม่พอ)</div></div>
+<!-- ═══ MAIN WRAPPER ════════════════════════════════════════ -->
+<div class="main-wrapper" id="mainWrapper">
+
+  <!-- Page Header -->
+  <header class="pg-header">
+    <button class="pg-toggle" onclick="mfToggleDrawer()" aria-label="Toggle sidebar">
+      <svg id="pgToggleIco" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="pg-title">
+      <h1>Production Planning Workspace</h1>
+      <p>เพิ่มแผนการผลิตและตรวจสอบสถานะวัตถุดิบ (Real-time)</p>
+    </div>
+    <div class="pg-actions">
+      <div class="live-pill">
+        <span class="live-dot"></span>
+        Live Data
+      </div>
+      <button class="header-icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </button>
+      <div class="pg-avatar">T</div>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <div class="pg-body">
+
+    <!-- Stats row -->
+    <div class="stat-row a1">
+      <div class="stat-chip">
+        <div class="val" id="sTotal" style="color:var(--brand)">0</div>
+        <div class="lbl">แผนทั้งหมด</div>
+      </div>
+      <div class="stat-chip">
+        <div class="val" id="sPass" style="color:var(--green)">0</div>
+        <div class="lbl">พร้อมผลิต</div>
+      </div>
+      <div class="stat-chip">
+        <div class="val" id="sFail" style="color:var(--red)">0</div>
+        <div class="lbl">ติดปัญหา</div>
+      </div>
+    </div>
+    <div id="statRow" style="display:none"></div><!-- compat -->
+
+    <div class="workspace-grid">
+
+      <!-- LEFT: Plan Builder -->
+      <div class="a2">
+        <div class="plan-panel">
+          <div class="plan-panel-hd">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            ระบุแผนการผลิต
+          </div>
+
+          <div id="planContainer"></div>
+
+          <button class="btn-add-plan" onclick="addPlanItem()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            เพิ่มรายการผลิต
+          </button>
+
+          <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-md);padding:10px 13px;font-size:12px;color:#065F46;font-weight:600;line-height:1.5;">
+            💡 เลือกสินค้าและกรอกจำนวน ระบบจะคำนวณวัตถุดิบให้อัตโนมัติ
+          </div>
+        </div>
       </div>
 
-      <div id="simulationResults">
-        <div class="empty-sim">
-          <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          <h3>ยังไม่มีแผนการผลิตที่สมบูรณ์</h3>
-          <p>กรุณาเลือกสินค้าและกรอกจำนวนให้ครบถ้วน</p>
+      <!-- RIGHT: Simulation Results -->
+      <div class="a3">
+        <div id="simulationResults">
+          <div class="empty-sim">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <h3>ยังไม่มีแผนการผลิต</h3>
+            <p>กรุณาเลือกสินค้าและกรอกจำนวนทางด้านซ้าย</p>
+          </div>
         </div>
       </div>
 
     </div>
-  </div>
-</div>
+  </div><!-- /pg-body -->
+</div><!-- /main-wrapper -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js"></script>
+<script src="mf-shared.js?v=10"></script>
 <script>
-/* ════ State ════ */
-let _productList = []; 
-let _bomMap = {};      // { pName: [{code, rmName, unitPerPack, packSize, sysUnit}] }
-let _stockMap = {};    // { rmCode: totalQty }
-let _plans = [];       // [{ id, pName, qty }]
+/* ═══ State ═══ */
+let _productList = [], _bomMap = {}, _stockMap = {}, _plans = [];
 let planCounter = 0;
 
 window.onload = () => { loadMasterData(); };
 
-/* ════ 1. Load Data (Master & Stock) ════ */
+/* ═══ Load Data ═══ */
 async function loadMasterData() {
   mfShow('กำลังเชื่อมต่อฐานข้อมูล...');
   try {
-    MF.bust('getMasterData');
-    MF.bust('getMonitorData');
+    MF.bust('getMasterData'); MF.bust('getMonitorData');
     const [jmaster, jm] = await Promise.all([MF.getMasterData(), MF.getMonitorData()]);
-    
     if (jmaster.status !== 'success') throw new Error('Master API error');
 
-    // 1.1 สร้าง Stock Map (รวมยอด RM แต่ละ Code)
     _stockMap = {};
     (jm.data || []).forEach(row => {
       const c = String(row.code || '').trim();
       if (c) _stockMap[c] = (_stockMap[c] || 0) + (parseFloat(row.qty) || 0);
     });
 
-    // 1.2 สร้าง BOM Map พร้อมดึงค่า packSize และ sysUnit มาใช้คำนวณ
-    _bomMap = {};
-    _productList = [];
+    _bomMap = {}; _productList = [];
     (jmaster.data || []).forEach(rm => {
-      const p = rm.productName;
-      const c = String(rm.code || '').trim();
+      const p = rm.productName, c = String(rm.code || '').trim();
       if (!p || !c) return;
-      
       if (!_productList.includes(p)) _productList.push(p);
-      
       if (!_bomMap[p]) _bomMap[p] = [];
       if (!_bomMap[p].find(x => x.code === c)) {
-        
-        let rawPackSize = parseFloat(rm.packSize);
-        let packSize = isNaN(rawPackSize) || rawPackSize <= 0 ? 1 : rawPackSize;
-        
-        let rawUnitPerPack = parseFloat(rm.unitPerPack);
-        let unitPerPack = isNaN(rawUnitPerPack) || rawUnitPerPack <= 0 ? 1 : rawUnitPerPack;
-        
-        let sysUnit = rm.unit || 'Unit';
-
-        _bomMap[p].push({ 
-          code: c, 
-          rmName: rm.name || rm.rmName || c, 
-          unitPerPack: unitPerPack,
-          packSize: packSize,
-          sysUnit: sysUnit
-        });
+        const packSize   = parseFloat(rm.packSize)   || 1;
+        const unitPerPack= parseFloat(rm.unitPerPack) || 1;
+        _bomMap[p].push({ code: c, rmName: rm.name || rm.rmName || c, unitPerPack, packSize, sysUnit: rm.unit || 'Unit' });
       }
     });
-
     _productList.sort();
-    
-    if(_plans.length === 0) addPlanItem();
-
-  } catch(e) {
-    alert('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + e.message);
-  }
+    if (_plans.length === 0) addPlanItem();
+  } catch(e) { alert('โหลดข้อมูลล้มเหลว: ' + e.message); }
   mfHide();
 }
 
-/* ════ 2. Plan Builder Logic (ซ้าย) ════ */
+/* ═══ Plan Builder ═══ */
 function addPlanItem() {
   const pid = 'plan_' + (++planCounter);
   _plans.push({ id: pid, pName: '', qty: 0 });
-  
   const div = document.createElement('div');
-  div.className = 'p-item';
-  div.id = pid;
-  
-  let options = `<option value="">-- เลือกสินค้า --</option>`;
-  _productList.forEach(p => options += `<option value="${p}">${p}</option>`);
-
+  div.className = 'p-item'; div.id = pid;
+  let opts = '<option value="">— เลือกสินค้า —</option>';
+  _productList.forEach(p => opts += `<option value="${p}">${p}</option>`);
   div.innerHTML = `
-    <div class="btn-rmv" onclick="removePlanItem('${pid}')" title="ลบรายการนี้">
+    <div class="btn-rmv" onclick="removePlanItem('${pid}')">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </div>
-    <select class="p-sel" onchange="updatePlan('${pid}', 'pName', this.value)">
-      ${options}
-    </select>
+    <select class="p-sel" onchange="updatePlan('${pid}','pName',this.value)">${opts}</select>
     <div class="p-qty-wrap">
       <label>เป้าหมาย</label>
-      <input type="number" class="p-qty-input" placeholder="0" min="0" oninput="updatePlan('${pid}', 'qty', this.value)">
+      <input type="number" class="p-qty-input" placeholder="0" min="0" oninput="updatePlan('${pid}','qty',this.value)">
       <span class="p-unit">Unit</span>
     </div>
   `;
-  
   document.getElementById('planContainer').appendChild(div);
   runSimulation();
 }
 
 function removePlanItem(pid) {
   _plans = _plans.filter(p => p.id !== pid);
-  document.getElementById(pid).remove();
+  document.getElementById(pid)?.remove();
   runSimulation();
 }
 
 function updatePlan(pid, key, value) {
   const plan = _plans.find(p => p.id === pid);
-  if (plan) {
-    plan[key] = key === 'qty' ? (parseFloat(value) || 0) : value;
-    runSimulation();
-  }
+  if (plan) { plan[key] = key === 'qty' ? (parseFloat(value) || 0) : value; runSimulation(); }
 }
 
-/* ════ 3. Simulation Logic (ขวา) ════ */
+/* ═══ Simulation ═══ */
 function runSimulation() {
-  const container = document.getElementById('simulationResults');
-  
+  const container  = document.getElementById('simulationResults');
   const validPlans = _plans.filter(p => p.pName && p.qty > 0);
-  
-  if (validPlans.length === 0) {
-    document.getElementById('statRow').style.display = 'none';
-    container.innerHTML = `
-      <div class="empty-sim">
-        <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-        <h3>ยังไม่มีแผนการผลิตที่สมบูรณ์</h3>
-        <p>กรุณาเลือกสินค้าและกรอกจำนวนให้ครบถ้วน</p>
-      </div>`;
+
+  // Update stat chips
+  document.querySelector('#sTotal')?.parentElement && (document.getElementById('sTotal').textContent = validPlans.length);
+
+  if (!validPlans.length) {
+    document.getElementById('sPass').textContent = '0';
+    document.getElementById('sFail').textContent = '0';
+    container.innerHTML = `<div class="empty-sim"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><h3>ยังไม่มีแผนการผลิต</h3><p>กรุณาเลือกสินค้าและกรอกจำนวนทางด้านซ้าย</p></div>`;
     return;
   }
 
-  document.getElementById('statRow').style.display = 'flex';
-  let html = '';
-  let passCount = 0; let failCount = 0;
+  let html = '', passCount = 0, failCount = 0;
 
   validPlans.forEach((plan, index) => {
     const bom = _bomMap[plan.pName] || [];
-    let isPlanPass = true;
-    let tableRows = '';
+    let isPlanPass = true, tableRows = '';
 
-    if (bom.length === 0) {
-      tableRows = `<tr><td colspan="4" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ (BOM)</td></tr>`;
+    if (!bom.length) {
+      tableRows = `<tr><td colspan="5" style="text-align:center;color:var(--txt-4);padding:20px">ไม่พบสูตรวัตถุดิบ (BOM)</td></tr>`;
       isPlanPass = false;
     } else {
       bom.forEach(rm => {
-        
-        // 🚩 คำนวณความต้องการใช้ (เหมือนหน้า warehouse.html)
-        const prepPackages = Number((plan.qty / rm.unitPerPack).toFixed(4));
-        let reqQty = 0;
-        
-        if (rm.sysUnit.toUpperCase() === 'UN') {
-          reqQty = Number((prepPackages * rm.unitPerPack).toFixed(4));
-        } else {
-          reqQty = Number((prepPackages * rm.packSize).toFixed(4));
-        }
-
-        const currentStock = _stockMap[rm.code] || 0;
-        const diff = currentStock - reqQty;
-        
-        let statusHtml = '';
+        const prepPacks = plan.qty / rm.unitPerPack;
+        const reqQty    = rm.sysUnit.toUpperCase() === 'UN'
+          ? +(prepPacks * rm.unitPerPack).toFixed(4)
+          : +(prepPacks * rm.packSize).toFixed(4);
+        const stock  = _stockMap[rm.code] || 0;
+        const diff   = stock - reqQty;
+        let statusHtml;
         if (diff >= 0) {
-          statusHtml = `<span class="t-diff-ok">พอ (+${Number(diff.toFixed(4)).toLocaleString()})</span>`;
+          statusHtml = `<span class="t-diff-ok">+${Number(diff.toFixed(4)).toLocaleString()}</span>`;
         } else {
           statusHtml = `<span class="t-diff-ng">ขาด ${Math.abs(Number(diff.toFixed(4))).toLocaleString()}</span>`;
-          isPlanPass = false; 
+          isPlanPass = false;
         }
-
         tableRows += `
           <tr>
-            <td><span class="bcode" style="font-size:10px;">${rm.code}</span></td>
+            <td><span class="bcode">${rm.code}</span></td>
             <td class="td-rm">${rm.rmName}</td>
-            <td class="td-num t-req">${reqQty.toLocaleString()} <span style="font-size:10px; color:var(--txt3); font-weight:600;">${rm.sysUnit}</span></td>
-            <td class="td-num t-stk">${currentStock.toLocaleString()} <span style="font-size:10px; color:var(--txt3); font-weight:600;">${rm.sysUnit}</span></td>
-            <td class="td-num">${statusHtml}</td>
-          </tr>
-        `;
+            <td class="td-num t-req">${reqQty.toLocaleString()} <span style="font-size:10px;font-weight:500;color:var(--txt-4)">${rm.sysUnit}</span></td>
+            <td class="td-num t-stk">${stock.toLocaleString()} <span style="font-size:10px;font-weight:500;color:var(--txt-4)">${rm.sysUnit}</span></td>
+            <td class="td-num" style="text-align:right">${statusHtml}</td>
+          </tr>`;
       });
     }
 
     if (isPlanPass) passCount++; else failCount++;
-
-    const badge = isPlanPass 
-      ? `<div class="status-badge s-pass"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>พร้อมผลิต (พอ)</div>` 
-      : `<div class="status-badge s-fail"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ติดปัญหา (ไม่พอ)</div>`;
+    const badge = isPlanPass
+      ? `<div class="status-badge s-pass"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>พร้อมผลิต</div>`
+      : `<div class="status-badge s-fail"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ติดปัญหา</div>`;
 
     html += `
-      <div class="sim-card">
+      <div class="sim-card" style="animation-delay:${index * 60}ms">
         <div class="sim-hd">
           <div class="sim-idx">${index + 1}</div>
           <div class="sim-title">
@@ -374,32 +504,25 @@ function runSimulation() {
         </div>
         <div class="sim-bd">
           <table class="rm-table">
-            <thead>
-              <tr>
-                <th width="1%">Code</th>
-                <th>RM Name</th>
-                <th style="text-align:right">ต้องการใช้ (Unit จริง)</th>
-                <th style="text-align:right">คงเหลือ (มี)</th>
-                <th style="text-align:right">ผลประเมิน</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${tableRows}
-            </tbody>
+            <thead><tr>
+              <th>Code</th><th>RM Name</th>
+              <th style="text-align:right">ต้องใช้</th>
+              <th style="text-align:right">คงเหลือ</th>
+              <th style="text-align:right">ผล</th>
+            </tr></thead>
+            <tbody>${tableRows}</tbody>
           </table>
         </div>
-      </div>
-    `;
+      </div>`;
   });
 
-  document.getElementById('sTotal').textContent = validPlans.length;
   document.getElementById('sPass').textContent = passCount;
   document.getElementById('sFail').textContent = failCount;
   container.innerHTML = html;
 }
 
-function mfShow(t){document.getElementById('loaderText').textContent=t;document.getElementById('loader').style.display='flex';}
-function mfHide(){document.getElementById('loader').style.display='none';}
+function mfShow(t) { document.getElementById('loaderText').textContent=t; document.getElementById('loader').style.display='flex'; }
+function mfHide()  { document.getElementById('loader').style.display='none'; }
 </script>
 </body>
 </html>
