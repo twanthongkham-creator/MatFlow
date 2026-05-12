@@ -3,174 +3,261 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MatFlow — แผนกผลิต (Production)</title>
+<title>MatFlow — ฝ่ายผลิต (Production)</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body { overflow-x: hidden; }
-.workspace-grid { display:grid; grid-template-columns:350px 1fr; gap:20px; align-items:start; }
+/* ── Production Workspace Styles ── */
+.workspace-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start; }
 .workspace-grid > div { min-width: 0; }
 @media(max-width:991px){ 
-  .workspace-grid { grid-template-columns:1fr; }
+  .workspace-grid { grid-template-columns: 1fr; }
   .plan-panel { position: relative !important; top: 0 !important; max-height: none !important; margin-bottom: 20px; }
 }
 
 /* ล็อกสี SVG ไม่ให้ดำทึบ */
 .plan-hd svg, .empty-sim svg, .btn-print svg, .status-badge svg, .sim-idx svg, .btn-green svg, .stat-ok svg, .stat-ng svg { fill: none !important; }
 
-.plan-panel { background:var(--glass); backdrop-filter:blur(20px) saturate(150%); border:1px solid var(--glass-border); border-radius:var(--r-xl); box-shadow:var(--sh-sm),var(--sh-inset); padding:20px; position:sticky; top:80px; max-height:85vh; overflow-y:auto; }
-.plan-hd { font-size:16px; font-weight:700; color:var(--b3); margin-bottom:15px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(180,210,255,.3); padding-bottom:12px; position:sticky; top:0; background:var(--glass); z-index:10; }
+/* Left Panel */
+.plan-panel { 
+  background: var(--white); 
+  border: 1px solid var(--border); 
+  border-radius: var(--r-xl); 
+  box-shadow: var(--sh-sm); 
+  padding: 20px; 
+  position: sticky; 
+  top: 84px; 
+  max-height: calc(100vh - 100px); 
+  overflow-y: auto; 
+}
+.plan-panel::-webkit-scrollbar { width: 4px; }
+.plan-panel::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
 
-.p-item { background:rgba(255,255,255,.6); border:1px solid rgba(180,210,255,.4); border-radius:12px; padding:12px; margin-bottom:10px; position:relative; transition:.2s; }
-.p-item:hover { background:rgba(255,255,255,.85); border-color:var(--b2); box-shadow:0 4px 12px rgba(0,40,160,.05); }
-.p-item .btn-rmv { position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%; background:var(--red); color:#fff; border:2px solid #fff; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transform:scale(.8); transition:.2s; box-shadow:var(--sh-xs); }
-.p-item:hover .btn-rmv { opacity:1; transform:scale(1); }
-.p-item .btn-rmv svg { width:12px; height:12px; stroke:currentColor; stroke-width:2.5; }
-.p-sel { width:100%; font-size:13px; font-weight:600; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; outline:none; transition:.2s; margin-bottom:8px; color:var(--txt); }
-.p-sel:focus { border-color:var(--b2); box-shadow:0 0 0 3px rgba(66,146,255,.15); background:#fff; }
-.p-qty-wrap { display:flex; align-items:center; gap:8px; background:#f0f4f8; padding:6px 10px; border-radius:8px; border:1px solid #e2e8f0; }
-.p-qty-wrap label { font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; }
-.p-qty-input { flex:1; border:none; background:transparent; font-size:16px; font-weight:700; color:var(--b3); text-align:right; outline:none; font-family:'IBM Plex Mono',monospace; width:100%; min-width:0; }
-.btn-add-plan { background:rgba(66,146,255,.05); border:1px dashed rgba(66,146,255,.4); color:var(--b2); padding:6px 16px; border-radius:8px; font-size:12.5px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:.2s; }
-.btn-add-plan:hover { background:rgba(66,146,255,.15); border-color:var(--b2); }
-.btn-add-plan svg { width:14px; height:14px; stroke:currentColor; stroke-width:2.5; }
-.op-input { width:100%; font-family:'IBM Plex Sans Thai',sans-serif; font-size:14px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 14px; outline:none; transition:.15s; margin-bottom:14px; font-weight:600; color:var(--txt); cursor:pointer; }
-.op-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(5,150,105,.15); }
+.plan-hd { 
+  font-size: 15px; font-weight: 700; color: var(--txt); 
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px; 
+  border-bottom: 1px solid var(--border); padding-bottom: 14px; 
+  position: sticky; top: 0; background: var(--white); z-index: 10; 
+}
 
-/* 🚩 ปรับให้ Card ประวัติทึบแสง ไม่ใสทะลุหลัง */
-.sim-card { background:#ffffff; border:1px solid #cbd5e1; border-radius:var(--r-xl); box-shadow:0 4px 15px rgba(0,0,0,0.05); overflow:hidden; margin-bottom:16px; animation:fadeUp .3s ease-out; }
-.sim-hd { display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-bottom:1px solid #cbd5e1; }
-.sim-idx { width:32px; height:32px; background:var(--b2); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'IBM Plex Mono',monospace; }
-.sim-title { flex:1; }
-.sim-pname { font-size:16px; font-weight:700; color:var(--txt); margin-bottom:2px; }
-.sim-bd { padding:0 20px 20px; overflow-x: auto; background:#ffffff; }
+.p-item { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 13px; margin-bottom: 10px; position: relative; transition: .2s; }
+.p-item:hover { border-color: var(--brand-100); }
+.p-item .btn-rmv { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; border-radius: 50%; background: var(--red); color: #fff; border: 2px solid var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transform: scale(.8); transition: .15s; box-shadow: var(--sh-sm); }
+.p-item:hover .btn-rmv { opacity: 1; transform: scale(1); }
+.p-item .btn-rmv svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 3; }
 
-/* ทำให้กล่องพื้นหลังในมือถือขาวทึบ */
-.a3 { background: #fdfdfd; border-radius: var(--r-xl); padding: 15px; border: 1px solid #e2e8f0; }
+.p-sel { width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 10px; border-radius: var(--r-sm); border: 1.5px solid var(--border-2); background: var(--white); outline: none; transition: .15s; margin-bottom: 8px; color: var(--txt); }
+.p-sel:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0,97,255,.1); }
 
-.rm-table { width:100%; min-width: 700px; border-collapse:collapse; font-size:13px; margin-top:16px; }
-.rm-table th { font-size:10px; font-weight:700; text-transform:uppercase; color:var(--txt3); padding:8px 10px; border-bottom:2px solid #cbd5e1; text-align:center; }
-.rm-table td { padding:10px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-weight:500; text-align:center; }
-.text-left { text-align: left !important; }
-.td-rm { font-weight:700; color:var(--txt); font-size:13.5px; }
-.td-num { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13.5px; }
-.empty-sim { text-align:center; padding:60px 20px; color:var(--txt3); background:#ffffff; border:1px dashed #cbd5e1; border-radius:var(--r-xl); }
-.empty-sim svg { width:48px; height:48px; stroke:rgba(66,146,255,.4); fill:none; stroke-width:1.5; margin-bottom:16px; }
+.p-qty-wrap { display: flex; align-items: center; gap: 8px; background: var(--white); padding: 8px 10px; border-radius: var(--r-sm); border: 1.5px solid var(--border-2); }
+.p-qty-wrap label { font-size: 10.5px; font-weight: 700; color: var(--txt-4); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+.p-qty-input { flex: 1; border: none; background: transparent; font-size: 16px; font-weight: 700; color: var(--brand); text-align: right; outline: none; font-family: 'JetBrains Mono', monospace; width: 100%; min-width: 0; }
+.p-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-/* Styles สำหรับปุ่มและ Badges สถานะต่างๆ */
-.status-badge { padding:6px 14px; border-radius:var(--r-pill); font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap; }
-.s-pending { background:rgba(217,119,6,.12); color:#d97706; border:1px solid rgba(217,119,6,.25); }
-.s-issued { background:rgba(13,148,136,.12); color:#0f766e; border:1px solid rgba(13,148,136,.25); }
-.s-pass { background:rgba(5,150,105,.12); color:#059669; border:1px solid rgba(5,150,105,.25); }
-.s-cancel { background:rgba(220,38,38,.12); color:#dc2626; border:1px solid rgba(220,38,38,.25); }
+.btn-add-plan { width: 100%; background: var(--brand-50); border: 1.5px dashed var(--brand-100); color: var(--brand); padding: 10px; border-radius: var(--r-md); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: .15s; margin-bottom: 20px; }
+.btn-add-plan:hover { background: var(--brand-100); border-color: var(--brand); }
 
-.btn-cancel { font-size:11px; font-weight:700; color:#dc2626; background:transparent; border:1px solid #fca5a5; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; }
-.btn-cancel:hover { background:#fef2f2; border-color:#dc2626; }
-.btn-print { font-size:11px; font-weight:700; color:#0284c7; background:transparent; border:1px solid #7dd3fc; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; margin-left:8px; }
-.btn-print:hover { background:#f0f9ff; border-color:#0284c7; }
-.btn-print svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
+.op-input { width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; background: var(--white); border: 1.5px solid var(--border-2); border-radius: var(--r-sm); padding: 9px 12px; outline: none; transition: .15s; margin-bottom: 14px; font-weight: 600; color: var(--txt); }
+.op-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0,97,255,.1); }
 
-.btn-rcv { font-size:11px; font-weight:700; color:#059669; background:transparent; border:1px solid #6ee7b7; padding:4px 10px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:4px; }
-.btn-rcv:hover { background:#ecfdf5; border-color:#059669; }
-.btn-rcv svg { width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5; }
+/* Right Panel Styles */
+.sim-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--sh-xs); overflow: hidden; margin-bottom: 16px; animation: fadeUp .3s ease-out both; }
+.sim-hd { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.sim-idx { width: 30px; height: 30px; background: var(--brand); color: #fff; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+.sim-title { flex: 1; min-width: 0; }
+.sim-pname { font-size: 15px; font-weight: 700; color: var(--txt); margin-bottom: 2px; }
+.sim-bd { padding: 0 20px 20px; overflow-x: auto; background: var(--white); }
 
-/* Styles สำหรับแจ้งเตือน */
-.nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: 800; color: #fff; margin-left: 8px; font-family: 'IBM Plex Mono', monospace; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-1px); }
-.badge-wh { background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid rgba(255,255,255,0.3); }
-.badge-pd { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 1.5px solid rgba(255,255,255,0.3); }
+.empty-sim { text-align: center; padding: 60px 24px; background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); }
+.empty-sim svg { width: 44px; height: 44px; stroke: var(--txt-4); fill: none; stroke-width: 1.5; margin-bottom: 12px; }
+.empty-sim h3 { font-size: 17px; font-weight: 700; color: var(--txt-2); margin-bottom: 6px; }
 
-/* Checkbox ใน Modal */
-.cb-rcv-item { transform: scale(1.3); cursor: pointer; margin-right: 4px; accent-color: #0d9488; }
-#cbAllRcv { transform: scale(1.3); cursor: pointer; accent-color: #0d9488; }
+/* Status Badges */
+.status-badge { padding: 5px 12px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.s-pending { background: var(--amber-bg); color: #D97706; border: 1px solid var(--amber-border); }
+.s-issued  { background: var(--blue-bg); color: var(--brand); border: 1px solid var(--blue-border); }
+.s-pass    { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.s-cancel  { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+
+/* Action Buttons in History */
+.action-btn-group { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.btn-action { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: .15s; display: inline-flex; align-items: center; gap: 4px; border: 1px solid transparent; background: transparent; }
+.btn-action svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+.btn-cancel { color: var(--red); border-color: var(--red-border); }
+.btn-cancel:hover { background: var(--red-bg); }
+
+.btn-print { color: var(--txt-3); border-color: var(--border-2); }
+.btn-print:hover { background: var(--bg); color: var(--txt); }
+
+.btn-rcv { color: var(--brand); border-color: var(--brand-100); background: var(--brand-50); }
+.btn-rcv:hover { background: #d0e1fd; }
+
+/* Checkbox Modal */
+.cb-rcv-item { transform: scale(1.2); cursor: pointer; accent-color: var(--brand); }
+#cbAllRcv { transform: scale(1.2); cursor: pointer; accent-color: var(--brand); }
+
+/* Modal specific tweaks */
+.modal-hd.bg-red { background: linear-gradient(135deg, var(--red) 0%, #991b1b 100%); }
+.modal-hd.bg-teal { background: linear-gradient(135deg, var(--brand) 0%, var(--accent-indigo) 100%); }
 </style>
 </head>
 <body>
 
-<div id="loader" class="loader" style="display:none"><div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div></div>
-
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="index.html" class="brand"><div class="brand-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div><span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span></a>
-    <nav class="topnav">
-      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
-      <a href="production.html" class="nav-a active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="nb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
-      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ <span id="nb-wh" class="nav-badge badge-wh" style="display:none">0</span></a>
-      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-      <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
-    </nav>
-    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู"><svg id="hIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต <span id="mb-pd" class="nav-badge badge-pd" style="display:none">0</span></a>
-    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังวัตถุดิบ <span id="mb-wh" class="nav-badge badge-wh" style="display:none">0</span></a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
-  </div>
-</header>
-
-<div class="shell">
-  <div class="ph a1" style="margin-bottom:20px">
-    <h1 style="font-size:21px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:10px;letter-spacing:-.3px">
-      <span class="ph-ico" style="background:linear-gradient(135deg,#f59e0b,#d97706);width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(217,119,6,.28)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" style="width:19px;height:19px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-      </span>
-      เบิกวัตถุดิบ (Material Call-Off)
-    </h1>
-    <p style="font-size:13px;color:var(--txt3);margin-top:4px;margin-left:50px">สร้างใบ Request แจ้งคลังจัดเตรียมวัตถุดิบ และตรวจรับของเข้าไลน์ผลิต</p>
-  </div>
-
-  <div class="workspace-grid">
-    <div class="plan-panel a2">
-      <div class="plan-hd">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ระบุรายการขอเบิก
-      </div>
-      <div id="planContainer"></div>
-      <div style="text-align: center; margin-bottom: 20px;">
-        <button class="btn-add-plan" onclick="addPlanItem()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>เพิ่มรายการสินค้า</button>
-      </div>
-
-      <div style="border-top:1px dashed #cbd5e1; padding-top:20px;">
-        <label style="font-size:11px; font-weight:700; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:block;">ยืนยันตัวตน (ผู้ทำรายการ)</label>
-        <div style="display:flex; gap:10px; margin-bottom:14px;">
-          <select id="inpOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkSubmitBtn()">
-            <option value="">-- กำลังโหลดรายชื่อ... --</option>
-          </select>
-          <input type="password" id="inpPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkSubmitBtn()">
-        </div>
-        <button id="btnSubmitReq" class="btn btn-green w-100" onclick="submitRequest()" style="padding:12px; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          ยืนยันการเบิกวัตถุดิบ
-        </button>
-      </div>
-    </div>
-
-    <div class="a3">
-      <div class="plan-hd" id="rightPanelTitle" style="margin-bottom:16px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)
-      </div>
-      <div id="rightPanelContent"></div>
-    </div>
-  </div>
+<div id="loader" class="loader" style="display:none">
+  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
 </div>
 
-<div class="modal fade mf-modal" id="cancelModal" tabindex="-1">
+<div id="sbOverlay" class="sb-overlay"></div>
+
+<aside id="sidebar" class="sidebar">
+  <div class="sb-header">
+    <a href="index.html" class="sb-brand">
+      <div class="sb-brand-ico">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg>
+      </div>
+      <span class="sb-brand-name">Mat<span>Flow</span></span>
+    </a>
+    <button class="sb-close-btn" onclick="mfToggleDrawer()" aria-label="Close sidebar">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-label">MENU</div>
+
+    <a href="index.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      </div>
+      วางแผนการผลิต
+    </a>
+
+    <a href="production.html" class="sb-item active">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      ฝ่ายผลิต
+      <span class="sb-badge blue" id="nb-pd" style="display:none">0</span>
+    </a>
+
+    <a href="warehouse.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      คลังวัตถุดิบ
+      <span class="sb-badge amber" id="nb-wh" style="display:none">0</span>
+    </a>
+
+    <a href="receiving.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+      </div>
+      รับวัตถุดิบ
+    </a>
+
+    <div class="sb-label" style="margin-top:8px">TOOLS</div>
+
+    <a href="management.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </div>
+      การจัดการ
+    </a>
+
+    <a href="dashboard.html" class="sb-item">
+      <div class="sb-ico">
+        <svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+      </div>
+      ภาพรวม Analytics
+    </a>
+  </nav>
+
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">T</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name">Theerayut</div>
+        <div class="sb-user-role">Planning / Prod</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-wrapper" id="mainWrapper">
+
+  <header class="pg-header">
+    <button class="pg-toggle" onclick="mfToggleDrawer()" aria-label="Toggle sidebar">
+      <svg id="pgToggleIco" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="pg-title">
+      <h1>เบิกวัตถุดิบ (Material Call-Off)</h1>
+      <p>สร้างใบ Request แจ้งคลังจัดเตรียมวัตถุดิบ และตรวจรับของเข้าไลน์ผลิต</p>
+    </div>
+    <div class="pg-actions">
+      <div class="live-pill"><span class="live-dot"></span> Live Data</div>
+      <div class="pg-avatar">T</div>
+    </div>
+  </header>
+
+  <div class="pg-body">
+
+    <div class="workspace-grid">
+      <div class="a1">
+        <div class="plan-panel">
+          <div class="plan-hd">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            ระบุรายการขอเบิก
+          </div>
+          
+          <div id="planContainer"></div>
+          
+          <button class="btn-add-plan" onclick="addPlanItem()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            เพิ่มรายการสินค้า
+          </button>
+
+          <div style="border-top:1px dashed var(--border-2); padding-top:20px;">
+            <label style="font-size:11px; font-weight:700; color:var(--txt-4); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:block;">ยืนยันตัวตน (ผู้ทำรายการ)</label>
+            <div style="display:flex; gap:10px; margin-bottom:14px;">
+              <select id="inpOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkSubmitBtn()">
+                <option value="">-- กำลังโหลดรายชื่อ... --</option>
+              </select>
+              <input type="password" id="inpPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center; font-family:'JetBrains Mono', monospace;" placeholder="PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkSubmitBtn()">
+            </div>
+            
+            <button id="btnSubmitReq" class="btn btn-primary btn-w" onclick="submitRequest()" style="padding:12px; font-size:14px;" disabled>
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              ยืนยันส่งใบเบิก (Request)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="a2">
+        <div class="plan-hd" id="rightPanelTitle" style="margin-bottom:16px; background:transparent;">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
+          ประวัติการเบิก (Request History)
+        </div>
+        <div id="rightPanelContent"></div>
+      </div>
+    </div>
+
+  </div></div><div class="modal fade mf-modal" id="cancelModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-hd" style="background:linear-gradient(135deg,#dc2626,#991b1b);">
-        <div class="modal-hd-title" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ยกเลิกใบเบิกวัตถุดิบ</div>
-        <button class="btn-xw" data-bs-dismiss="modal" style="color:#fff; border-color:rgba(255,255,255,.3);">×</button>
+      <div class="modal-hd bg-red">
+        <div class="modal-hd-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ยกเลิกใบเบิกวัตถุดิบ</div>
+        <button class="btn-xw" data-bs-dismiss="modal">×</button>
       </div>
       <div class="modal-bd">
         <div style="font-size:13px; color:var(--txt); margin-bottom:16px; text-align:center;">
-          ต้องการยกเลิกใบเบิกเลขที่ <br><strong id="cancelReqNoDisplay" style="color:var(--b3); font-family:monospace; font-size:16px;">---</strong> ใช่หรือไม่?
+          ต้องการยกเลิกใบเบิกเลขที่ <br><strong id="cancelReqNoDisplay" style="color:var(--txt); font-family:'JetBrains Mono',monospace; font-size:16px;">---</strong> ใช่หรือไม่?
         </div>
         <input type="hidden" id="cancelReqNoVal">
-        <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">เหตุผลการยกเลิก</label>
+        
+        <label style="font-size:11px; font-weight:700; color:var(--txt-4); margin-bottom:6px; display:block;">เหตุผลการยกเลิก</label>
         <select id="cancelReason" class="op-input" style="margin-bottom:16px;" onchange="checkCancelBtn()">
           <option value="">-- เลือกเหตุผล --</option>
           <option value="แผนการผลิตเปลี่ยนแปลง">แผนการผลิตเปลี่ยนแปลง</option>
@@ -178,15 +265,16 @@ body { overflow-x: hidden; }
           <option value="เครื่องจักรขัดข้อง/เลื่อนการผลิต">เครื่องจักรขัดข้อง/เลื่อนการผลิต</option>
           <option value="อื่นๆ">อื่นๆ</option>
         </select>
-        <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้ยกเลิก)</label>
+        
+        <label style="font-size:11px; font-weight:700; color:var(--txt-4); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้ยกเลิก)</label>
         <div style="display:flex; gap:10px;">
           <select id="cancelOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkCancelBtn()"></select>
-          <input type="password" id="cancelPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkCancelBtn()">
+          <input type="password" id="cancelPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkCancelBtn()">
         </div>
       </div>
       <div class="modal-ft">
-        <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:10px 20px;">ปิด</button>
-        <button class="btn btn-red" id="btnRealCancel" onclick="executeCancel()" style="padding:10px 24px; font-size:14px; background:#dc2626; color:#fff; border:none; border-radius:8px; font-weight:700;" disabled>ยืนยันการยกเลิก</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+        <button class="btn btn-danger" id="btnRealCancel" onclick="executeCancel()" disabled>ยืนยันการยกเลิก</button>
       </div>
     </div>
   </div>
@@ -195,48 +283,41 @@ body { overflow-x: hidden; }
 <div class="modal fade mf-modal" id="receiveModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-      <div class="modal-hd" style="background:linear-gradient(135deg,#0d9488,#0f766e);">
-        <div class="modal-hd-title" style="color:#fff;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;margin-right:6px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <div class="modal-hd bg-teal">
+        <div class="modal-hd-title">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             ตรวจรับวัตถุดิบเข้าไลน์ผลิต
         </div>
-        <button class="btn-xw" data-bs-dismiss="modal" style="color:#fff; border-color:rgba(255,255,255,.3);">×</button>
+        <button class="btn-xw" data-bs-dismiss="modal">×</button>
       </div>
       <div class="modal-bd">
         <div style="font-size:13px; color:var(--txt); margin-bottom:12px; text-align:center;">
-          ตรวจสอบความถูกต้อง และยืนยันการรับของเลขที่<br><strong id="rcvReqNoDisplay" style="color:var(--b3); font-family:monospace; font-size:16px;">---</strong>
+          ตรวจสอบความถูกต้อง และยืนยันการรับของเลขที่<br><strong id="rcvReqNoDisplay" style="color:var(--txt); font-family:'JetBrains Mono',monospace; font-size:16px;">---</strong>
         </div>
         <input type="hidden" id="rcvReqNoVal">
         
-        <div id="rcvItemsContainer" style="margin-bottom: 16px; max-height: 250px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff;">
+        <div id="rcvItemsContainer" style="margin-bottom: 16px; max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--bg);">
         </div>
 
-        <label style="font-size:11px; font-weight:700; color:var(--txt3); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้รับของ)</label>
+        <label style="font-size:11px; font-weight:700; color:var(--txt-4); margin-bottom:6px; display:block;">ยืนยันตัวตน (ผู้รับของ)</label>
         <div style="display:flex; gap:10px;">
           <select id="rcvOp" class="op-input" style="margin-bottom:0; flex:6;" onchange="checkRcvBtn()"></select>
-          <input type="password" id="rcvPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN 4 หลัก" maxlength="4" oninput="checkRcvBtn()">
+          <input type="password" id="rcvPin" class="op-input" style="margin-bottom:0; flex:4; text-align:center;" placeholder="PIN" maxlength="4" oninput="checkRcvBtn()">
         </div>
       </div>
       <div class="modal-ft">
-        <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:10px 20px;">ปิด</button>
-        <button class="btn btn-green" id="btnRealRcv" onclick="executeReceive()" style="padding:10px 24px; font-size:14px; background:#0d9488; color:#fff; border:none; border-radius:8px; font-weight:700;" disabled>ยืนยันรับของครบถ้วน</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+        <button class="btn btn-primary" id="btnRealRcv" onclick="executeReceive()" disabled>ยืนยันรับของครบถ้วน</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=6"></script>
+<script src="mf-shared.js?v=11"></script>
 <script>
-let _productList = []; 
-let _bomMap = {};      
-let _plans = [];       
-let _allHistory = [];
-let _transactions = [];
-let _batchMap = {};
-let planCounter = 0;
-let cancelMdl; 
-let receiveMdl;
+let _productList = [], _bomMap = {}, _plans = [], _allHistory = [], _transactions = [], _batchMap = {};
+let planCounter = 0, cancelMdl, receiveMdl;
 
 window.onload = () => { 
   cancelMdl = new bootstrap.Modal(document.getElementById('cancelModal'));
@@ -248,11 +329,7 @@ async function loadMasterData() {
   mfShow('กำลังโหลดข้อมูล...');
   try {
     const [jmaster, jreq, jusers, jtx, jm] = await Promise.all([
-        MF.getMasterData(), 
-        MF.getRequests(), 
-        MF.getUsers(), 
-        MF.getTransactions(),
-        MF.getMonitorData()
+        MF.getMasterData(), MF.getRequests(), MF.getUsers(), MF.getTransactions(), MF.getMonitorData()
     ]);
     
     _transactions = (jtx && jtx.data) ? jtx.data : [];
@@ -268,7 +345,7 @@ async function loadMasterData() {
 
     _bomMap = {}; _productList = [];
     (jmaster.data || []).forEach(rm => {
-      const p = rm.productName; const c = String(rm.code || '').trim();
+      const p = rm.productName, c = String(rm.code || '').trim();
       if (!p || !c) return;
       if (!_productList.includes(p)) _productList.push(p);
       if (!_bomMap[p]) _bomMap[p] = [];
@@ -280,9 +357,7 @@ async function loadMasterData() {
     
     let opHtml = '<option value="">-- เลือกพนักงาน --</option>';
     (jusers.data || []).forEach(u => {
-      if(u.dept === 'Production') {
-        opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`;
-      }
+      if(u.dept === 'Production') { opHtml += `<option value="${u.empId}">${u.empId} - ${u.name}</option>`; }
     });
     document.getElementById('inpOp').innerHTML = opHtml;
     document.getElementById('cancelOp').innerHTML = opHtml; 
@@ -290,6 +365,11 @@ async function loadMasterData() {
 
     _allHistory = jreq.data || [];
     
+    // Update Badge (from shared layout concept)
+    const pendingCount = _allHistory.filter(r => r.status === 'Pending' || r.status === 'Issued').length;
+    const badge = document.getElementById('nb-pd');
+    if(badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-flex' : 'none'; }
+
     if(_plans.length === 0) addPlanItem();
     else runSimulation();
 
@@ -320,14 +400,11 @@ function toggleAllRcvCb(source) {
 function checkRcvBtn() {
   const op = document.getElementById('rcvOp').value;
   const pin = document.getElementById('rcvPin').value;
-  
   const cbs = document.querySelectorAll('.cb-rcv-item');
   let allChecked = cbs.length > 0 ? true : false;
   cbs.forEach(cb => { if(!cb.checked) allChecked = false; });
-  
   const cbAll = document.getElementById('cbAllRcv');
   if (cbAll) cbAll.checked = allChecked && cbs.length > 0;
-
   document.getElementById('btnRealRcv').disabled = (!allChecked || !op || pin.length < 4);
 }
 
@@ -362,42 +439,42 @@ function runSimulation() {
   checkSubmitBtn();
 
   if (validPlans.length === 0) {
-    document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)`;
+    document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ประวัติการเบิก (Request History)`;
     renderHistory();
     return;
   }
 
-  document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> พรีวิววัตถุดิบที่จะได้รับ (BOM Preview)`;
+  document.getElementById('rightPanelTitle').innerHTML = `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> พรีวิววัตถุดิบที่จะได้รับ (BOM Preview)`;
   let html = '';
   validPlans.forEach((plan, index) => {
     const bom = _bomMap[plan.pName] || [];
     let tableRows = '';
     if (bom.length === 0) {
-      tableRows = `<tr><td colspan="4" style="text-align:center;color:var(--txt3);">ไม่พบสูตรวัตถุดิบ</td></tr>`;
+      tableRows = `<tr><td colspan="4" style="text-align:center;color:var(--txt-4);padding:20px;">ไม่พบสูตรวัตถุดิบ</td></tr>`;
     } else {
       bom.forEach(rm => {
         const prepPackages = Number((plan.qty / rm.unitPerPack).toFixed(4));
         let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
         tableRows += `<tr>
-            <td><span style="font-size:10px; font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--b2); background:rgba(66,146,255,.1); padding:2px 6px; border-radius:4px;">${rm.code}</span></td>
+            <td><span class="bcode">${rm.code}</span></td>
             <td class="td-rm">${rm.rmName}</td>
-            <td class="td-num" style="color:var(--txt2);">${prepPackages.toLocaleString()} <span style="font-size:10px;">${rm.packName}</span></td>
-            <td class="td-num" style="color:var(--b3);">${reqQty.toLocaleString()} <span style="font-size:10px;">${rm.sysUnit}</span></td>
+            <td class="td-num" style="color:var(--txt-2);">${prepPackages.toLocaleString()} <span style="font-size:10px;font-weight:500;">${rm.packName}</span></td>
+            <td class="td-num t-req">${reqQty.toLocaleString()} <span style="font-size:10px;font-weight:500;">${rm.sysUnit}</span></td>
           </tr>`;
       });
     }
     html += `
-      <div class="sim-card" style="padding:0; display:block;">
+      <div class="sim-card" style="padding:0; display:block; animation-delay:${index * 50}ms">
         <div class="sim-hd">
-          <div class="sim-idx" style="background:var(--b2);"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+          <div class="sim-idx" style="background:var(--brand);"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
           <div class="sim-title">
             <div class="sim-pname">${plan.pName}</div>
-            <div style="font-size:12px; color:var(--txt3); font-weight:500;">เป้าหมายผลิต: <span style="font-weight:700; color:var(--b3);">${plan.qty.toLocaleString()}</span> Unit</div>
+            <div style="font-size:12px; color:var(--txt-4); font-weight:500;">เป้าหมายผลิต: <span style="font-weight:700; color:var(--brand); font-family:'JetBrains Mono',monospace;">${plan.qty.toLocaleString()}</span> Unit</div>
           </div>
         </div>
         <div class="sim-bd">
           <table class="rm-table">
-            <thead><tr><th width="1%">Code</th><th>RM Name</th><th style="text-align:right">คลังเตรียม</th><th style="text-align:right">จำนวนที่จะได้รับ (Unit)</th></tr></thead>
+            <thead><tr><th width="1%">Code</th><th>RM Name</th><th style="text-align:right">คลังเตรียม</th><th style="text-align:right">จำนวนที่จะได้รับ</th></tr></thead>
             <tbody>${tableRows}</tbody>
           </table>
         </div>
@@ -409,7 +486,7 @@ function runSimulation() {
 
 function renderHistory() {
   if (_allHistory.length === 0) {
-    document.getElementById('rightPanelContent').innerHTML = `<div class="empty-sim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><h3>ยังไม่มีรายการเบิก</h3><p>ประวัติการเบิกของคุณจะแสดงที่นี่</p></div>`;
+    document.getElementById('rightPanelContent').innerHTML = `<div class="empty-sim"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><h3>ยังไม่มีรายการเบิก</h3><p>ประวัติการเบิกของคุณจะแสดงที่นี่</p></div>`;
     return;
   }
   let grouped = {};
@@ -418,45 +495,45 @@ function renderHistory() {
     grouped[r.reqNo].items.push(r);
   });
   let html = '';
-  Object.values(grouped).forEach(g => {
+  Object.values(grouped).forEach((g, idx) => {
     let itemsHtml = '';
-    g.items.forEach(i => itemsHtml += `<div style="font-weight:700; font-size:14px; color:var(--txt); margin-bottom:2px;">• ${i.productTarget} <span style="color:var(--green); font-family:'IBM Plex Mono',monospace;">(${i.targetQty} Unit)</span></div>`);
+    g.items.forEach(i => itemsHtml += `<div style="font-weight:600; font-size:13px; color:var(--txt); margin-bottom:4px;">• ${i.productTarget} <span style="color:var(--brand); font-family:'JetBrains Mono',monospace;">(${i.targetQty} Unit)</span></div>`);
     const dt = new Date(g.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
     
     let badgeHtml = '';
     let actionHtml = '';
 
     if (g.status === 'Pending') {
-      badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจัดของ</div>`;
-      actionHtml = `<button class="btn-cancel" onclick="showCancelModal('${g.reqNo}')">ยกเลิก</button>
-                    <button class="btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
+      badgeHtml = `<div class="status-badge s-pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>รอคลังจัดของ</div>`;
+      actionHtml = `<button class="btn-action btn-cancel" onclick="showCancelModal('${g.reqNo}')">ยกเลิก</button>
+                    <button class="btn-action btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
     } else if (g.status === 'Issued') {
-      badgeHtml = `<div class="status-badge s-issued"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>รอรับของเข้าไลน์</div>`;
-      actionHtml = `<button class="btn-rcv" onclick="showReceiveModal('${g.reqNo}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ตรวจรับของ</button>
-                    <button class="btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
+      badgeHtml = `<div class="status-badge s-issued"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>รอรับของเข้าไลน์</div>`;
+      actionHtml = `<button class="btn-action btn-rcv" onclick="showReceiveModal('${g.reqNo}')"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ตรวจรับของ</button>
+                    <button class="btn-action btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
     } else if (g.status === 'Cancelled') {
       badgeHtml = `<div class="status-badge s-cancel">ยกเลิกแล้ว</div>`;
-      itemsHtml += `<div style="margin-top:8px; font-size:11px; color:#dc2626; font-weight:600;">เหตุผล: ${g.issueDoc} (โดย ${g.issueBy})</div>`; 
+      itemsHtml += `<div style="margin-top:8px; font-size:11.5px; color:var(--red); font-weight:600;">เหตุผล: ${g.issueDoc} (โดย ${g.issueBy})</div>`; 
     } else {
-      badgeHtml = `<div class="status-badge s-pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="20 6 9 17 4 12"/></svg>รับของแล้ว</div>`;
-      actionHtml = `<button class="btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ใบเบิก</button>`;
+      badgeHtml = `<div class="status-badge s-pass"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>รับของแล้ว</div>`;
+      actionHtml = `<button class="btn-action btn-print" onclick="printDocument('${g.reqNo}')">พิมพ์ประวัติ</button>`;
     }
 
     let userTags = `ผู้เบิก: ${g.reqBy}`;
-    if (g.status === 'Issued' || g.status === 'Completed') userTags += ` <span style="color:var(--b2)">• จ่ายโดย: ${g.issueBy}</span>`;
-    if (g.status === 'Completed' && g.receiveBy) userTags += ` <span style="color:#059669">• รับโดย: ${g.receiveBy}</span>`;
+    if (g.status === 'Issued' || g.status === 'Completed') userTags += ` <span style="color:var(--brand)">• จ่ายโดย: ${g.issueBy}</span>`;
+    if (g.status === 'Completed' && g.receiveBy) userTags += ` <span style="color:var(--green)">• รับโดย: ${g.receiveBy}</span>`;
 
     html += `
-      <div class="sim-card" style="padding:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+      <div class="sim-card" style="padding:18px; display:block; animation-delay:${idx * 40}ms">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
           <div>
-            <div style="font-size:11px; color:var(--txt3); font-family:'IBM Plex Mono',monospace; font-weight:600; margin-bottom:2px;">${g.reqNo} &nbsp;|&nbsp; ${dt}</div>
-            <div style="font-size:11px; color:var(--txt3); font-weight:600;">${userTags}</div>
-            <div style="margin-top:6px; display:flex; gap:6px;">${actionHtml}</div>
+            <div style="font-size:11.5px; color:var(--txt-4); font-family:'JetBrains Mono',monospace; font-weight:600; margin-bottom:4px;">${g.reqNo} &nbsp;|&nbsp; ${dt}</div>
+            <div style="font-size:11.5px; color:var(--txt-3); font-weight:500;">${userTags}</div>
+            <div class="action-btn-group">${actionHtml}</div>
           </div>
           ${badgeHtml} 
         </div>
-        <div style="background:rgba(240,244,248,.6); padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0;">${itemsHtml}</div>
+        <div style="background:var(--bg); padding:12px 16px; border-radius:var(--r-md); border:1px solid var(--border);">${itemsHtml}</div>
       </div>
     `;
   });
@@ -480,17 +557,11 @@ function printDocument(reqNo) {
   };
 
   reqItems.forEach(item => {
-    let productEntry = { 
-      pName: item.productTarget, 
-      targetQty: item.targetQty, 
-      items: [] 
-    };
-
+    let productEntry = { pName: item.productTarget, targetQty: item.targetQty, items: [] };
     const bom = _bomMap[item.productTarget] || [];
     bom.forEach(rm => {
       const prepPackages = Number((item.targetQty / rm.unitPerPack).toFixed(4));
       let reqQty = (rm.sysUnit.toUpperCase() === 'UN') ? Number((prepPackages * rm.unitPerPack).toFixed(4)) : Number((prepPackages * rm.packSize).toFixed(4));
-
       let batchVal = '';
       if (isCompleted) {
           const txs = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
@@ -504,13 +575,10 @@ function printDocument(reqNo) {
               batchVal = bbfArr.join(', ');
           } else { batchVal = '-'; }
       }
-
       productEntry.items.push({ code: rm.code, rmName: rm.rmName, qty: reqQty, unit: rm.sysUnit, batch: batchVal });
     });
-    
     printData.products.push(productEntry);
   });
-
   sessionStorage.setItem('printData', JSON.stringify(printData));
   window.open('form.html', '_blank');
 }
@@ -556,12 +624,9 @@ async function executeCancel() {
   try {
     const res = await MF.cancelRequest(reqNo, reason, op, pin);
     if(res.status === 'success') {
-      cancelMdl.hide();
-      alert('✅ ยกเลิกใบเบิกเรียบร้อยแล้ว');
+      cancelMdl.hide(); alert('✅ ยกเลิกใบเบิกเรียบร้อยแล้ว');
       MF.bust('getRequests'); await loadMasterData();
-    } else {
-      alert(res.message);
-    }
+    } else { alert(res.message); }
   } catch (e) { alert('เกิดข้อผิดพลาดในการยกเลิก'); }
   mfHide();
 }
@@ -573,16 +638,13 @@ function showReceiveModal(reqNo) {
   document.getElementById('rcvPin').value = '';
   
   const reqItems = _allHistory.filter(r => r.reqNo === reqNo);
-  let html = `<table style="width:100%; border-collapse: collapse; font-size:13px;">
-                <thead>
-                  <tr style="border-bottom:2px solid #cbd5e1; background:#f8fafc;">
-                    <th style="padding:10px; text-align:center; width:5%;"><input type="checkbox" id="cbAllRcv" onchange="toggleAllRcvCb(this)"></th>
-                    <th style="padding:10px; text-align:left; width:50%;">รายการวัตถุดิบ (ที่คลังจ่ายมา)</th>
-                    <th style="padding:10px; text-align:center; width:20%;">จำนวน</th>
-                    <th style="padding:10px; text-align:left; width:25%;">Batch/Lot</th>
-                  </tr>
-                </thead>
-                <tbody>`;
+  let html = `<table class="mt-compact">
+                <thead><tr>
+                    <th style="width:5%;"><input type="checkbox" id="cbAllRcv" onchange="toggleAllRcvCb(this)"></th>
+                    <th style="width:50%;">รายการวัตถุดิบ</th>
+                    <th style="text-align:right; width:20%;">จำนวน</th>
+                    <th style="width:25%;">Batch/Lot</th>
+                  </tr></thead><tbody>`;
   
   let hasItems = false;
   reqItems.forEach(item => {
@@ -595,23 +657,19 @@ function showReceiveModal(reqNo) {
       const txs = _transactions.filter(t => String(t.reqNo) === String(reqNo) && String(t.code) === String(rm.code));
       let batchVal = txs.length > 0 ? [...new Set(txs.map(t => t.batch))].join(', ') : '-';
 
-      html += `<tr style="border-bottom:1px solid #e2e8f0; transition: background 0.2s;">
-                 <td style="padding:10px; text-align:center;"><input type="checkbox" class="cb-rcv-item" onchange="checkRcvBtn()"></td>
-                 <td style="padding:10px; font-weight:600; color:var(--txt);"><span style="color:var(--b2); font-family:monospace;">${rm.code}</span><br>${rm.rmName}</td>
-                 <td style="padding:10px; text-align:center; font-family:monospace; font-weight:bold; color:var(--b3);">${reqQty.toLocaleString()} <span style="font-size:10px;">${rm.sysUnit}</span></td>
-                 <td style="padding:10px; color:#059669; font-family:monospace; font-weight:bold;">${batchVal}</td>
+      html += `<tr>
+                 <td style="text-align:center;"><input type="checkbox" class="cb-rcv-item" onchange="checkRcvBtn()"></td>
+                 <td><span class="bcode" style="font-size:10px;">${rm.code}</span><br><span style="font-weight:600;">${rm.rmName}</span></td>
+                 <td style="text-align:right; font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--brand);">${reqQty.toLocaleString()} <span style="font-size:10px; color:var(--txt-4);">${rm.sysUnit}</span></td>
+                 <td style="color:var(--green); font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12.5px;">${batchVal}</td>
                </tr>`;
     });
   });
 
   html += `</tbody></table>`;
-  
-  if(!hasItems) {
-      html = `<div style="text-align:center; padding:20px; color:var(--txt3);">ไม่พบรายการวัตถุดิบในบิลนี้</div>`;
-  }
+  if(!hasItems) html = `<div class="empty-sim" style="padding:30px;"><p>ไม่พบรายการวัตถุดิบในบิลนี้</p></div>`;
 
   document.getElementById('rcvItemsContainer').innerHTML = html;
-  
   checkRcvBtn();
   receiveMdl.show();
 }
@@ -625,12 +683,9 @@ async function executeReceive() {
   try {
     const res = await MF.confirmReceive(reqNo, op, pin);
     if(res.status === 'success') {
-      receiveMdl.hide();
-      alert('✅ รับของเข้าไลน์ผลิตสำเร็จ!');
+      receiveMdl.hide(); alert('✅ รับของเข้าไลน์ผลิตสำเร็จ!');
       MF.bust('getRequests'); await loadMasterData();
-    } else { 
-      alert(res.message); 
-    }
+    } else { alert(res.message); }
   } catch (e) { alert('เกิดข้อผิดพลาดในการเชื่อมต่อ'); }
   mfHide();
 }
