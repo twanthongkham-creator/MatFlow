@@ -3,28 +3,24 @@
 // =========================================================================
 
 const SUPA_URL = 'https://bdjyxkkzbbzlmxszmvhx.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkanl4a2t6YmJ6bG14c3ptdmh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NzMzNzMsImV4cCI6MjA5MzQ0OTM3M30.t5nBQDi7di95t8IyfZvFQa1OIbduPLtf-0CoiMlc_PI';
+const SUPA_KEY = 'sb_publishable_inYG_le-QyiIvjkaUHXyfQ_Nvm4FpR2'; // replace with legacy anon JWT if needed
 
 let _client = null;
 function db() {
   if (!_client) {
-    if (!window.supabase)
-      throw new Error('Supabase SDK ยังไม่โหลด — ตรวจสอบ script CDN ใน <head>');
+    if (!window.supabase) throw new Error('Supabase SDK not loaded');
     _client = window.supabase.createClient(SUPA_URL, SUPA_KEY);
   }
   return _client;
 }
 
 const MF = (() => {
-
   async function validatePIN(empId, pin, requiredDept) {
-    const { data: user, error } = await db()
-      .from('users').select('*').eq('emp_id', empId).single();
-    if (error || !user) return { valid: false, msg: '❌ ไม่พบรหัสพนักงานนี้ในระบบ' };
-    if (pin && String(user.pin) !== String(pin))
-      return { valid: false, msg: '❌ รหัส PIN 4 หลัก ไม่ถูกต้อง' };
+    const { data: user, error } = await db().from('users').select('*').eq('emp_id', empId).single();
+    if (error || !user) return { valid: false, msg: 'ไม่พบรหัสพนักงานนี้ในระบบ' };
+    if (pin && String(user.pin) !== String(pin)) return { valid: false, msg: 'รหัส PIN 4 หลัก ไม่ถูกต้อง' };
     if (pin && requiredDept && user.department !== requiredDept && user.department !== 'Planning')
-      return { valid: false, msg: `❌ ต้องเป็นแผนก ${requiredDept} หรือ Planning` };
+      return { valid: false, msg: `ต้องเป็นแผนก ${requiredDept} หรือ Planning` };
     return { valid: true, name: user.name };
   }
   function generateDocNo(prefix) {
@@ -61,48 +57,65 @@ const MF = (() => {
       const productionCapacity={}; capDetailsList.forEach(d=>{productionCapacity[d.pName]=d.potential;});
       return {status:'success',data:{productionCapacity,expiryTable:expiryList,capDetailsList}};
     },
-    getUsers: async()=>{ const{data,error}=await db().from('users').select('*'); if(error)throw error; return{status:'success',data:data.map(u=>({empId:u.emp_id,name:u.name,dept:u.department}))}; },
-    getRequests: async()=>{ const{data,error}=await db().from('matcall_requests').select('*').order('timestamp',{ascending:false}); if(error)throw error; return{status:'success',data:data.map(item=>({reqNo:item.req_no,timestamp:item.timestamp,productTarget:item.product_target,targetQty:item.target_qty,reqBy:item.req_by,status:item.status,issueDoc:item.issue_doc,issueBy:item.issue_by,receiveBy:item.receive_by||''}))}; },
+    getUsers: async () => { const{data,error}=await db().from('users').select('*'); if(error)throw error; return{status:'success',data:data.map(u=>({empId:u.emp_id,name:u.name,dept:u.department}))}; },
+    getRequests: async () => { const{data,error}=await db().from('matcall_requests').select('*').order('timestamp',{ascending:false}); if(error)throw error; return{status:'success',data:data.map(item=>({reqNo:item.req_no,timestamp:item.timestamp,productTarget:item.product_target,targetQty:item.target_qty,reqBy:item.req_by,status:item.status,issueDoc:item.issue_doc,issueBy:item.issue_by,receiveBy:item.receive_by||''}))}; },
     createRequest: async(payload)=>{ const auth=await validatePIN(payload.operator,payload.pin,'Production'); if(!auth.valid)return{status:'error',message:auth.msg}; const reqNo=generateDocNo('MTC'); const rows=payload.items.map(item=>({req_no:reqNo,product_target:item.productTarget,target_qty:item.qty,req_by:auth.name,status:'Pending'})); const{error}=await db().from('matcall_requests').insert(rows); if(error)throw error; return{status:'success',reqNo}; },
-    cancelRequest: async(reqNo,reason,operator,pin)=>{ const auth=await validatePIN(operator,pin,'Production'); if(!auth.valid)return{status:'error',message:auth.msg}; const{data:rows}=await db().from('matcall_requests').select('status').eq('req_no',reqNo).limit(1); if(!rows?.length)return{status:'error',message:'❌ ไม่พบเลขที่ใบเบิกนี้'}; if(['Completed','Issued'].includes(rows[0].status))return{status:'error',message:'❌ ยกเลิกไม่ได้ คลังจัดจ่ายแล้ว'}; const{error}=await db().from('matcall_requests').update({status:'Cancelled',issue_doc:reason,issue_by:auth.name}).eq('req_no',reqNo); if(error)throw error; return{status:'success'}; },
+    cancelRequest: async(reqNo,reason,operator,pin)=>{ const auth=await validatePIN(operator,pin,'Production'); if(!auth.valid)return{status:'error',message:auth.msg}; const{data:rows}=await db().from('matcall_requests').select('status').eq('req_no',reqNo).limit(1); if(!rows?.length)return{status:'error',message:'ไม่พบเลขที่ใบเบิกนี้'}; if(['Completed','Issued'].includes(rows[0].status))return{status:'error',message:'ยกเลิกไม่ได้ คลังจัดจ่ายแล้ว'}; const{error}=await db().from('matcall_requests').update({status:'Cancelled',issue_doc:reason,issue_by:auth.name}).eq('req_no',reqNo); if(error)throw error; return{status:'success'}; },
     confirmReceive: async(reqNo,operator,pin)=>{ const auth=await validatePIN(operator,pin,'Production'); if(!auth.valid)return{status:'error',message:auth.msg}; const{error}=await db().from('matcall_requests').update({status:'Completed',receive_by:auth.name}).eq('req_no',reqNo); if(error)throw error; return{status:'success'}; },
     getTransactions: async()=>{ const{data,error}=await db().from('transactions').select('*').eq('transaction_type','OUT'); if(error)throw error; return{status:'success',data:data.map(tx=>({reqNo:tx.doc_no,code:tx.mat_code,batch:tx.batch_no}))}; },
     receive: async(items,operator)=>{ const docNo=generateDocNo('REC'); const now=new Date().toISOString(); const monitorRows=items.map(item=>({mat_code:item.code,batch:item.batch,date_of_receive:now,mfg:item.mfgDate,bbf:item.expDate,quantity:item.qty,supplier:item.supplier||null,rm_name:item.rmName||item.name||null,rm_code:item.rmCode||null,unit:item.unit,unit_package:item.packageType||null})); const txLogs=items.map(item=>({transaction_id:generateDocNo('TX'),transaction_type:'IN',doc_no:docNo,mat_code:item.code,mat_name:item.name||item.rmName||item.code,batch_no:item.batch,quantity:item.qty,unit:item.unit,target_product:'Stock In',operator:operator,remark:item.supplier||'Receive'})); const{error:e1}=await db().from('rm_monitoring').insert(monitorRows); if(e1)throw e1; const{error:e2}=await db().from('transactions').insert(txLogs); if(e2)throw e2; return{status:'success',docNo}; },
-    issueMulti: async(items,operator,pin,reqNo)=>{
-      const auth=await validatePIN(operator,pin,pin?'Warehouse':null);
-      if(!auth.valid)return{status:'error',message:auth.msg};
-      const docNo=generateDocNo('ISS');
-      const{data:stock,error:sErr}=await db().from('rm_monitoring').select('*').gt('quantity',0).order('date_of_receive',{ascending:true});
-      if(sErr)throw sErr;
-      const txLogs=[];
-      for(const req of items){
-        const tokens=req.batch.split(',').map(b=>b.trim()).filter(Boolean);
-        const isAuto=tokens.some(b=>b==='Auto FIFO'||b==='FIFO');
-        const manualMap={}; let isManual=false;
-        if(!isAuto){tokens.forEach(tok=>{ if(tok.includes(':')){ isManual=true; const[b,q]=tok.split(':'); manualMap[b.trim()]=parseFloat(q)||Infinity; }else{ manualMap[tok]=Infinity; } });}
-        let need=parseFloat(req.cutQty);
-        for(const s of stock){
-          if(s.mat_code!==req.code||need<=0.0001)continue;
-          if(!isAuto&&!manualMap.hasOwnProperty(s.batch))continue;
-          const maxBatch=isManual?(manualMap[s.batch]??Infinity):Infinity;
-          const cut=Math.min(need,parseFloat(s.quantity),maxBatch);
-          if(cut<=0)continue;
-          const{error:uErr}=await db().from('rm_monitoring').update({quantity:parseFloat(s.quantity)-cut}).eq('id',s.id);
-          if(uErr)throw uErr;
-          txLogs.push({transaction_id:generateDocNo('TX'),transaction_type:'OUT',doc_no:reqNo||docNo,mat_code:s.mat_code,mat_name:req.name,batch_no:s.batch,quantity:cut,unit:req.unit,target_product:req.productTarget||'—',operator:auth.name,remark:`Issue ${cut} ${req.unit} (Lot: ${s.batch})`});
-          need-=cut;
-        }
-      }
-      if(txLogs.length){const{error:tErr}=await db().from('transactions').insert(txLogs); if(tErr)throw tErr;}
-      if(reqNo&&reqNo.startsWith('MTC-')){const{error:uErr}=await db().from('matcall_requests').update({status:'Issued',issue_doc:docNo,issue_by:auth.name}).eq('req_no',reqNo); if(uErr)throw uErr;}
-      return{status:'success',docNo};
-    },
+    issueMulti: async(items,operator,pin,reqNo)=>{ const auth=await validatePIN(operator,pin,pin?'Warehouse':null); if(!auth.valid)return{status:'error',message:auth.msg}; const docNo=generateDocNo('ISS'); const{data:stock,error:sErr}=await db().from('rm_monitoring').select('*').gt('quantity',0).order('date_of_receive',{ascending:true}); if(sErr)throw sErr; const txLogs=[]; for(const req of items){ const tokens=req.batch.split(',').map(b=>b.trim()).filter(Boolean); const isAuto=tokens.some(b=>b==='Auto FIFO'||b==='FIFO'); const manualMap={}; let isManual=false; if(!isAuto){tokens.forEach(tok=>{ if(tok.includes(':')){ isManual=true; const[b,q]=tok.split(':'); manualMap[b.trim()]=parseFloat(q)||Infinity; }else{ manualMap[tok]=Infinity; } });} let need=parseFloat(req.cutQty); for(const s of stock){ if(s.mat_code!==req.code||need<=0.0001)continue; if(!isAuto&&!manualMap.hasOwnProperty(s.batch))continue; const maxBatch=isManual?(manualMap[s.batch]??Infinity):Infinity; const cut=Math.min(need,parseFloat(s.quantity),maxBatch); if(cut<=0)continue; const{error:uErr}=await db().from('rm_monitoring').update({quantity:parseFloat(s.quantity)-cut}).eq('id',s.id); if(uErr)throw uErr; txLogs.push({transaction_id:generateDocNo('TX'),transaction_type:'OUT',doc_no:reqNo||docNo,mat_code:s.mat_code,mat_name:req.name,batch_no:s.batch,quantity:cut,unit:req.unit,target_product:req.productTarget||'—',operator:auth.name,remark:`Issue ${cut} ${req.unit} (Lot: ${s.batch})`}); need-=cut; } } if(txLogs.length){ const{error:tErr}=await db().from('transactions').insert(txLogs); if(tErr)throw tErr; } if(reqNo&&reqNo.startsWith('MTC-')){ const{error:uErr}=await db().from('matcall_requests').update({status:'Issued',issue_doc:docNo,issue_by:auth.name}).eq('req_no',reqNo); if(uErr)throw uErr; } return{status:'success',docNo}; },
     updateMonitor: async(rowData)=>{ const{error}=await db().from('rm_monitoring').update({batch:rowData.batch,mfg:rowData.mfg,bbf:rowData.exp,extended_bbf:rowData.extExp||null,quantity:rowData.qty}).eq('id',rowData.id); if(error)throw error; return{status:'success'}; },
     deleteMonitor: async(rowId)=>{ const{error}=await db().from('rm_monitoring').delete().eq('id',rowId); if(error)throw error; return{status:'success'}; },
     bust:()=>{}, bustAll:()=>{}
   };
 })();
 
-function mfToggleDrawer(){const d=document.getElementById('navDrawer'),ic=document.getElementById('hIcon'); if(!d)return; const open=d.classList.toggle('open'); if(ic)ic.innerHTML=open?'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>':'<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>'; }
-function mfShow(text='กำลังประมวลผล...'){const el=document.getElementById('loader'),tx=document.getElementById('loaderText'); if(tx)tx.textContent=text; if(el)el.style.display='flex'; }
-function mfHide(){const el=document.getElementById('loader'); if(el)el.style.display='none'; }
+// ════════════════════════════════════════════════════════════════
+// UI HELPERS — Sidebar Toggle (New Layout v3)
+// ════════════════════════════════════════════════════════════════
+
+function mfToggleDrawer() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sbOverlay');
+  if (!sidebar) return;
+
+  const isOpen = sidebar.classList.toggle('open');
+
+  if (overlay) {
+    overlay.classList.toggle('show', isOpen);
+  }
+
+  // Update hamburger icon
+  const ico = document.getElementById('pgToggleIco');
+  if (ico) {
+    ico.innerHTML = isOpen
+      ? '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+      : '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Close sidebar when overlay is tapped (mobile)
+  const overlay = document.getElementById('sbOverlay');
+  if (overlay) overlay.addEventListener('click', mfToggleDrawer);
+
+  // Close on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar && sidebar.classList.contains('open')) mfToggleDrawer();
+    }
+  });
+});
+
+function mfShow(text = 'กำลังประมวลผล...') {
+  const el = document.getElementById('loader');
+  const tx = document.getElementById('loaderText');
+  if (tx) tx.textContent = text;
+  if (el) el.style.display = 'flex';
+}
+function mfHide() {
+  const el = document.getElementById('loader');
+  if (el) el.style.display = 'none';
+}
