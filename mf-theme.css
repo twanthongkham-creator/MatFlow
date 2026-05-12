@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
    MatFlow Design System v3.0 — Modern SaaS Sidebar Layout
-   Font: Plus Jakarta Sans · Glassmorphism · Clean Light Mode
+   Font: Noto Sans Thai · Glassmorphism · Clean Light Mode
    ═══════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
 
 /* ── Design Tokens ─────────────────────────────────────────────── */
 :root {
@@ -89,7 +89,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Noto Sans Thai', sans-serif;
   background: var(--bg);
   color: var(--txt);
   font-size: 14px;
@@ -465,7 +465,7 @@ body {
    ════════════════════════════════════════════════════════════════ */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Noto Sans Thai', sans-serif;
   font-size: 13.5px; font-weight: 600;
   border: none; border-radius: var(--r-md);
   padding: 9px 18px;
@@ -537,7 +537,7 @@ body {
 }
 .fc {
   width: 100%;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Noto Sans Thai', sans-serif;
   font-size: 13.5px;
   color: var(--txt);
   background: var(--white);
@@ -666,7 +666,7 @@ body {
 .date-fw { background: var(--bg); border: 1.5px solid var(--border-2); border-radius: var(--r-md); padding: 11px 13px; }
 .date-fw label { font-size: 10.5px; font-weight: 700; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--txt-3); }
 .date-fw label svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
-.date-fw input { background: transparent; border: none; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px; color: var(--txt); width: 100%; }
+.date-fw input { background: transparent; border: none; outline: none; font-family: 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 14px; color: var(--txt); width: 100%; }
 .ext-wrap { background: var(--amber-bg); border: 1.5px solid var(--amber-border); border-radius: var(--r-md); padding: 13px; }
 .ext-inner { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--amber-border); }
 
@@ -860,7 +860,7 @@ body {
 .op-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .op-lbl-txt { font-size: 10px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
 .op-input {
-  width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  width: 100%; font-family: 'Noto Sans Thai', sans-serif; font-size: 14px;
   background: var(--white); border: 1.5px solid var(--border-2);
   border-radius: var(--r-md); padding: 10px 14px; outline: none;
   transition: 0.15s; font-weight: 600; color: var(--txt); cursor: pointer;
@@ -877,7 +877,7 @@ body {
   border-radius: 10px; padding: 7px 13px; min-width: 108px;
 }
 .op-box input {
-  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700;
+  font-family: 'Noto Sans Thai', sans-serif; font-size: 13.5px; font-weight: 700;
   color: var(--white); background: transparent; border: none; outline: none; text-align: center; width: 100%;
 }
 .op-lbl { font-size: 9.5px; color: rgba(255,255,255,0.5); text-transform: uppercase; font-weight: 600; letter-spacing: .4px; }
@@ -896,7 +896,7 @@ body {
 .date-box label svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
 .date-box.mfg label { color: var(--blue); }
 .date-box.exp label { color: var(--red); }
-.date-box input { background: transparent; border: none; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14.5px; color: var(--txt); width: 100%; }
+.date-box input { background: transparent; border: none; outline: none; font-family: 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 14.5px; color: var(--txt); width: 100%; }
 .nav-badge {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 18px; height: 18px; padding: 0 5px;
