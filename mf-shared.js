@@ -119,3 +119,26 @@ function mfHide() {
   const el = document.getElementById('loader');
   if (el) el.style.display = 'none';
 }
+// =========================================================================
+// Sidebar Desktop Collapse Logic
+// =========================================================================
+function mfToggleDesktopSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  
+  // สลับคลาส collapsed
+  sidebar.classList.toggle('collapsed');
+  
+  // บันทึกสถานะลงใน LocalStorage เครื่องของผู้ใช้
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  localStorage.setItem('mf_sidebar_collapsed', isCollapsed);
+}
+
+// ตรวจสอบสถานะเมื่อโหลดหน้าเว็บ
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar && localStorage.getItem('mf_sidebar_collapsed') === 'true') {
+    // ถ้าผู้ใช้เคยพับไว้ ให้พับตั้งแต่เริ่ม
+    sidebar.classList.add('collapsed');
+  }
+});
