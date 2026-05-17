@@ -3,343 +3,438 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MatFlow — Management</title>
+<title>MatFlow — จัดการข้อมูล</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="mf-theme.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* เพิ่ม Style สำหรับสถานะวันหมดอายุ */
-  .exp-ok { color: #059669; font-weight: 700; background: rgba(5,150,105,0.1); padding: 4px 8px; border-radius: 6px; }
-  .exp-warn { color: #d97706; font-weight: 700; background: rgba(217,119,6,0.1); padding: 4px 8px; border-radius: 6px; }
-  .exp-danger { color: #dc2626; font-weight: 700; background: rgba(220,38,38,0.1); padding: 4px 8px; border-radius: 6px; }
-  .exp-expired { color: #fff; font-weight: 700; background: #dc2626; padding: 4px 8px; border-radius: 6px; }
-  .bext { color: #92400e; font-weight: 700; background: rgba(146,64,14,0.1); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(146,64,14,0.2); }
-  .bcode { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: var(--b2); background: rgba(66,146,255,.1); padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
-  .bbatch { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #059669; }
+.tab-bar{display:flex;gap:4px;background:var(--bg-2);border-radius:var(--r-md);padding:4px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{padding:9px 18px;border-radius:calc(var(--r-md) - 2px);font-size:13px;font-weight:600;color:var(--txt-3);cursor:pointer;border:none;background:transparent;transition:all var(--dur-fast);display:flex;align-items:center;gap:7px;white-space:nowrap}
+.tab-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.tab-btn:hover{color:var(--txt);background:rgba(255,255,255,.6)}
+.tab-btn.active{background:var(--white);color:var(--brand);box-shadow:var(--sh-sm);font-weight:700}
+.tab-btn.active svg{stroke:var(--brand)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+.sb-item-lock{opacity:.35;pointer-events:none;cursor:not-allowed}
+.sb-lock-tag{margin-left:auto;font-size:9px;font-weight:700;color:var(--txt-4);background:var(--bg-2);border-radius:var(--r-pill);padding:2px 7px;white-space:nowrap}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.mini-stat{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh-xs)}
+.mini-stat-ico{width:42px;height:42px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mini-stat-ico svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+.mini-stat-val{font-size:22px;font-weight:800;color:var(--txt);font-family:'JetBrains Mono',monospace;letter-spacing:-1px;line-height:1}
+.mini-stat-lbl{font-size:12px;color:var(--txt-4);font-weight:500;margin-top:3px}
 </style>
 </head>
 <body>
+<div id="loader" class="loader" style="display:none"><div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div></div>
+<div class="toast-mf" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg">สำเร็จ</span></div>
 
-<div id="loader" class="loader" style="display:none">
-  <div class="loader-box"><div class="spinner"></div><div class="loader-txt" id="loaderText">กำลังโหลด...</div></div>
-</div>
-
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="index.html" class="brand">
-      <div class="brand-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>
-      <span class="brand-name">MatFlow</span><div class="brand-sep"></div><span class="brand-sub">Inventory System</span>
-    </a>
-    <nav class="topnav">
-      <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>วางแผน</a>
-      <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-      <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังสินค้า</a>
-      <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-      <a href="management.html" class="nav-a active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-      <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
-    </nav>
-    <button class="nav-toggle" onclick="mfToggleDrawer()" aria-label="เมนู">
-      <svg id="hIcon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-  </div>
-  <div id="navDrawer" class="nav-drawer">
-    <a href="index.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>วางแผน</a>
-    <a href="production.html" class="nav-a"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ฝ่ายผลิต</a>
-    <a href="warehouse.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>คลังสินค้า</a>
-    <a href="receiving.html" class="nav-a"><svg viewBox="0 0 24 24"><path d="M12 2v13m0 0l-4-4m4 4l4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>รับวัตถุดิบ</a>
-    <a href="management.html" class="nav-a active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>การจัดการ</a>
-    <a href="dashboard.html" class="nav-a"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>ภาพรวม</a>
-  </div>
-</header>
-
-<div class="shell">
-  <div class="ph a1">
-    <h1>
-      <span class="ph-ico" style="background:linear-gradient(135deg,#475569,var(--b0))">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </span>
-      Inventory Management
-    </h1>
-    <p>จัดการและแก้ไขข้อมูลคลังวัตถุดิบ — เรียงตามวันหมดอายุใกล้ที่สุด</p>
-  </div>
-
-  <div class="filter-strip a1" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
-    <div class="fg" style="flex: 1; min-width: 250px;">
-      <label class="fl">RM Name (ค้นหา / เลือก)</label>
-      <div style="display: flex; gap: 8px;">
-        <input list="rmNameList" id="filterName" class="fc" placeholder="วัตถุดิบทั้งหมด..." oninput="applyFilters()">
-        <datalist id="rmNameList"></datalist>
-        <button class="btn btn-outline" onclick="clearRmFilter()" style="padding: 6px 14px; font-size: 13px; font-weight: 700; border-radius: 8px;">ล้าง</button>
-      </div>
-    </div>
-
-    <div class="fg" style="flex: 1; min-width: 220px;">
-      <label class="fl">ค้นหาด่วน</label>
-      <div class="search-wrap" style="position: relative;">
-        <div class="search-ico" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt3);"><svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <input type="text" id="searchInput" class="fc" style="padding-left: 36px;" placeholder="Batch, Code, Supplier..." oninput="applyFilters()">
-      </div>
-    </div>
-    
-    <div style="flex: 0 0 auto; padding-bottom: 6px;">
-      <span id="rowCount" class="row-count" style="font-size: 14px; font-weight: 700; color: var(--b3); background: rgba(66,146,255,0.1); padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(66,146,255,0.2);">— รายการ</span>
-    </div>
-  </div>
-
-  <div class="table-card a2">
-    <div class="table-scroll">
-      <table class="mt">
-        <thead><tr>
-          <th>Code</th>
-          <th class="text-left">RM Name</th>
-          <th>Batch</th>
-          <th style="text-align:center">Qty (Unit)</th>
-          <th style="text-align:center">MFG</th>
-          <th style="text-align:center">BBF</th>
-          <th style="text-align:center">Extended BBF</th>
-          <th style="text-align:center">Action</th>
-        </tr></thead>
-        <tbody id="dataTable">
-          <tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">กำลังดึงข้อมูล...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
+<!-- Modal แก้ไข Stock -->
 <div class="modal fade mf-modal" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-hd" style="padding: 12px 16px;">
-        <div class="modal-hd-title" style="font-size:15px;">
-          <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          แก้ไขรายการ — <span class="btitle" id="modalBatchTitle"></span>
-        </div>
-        <button class="btn-xw" data-bs-dismiss="modal" style="width:24px; height:24px;"><svg viewBox="0 0 24 24" style="width:14px; height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="modal-hd">
+        <div class="modal-hd-title"><svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข — <span class="btitle" id="mTitle"></span></div>
+        <button class="btn-xw" data-bs-dismiss="modal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
-      <div class="modal-bd" style="padding: 14px 16px;">
-        
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">RM NAME</div><div id="modalRMName" style="font-size:13px; font-weight:600; color:var(--txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div></div>
-          <div><div style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px;">SUPPLIER</div><div id="modalSupplier" style="font-size:13px; font-weight:600; color:var(--txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div></div>
+      <div class="modal-bd">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div><div class="mi-lbl">RM NAME</div><div class="mi-val" id="mRMName">—</div></div>
+          <div><div class="mi-lbl">SUPPLIER</div><div class="mi-val" id="mSupplier">—</div></div>
         </div>
-
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:10px; text-align:center; margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:700;color:var(--b2);margin-bottom:4px;text-transform:uppercase;">จำนวนคงเหลือ (Unit)</div>
-          <input type="number" step="0.0001" id="editQty" style="font-size:18px; font-weight:bold; text-align:center; width:140px; border:1px solid #cbd5e1; border-radius:6px; padding:2px; outline:none; color:var(--b3);">
+        <div class="qty-hero"><div style="font-size:10px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">จำนวนคงเหลือ (Unit)</div><input type="number" step="0.0001" id="eQty" placeholder="0"><div class="qty-unit" id="eUnit">UN</div></div>
+        <div class="row g-2 mb-3">
+          <div class="col-6"><label class="fl" style="color:var(--blue)">วันผลิต (MFG)</label><input type="date" id="eMfg" class="fc" style="padding:8px"></div>
+          <div class="col-6"><label class="fl" style="color:var(--red)">วันหมดอายุ (BBF)</label><input type="date" id="eExp" class="fc" style="padding:8px;border-color:var(--red-border)"></div>
         </div>
-
-        <div class="row g-2" style="margin-bottom:10px">
-          <div class="col-6">
-            <label style="font-size:10px; font-weight:700; color:var(--b3); margin-bottom:2px; display:block;">วันผลิต (MFG)</label>
-            <input type="date" id="editMfg" class="fc" style="padding:4px 8px; font-size:12px;">
-          </div>
-          <div class="col-6">
-            <label style="font-size:10px; font-weight:700; color:var(--red); margin-bottom:2px; display:block;">วันหมดอายุ (BBF)</label>
-            <input type="date" id="editExp" class="fc" style="padding:4px 8px; font-size:12px; border-color:#fca5a5; background:#fff5f5;">
-          </div>
-        </div>
-
-        <div style="background:#fefce8; border:1px solid #fde68a; border-radius:8px; padding:8px; margin-bottom:10px;">
+        <div style="background:var(--amber-bg);border:1.5px solid var(--amber-border);border-radius:var(--r-md);padding:10px;margin-bottom:12px">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:12px;font-weight:700;color:#92400e;">ต่ออายุวัตถุดิบ (Extended)</span>
-            <input class="form-check-input" type="checkbox" id="toggleExtend" style="margin:0;cursor:pointer;accent-color:var(--b3);" onchange="toggleExt()">
+            <span style="font-size:12px;font-weight:700;color:var(--amber)">ต่ออายุ (Extended BBF)</span>
+            <input type="checkbox" id="cbExt" style="cursor:pointer;accent-color:var(--amber);width:16px;height:16px" onchange="document.getElementById('extWrap').style.display=this.checked?'block':'none'">
           </div>
-          <div id="extendField" style="display:none; margin-top:6px;">
-            <input type="date" id="editExtExp" class="fc" style="padding:4px 8px; font-size:12px; border-color:#fcd34d;">
-          </div>
+          <div id="extWrap" style="display:none;margin-top:8px"><input type="date" id="eExtExp" class="fc" style="padding:8px;border-color:var(--amber-border)"></div>
         </div>
-
-        <div>
-          <label style="font-size:10px; font-weight:700; color:var(--txt3); margin-bottom:2px; display:block;">แก้ไขเลข Batch</label>
-          <input type="text" id="editBatch" class="fc" style="padding:4px 8px; font-size:12px; font-family:'IBM Plex Mono',monospace">
-        </div>
-
+        <div><label class="fl">เลข Batch</label><input type="text" id="eBatch" class="fc" style="font-family:'JetBrains Mono',monospace;padding:8px"></div>
       </div>
-      <div class="modal-ft" style="padding: 10px 16px;">
-        <button class="btn btn-outline" data-bs-dismiss="modal" style="padding:6px 16px; font-size:13px;">ยกเลิก</button>
-        <button class="btn btn-blue" onclick="saveEdit()" style="padding:6px 20px; font-size:13px;">
-          <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          บันทึกข้อมูล
+      <div class="modal-ft">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">ยกเลิก</button>
+        <button class="btn btn-primary btn-sm" onclick="saveEdit()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>บันทึก
         </button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <a href="warehouse.html" class="sb-brand">
+      <div class="sb-brand-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div class="sb-brand-name">Mat<span>Flow</span></div>
+    </a>
+    <button class="sb-close-btn" onclick="mfToggleDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">คลังวัตถุดิบ</div>
+    <a href="warehouse.html" class="sb-item" data-label="จ่ายวัตถุดิบ">
+      <div class="sb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <span class="sb-text">จ่ายวัตถุดิบ</span>
+    </a>
+    <a href="receiving.html" class="sb-item" data-label="รับวัตถุดิบ">
+      <div class="sb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 2v13"/><path d="M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg></div>
+      <span class="sb-text">รับวัตถุดิบ</span>
+    </a>
+    <a href="management.html" class="sb-item active" data-label="จัดการข้อมูล">
+      <div class="sb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+      <span class="sb-text">จัดการข้อมูล</span>
+    </a>
+    <div class="sb-label" style="margin-top:14px">ระบบอื่น (ปิดชั่วคราว)</div>
+    <span class="sb-item sb-item-lock"><div class="sb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><span class="sb-text">วางแผนผลิต</span><span class="sb-lock-tag">ล็อก</span></span>
+    <span class="sb-item sb-item-lock"><div class="sb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><span class="sb-text">ฝ่ายผลิต</span><span class="sb-lock-tag">ล็อก</span></span>
+    <span class="sb-item sb-item-lock"><div class="sb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><span class="sb-text">ภาพรวม</span><span class="sb-lock-tag">ล็อก</span></span>
+  </nav>
+  <button class="sb-collapse-btn" onclick="mfToggleDesktopSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+</div>
+<div class="sb-overlay" id="sbOverlay"></div>
+
+<div class="main-wrapper">
+  <div class="pg-header">
+    <button class="pg-toggle" onclick="mfToggleDrawer()"><svg id="pgToggleIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="pg-title"><h1>จัดการข้อมูล</h1><p>สต๊อกคลัง · สูตรวัตถุดิบ · ใบเบิก · ธุรกรรม</p></div>
+    <div class="pg-actions">
+      <button class="btn btn-primary btn-sm" onclick="loadAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>รีเฟรช
+      </button>
+    </div>
+  </div>
+
+  <div class="pg-body">
+    <!-- Summary Stats -->
+    <div class="stat-row a1" id="summaryRow"></div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar a2">
+      <button class="tab-btn active" onclick="switchTab('stock',this)">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>สต๊อกคลัง
+      </button>
+      <button class="tab-btn" onclick="switchTab('bom',this)">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>สูตรวัตถุดิบ (BOM)
+      </button>
+      <button class="tab-btn" onclick="switchTab('req',this)">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/></svg>ใบเบิก
+      </button>
+      <button class="tab-btn" onclick="switchTab('tx',this)">
+        <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>ธุรกรรม
+      </button>
+    </div>
+
+    <!-- Tab: Stock -->
+    <div class="tab-pane active a3" id="tab-stock">
+      <div class="filter-strip" style="margin-bottom:14px">
+        <div class="fg wide">
+          <label class="fl">ค้นหา</label>
+          <div class="search-wrap"><div class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input type="text" id="stkSearch" class="fc" style="padding-left:38px" placeholder="RM Name, Code, Batch..." oninput="filterStock()"></div>
+        </div>
+        <div class="fg"><label class="fl">วัตถุดิบ</label><input list="rmDL" id="stkName" class="fc" placeholder="ทั้งหมด..." oninput="filterStock()"><datalist id="rmDL"></datalist></div>
+        <div style="align-self:flex-end"><span id="stkCount" class="row-count">— รายการ</span></div>
+        <div style="align-self:flex-end"><button class="btn btn-secondary btn-sm" onclick="document.getElementById('stkSearch').value='';document.getElementById('stkName').value='';filterStock()">ล้าง</button></div>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll-wrap">
+          <table class="mt"><thead><tr>
+            <th>Code</th><th class="text-left">RM Name</th><th>Batch</th>
+            <th style="text-align:center">Qty</th><th style="text-align:center">Unit</th>
+            <th style="text-align:center">MFG</th><th style="text-align:center">BBF</th>
+            <th style="text-align:center">Extended</th><th style="text-align:center">Action</th>
+          </tr></thead>
+          <tbody id="stkBody"><tr><td colspan="9" style="padding:48px;text-align:center;color:var(--txt-4)">กำลังโหลด...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Tab: BOM -->
+    <div class="tab-pane" id="tab-bom">
+      <div class="filter-strip" style="margin-bottom:14px">
+        <div class="fg wide"><label class="fl">สินค้า (Product)</label><input list="prodDL" id="bomFilter" class="fc" placeholder="เลือกหรือพิมพ์ชื่อสินค้า..." oninput="filterBOM()"><datalist id="prodDL"></datalist></div>
+        <div style="align-self:flex-end"><span id="bomCount" class="row-count">— รายการ</span></div>
+        <div style="align-self:flex-end"><button class="btn btn-secondary btn-sm" onclick="document.getElementById('bomFilter').value='';filterBOM()">ล้าง</button></div>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll-wrap">
+          <table class="mt"><thead><tr>
+            <th class="text-left">Product Name</th><th>RM Code</th>
+            <th class="text-left">RM Name</th><th>Unit/Pack</th>
+            <th>Pack Size</th><th>Unit</th><th class="text-left">Category</th>
+          </tr></thead>
+          <tbody id="bomBody"><tr><td colspan="7" style="padding:48px;text-align:center;color:var(--txt-4)">กำลังโหลด...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Tab: Requisitions -->
+    <div class="tab-pane" id="tab-req">
+      <div class="filter-strip" style="margin-bottom:14px">
+        <div class="fg"><label class="fl">สถานะ</label>
+          <select id="reqStatus" class="fc" onchange="filterReq()">
+            <option value="">ทั้งหมด</option><option value="Pending">Pending</option>
+            <option value="Issued">Issued</option><option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="fg wide"><label class="fl">ค้นหา</label><div class="search-wrap"><div class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input type="text" id="reqSearch" class="fc" style="padding-left:38px" placeholder="เลขที่, ชื่อสินค้า, ผู้เบิก..." oninput="filterReq()"></div></div>
+        <div style="align-self:flex-end"><span id="reqCount" class="row-count">— รายการ</span></div>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll-wrap">
+          <table class="mt"><thead><tr>
+            <th>เลขที่ใบเบิก</th><th>วันที่</th><th class="text-left">สินค้า</th>
+            <th style="text-align:center">จำนวน</th><th>ผู้เบิก</th>
+            <th>จ่ายโดย</th><th>รับโดย</th><th style="text-align:center">สถานะ</th>
+          </tr></thead>
+          <tbody id="reqBody"><tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt-4)">กำลังโหลด...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Tab: Transactions -->
+    <div class="tab-pane" id="tab-tx">
+      <div class="filter-strip" style="margin-bottom:14px">
+        <div class="fg"><label class="fl">ประเภท</label>
+          <select id="txType" class="fc" onchange="filterTx()">
+            <option value="">ทั้งหมด</option><option value="IN">IN (รับเข้า)</option><option value="OUT">OUT (จ่ายออก)</option>
+          </select>
+        </div>
+        <div class="fg wide"><label class="fl">ค้นหา</label><div class="search-wrap"><div class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input type="text" id="txSearch" class="fc" style="padding-left:38px" placeholder="Doc No, Code, Batch, Operator..." oninput="filterTx()"></div></div>
+        <div style="align-self:flex-end"><span id="txCount" class="row-count">— รายการ</span></div>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll-wrap">
+          <table class="mt"><thead><tr>
+            <th style="text-align:center">ประเภท</th><th>Doc No</th><th>Code</th>
+            <th class="text-left">RM Name</th><th>Batch</th>
+            <th style="text-align:center">Qty</th><th>Unit</th>
+            <th class="text-left">Product</th><th>ผู้ดำเนินการ</th>
+          </tr></thead>
+          <tbody id="txBody"><tr><td colspan="9" style="padding:48px;text-align:center;color:var(--txt-4)">กำลังโหลด...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="mf-shared.js?v=9"></script>
+<script src="mf-shared.js?v=12"></script>
 <script>
-let rawData = [], editIdx = null;
-let editMdl;
+let _mon=[],_master=[],_reqs=[],_allTx=[],_editId=null,editMdl;
 
-// ฟังก์ชันแปลงวันที่สำหรับการแสดงผล (DD/MM/YYYY)
-function mfFmtDisplay(dstr) {
-  if (!dstr) return '—';
-  const d = new Date(dstr);
-  if (isNaN(d.getTime())) return '—';
-  const pad = (n) => n < 10 ? '0' + n : n;
-  return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
+function toast(msg,err=false){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.className='toast-mf show'+(err?' err':'');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+function fmt(d){if(!d)return'—';const x=new Date(d);if(isNaN(x))return'—';return x.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'});}
+function fmtI(d){if(!d)return'';const x=new Date(d);if(isNaN(x))return'';return x.toISOString().slice(0,10);}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
 }
 
-// ฟังก์ชันแปลงวันที่สำหรับใส่ใน <input type="date"> (YYYY-MM-DD)
-function mfFmtInput(dstr) {
-  if (!dstr) return '';
-  const d = new Date(dstr);
-  if (isNaN(d.getTime())) return '';
-  const pad = (n) => n < 10 ? '0' + n : n;
-  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-}
-
-window.onload = async () => {
-  editMdl = new bootstrap.Modal(document.getElementById('editModal'));
-  mfShow('กำลังโหลดข้อมูลคลัง...');
-  try {
-    const res = await MF.getMonitorData(); 
-    rawData = (res && res.data) ? res.data : [];
-    buildFilters();
-    applyFilters();
-  } catch(e) {
-      console.error(e);
-      alert('โหลดข้อมูลล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ');
-  }
-  mfHide();
+window.onload=async()=>{
+  editMdl=new bootstrap.Modal(document.getElementById('editModal'));
+  await loadAll();
 };
 
-// 🚩 สร้างตัวเลือกใน Datalist เฉพาะรายการที่มีในคลัง
-function buildFilters() {
-  const names = [...new Set(rawData.map(i => i.name).filter(Boolean))].sort();
-  const dl = document.getElementById('rmNameList');
-  dl.innerHTML = '';
-  names.forEach(n => {
-      const op = document.createElement('option');
-      op.value = n;
-      dl.appendChild(op);
-  });
+async function loadAll(){
+  mfShow('กำลังโหลดข้อมูลทั้งหมด...');
+  try{
+    const[jmon,jmaster,jreqs,jtx]=await Promise.all([MF.getMonitorData(),MF.getMasterData(),MF.getRequests(),MF.getTransactions()]);
+    _mon=jmon.data||[];
+    _master=jmaster.data||[];
+    _reqs=jreqs.data||[];
+    _allTx=jtx.data||[];
+    buildSummary();buildFilters();filterStock();filterBOM();filterReq();filterTx();
+  }catch(e){console.error(e);toast('โหลดล้มเหลว',true);}
+  mfHide();
 }
 
-function clearRmFilter() {
-    document.getElementById('filterName').value = '';
-    applyFilters();
+function buildSummary(){
+  const totalItems=_mon.length;
+  const totalQty=_mon.reduce((s,i)=>s+(parseFloat(i.qty)||0),0);
+  const pending=_reqs.filter(r=>r.status==='Pending').length;
+  const today=new Date();
+  const expSoon=_mon.filter(i=>{const e=i.extExp||i.exp;if(!e)return false;const d=Math.ceil((new Date(e)-today)/864e5);return d>=0&&d<=7;}).length;
+  document.getElementById('summaryRow').innerHTML=`
+    <div class="mini-stat"><div class="mini-stat-ico" style="background:var(--brand-50);color:var(--brand)"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div><div class="mini-stat-val">${totalItems.toLocaleString()}</div><div class="mini-stat-lbl">Lot ในคลัง</div></div></div>
+    <div class="mini-stat"><div class="mini-stat-ico" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg></div><div><div class="mini-stat-val">${totalQty.toLocaleString(undefined,{maximumFractionDigits:1})}</div><div class="mini-stat-lbl">ยอดรวม (Unit)</div></div></div>
+    <div class="mini-stat"><div class="mini-stat-ico" style="background:var(--amber-bg);color:var(--amber)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="mini-stat-val">${pending}</div><div class="mini-stat-lbl">ใบเบิกรอดำเนินการ</div></div></div>
+    <div class="mini-stat"><div class="mini-stat-ico" style="background:var(--red-bg);color:var(--red)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="mini-stat-val">${expSoon}</div><div class="mini-stat-lbl">หมดอายุใน 7 วัน</div></div></div>
+  `;
 }
 
-function applyFilters() {
-  const nf = document.getElementById('filterName').value.toLowerCase().trim();
-  const s = document.getElementById('searchInput').value.toLowerCase().trim();
-  
-  let data = rawData.filter(i => {
-    let matchName = (!nf || (i.name && i.name.toLowerCase().includes(nf)));
-    let matchSearch = (!s || Object.values(i).some(v => String(v).toLowerCase().includes(s)));
-    return matchName && matchSearch;
+function buildFilters(){
+  const names=[...new Set(_mon.map(i=>i.name).filter(Boolean))].sort();
+  document.getElementById('rmDL').innerHTML=names.map(n=>`<option value="${n}">`).join('');
+  const prods=[...new Set(_master.map(i=>i.productName).filter(Boolean))].sort();
+  document.getElementById('prodDL').innerHTML=prods.map(n=>`<option value="${n}">`).join('');
+}
+
+// ── Stock Tab ──
+function filterStock(){
+  const s=document.getElementById('stkSearch').value.toLowerCase();
+  const n=document.getElementById('stkName').value.toLowerCase();
+  let data=[..._mon].filter(i=>{
+    const ms=!s||Object.values(i).some(v=>String(v).toLowerCase().includes(s));
+    const mn=!n||(i.name||'').toLowerCase().includes(n);
+    return ms&&mn;
   });
-  
-  data.sort((a,b) => new Date(a.extExp||a.exp) - new Date(b.extExp||b.exp));
-  
-  // 🚩 คำนวณยอดรวม Qty (SUM) สำหรับรายการที่กรองมา
-  let totalQty = data.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
-  let sumFmt = Number(totalQty.toFixed(4)).toLocaleString();
-  
-  document.getElementById('rowCount').textContent = `${data.length} รายการ รวม ${sumFmt} UN`;
-  
-  const tb = document.getElementById('dataTable');
-  if(!data.length){
-      tb.innerHTML=`<tr><td colspan="8" style="padding:48px;text-align:center;color:var(--txt3)">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>`;
-      return;
-  }
-  
-  tb.innerHTML = data.map(i => {
-    const eff = i.extExp || i.exp;
-    const d = eff ? Math.ceil((new Date(eff) - new Date()) / 864e5) : null;
-    const ec = d === null ? '' : d <= 0 ? 'exp-expired' : d <= 7 ? 'exp-danger' : d <= 15 ? 'exp-warn' : 'exp-ok';
-    const safeBatch = String(i.batch || '').replace(/'/g, "\\'");
-    
+  data.sort((a,b)=>new Date(a.extExp||a.exp)-new Date(b.extExp||b.exp));
+  const tot=data.reduce((s,i)=>s+(parseFloat(i.qty)||0),0);
+  document.getElementById('stkCount').textContent=`${data.length} รายการ · ${tot.toLocaleString(undefined,{maximumFractionDigits:2})} UN`;
+  const today=new Date();
+  document.getElementById('stkBody').innerHTML=data.length?data.map(i=>{
+    const eff=i.extExp||i.exp;
+    const d=eff?Math.ceil((new Date(eff)-today)/864e5):null;
+    const ec=d===null?'':(d<=0?'exp-expired':d<=7?'exp-danger':d<=15?'exp-warn':'exp-ok');
+    const safeBatch=(i.batch||'').replace(/'/g,"\\'");
     return `<tr>
       <td><span class="bcode">${i.code||'—'}</span></td>
-      <td class="text-left"><div style="font-weight:700;font-size:14px">${i.name||'—'}</div></td>
-      <td><span class="bbatch">${i.batch||'—'}</span></td>
-      <td style="text-align:center;font-weight:700;font-family:'IBM Plex Mono';color:var(--b2)">${i.qty??'—'} <span style="font-size:10px; color:#94a3b8;">${i.unit||'UN'}</span></td>
-      <td style="text-align:center;font-size:13px">${mfFmtDisplay(i.mfg)}</td>
-      <td style="text-align:center;font-size:13px"><span class="${ec}">${mfFmtDisplay(i.exp)}</span></td>
-      <td style="text-align:center">${i.extExp?`<span class="bext">${mfFmtDisplay(i.extExp)}</span>`:'<span style="color:var(--txt3)">—</span>'}</td>
-      <td style="text-align:center;min-width:130px">
-        <button class="btn btn-edit" onclick="openEdit('${i.rowIdx}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</button>
-        <button class="btn btn-del" onclick="confirmDel('${i.rowIdx}','${safeBatch}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
+      <td class="text-left" style="font-weight:600">${i.name||'—'}</td>
+      <td style="font-family:'JetBrains Mono';font-weight:700;color:var(--green)">${i.batch||'—'}</td>
+      <td style="text-align:center;font-family:'JetBrains Mono';font-weight:700;color:var(--brand)">${parseFloat(i.qty||0).toLocaleString()}</td>
+      <td style="text-align:center;font-size:11px;color:var(--txt-4);font-weight:700">${i.unit||'UN'}</td>
+      <td style="text-align:center;font-size:13px">${fmt(i.mfg)}</td>
+      <td style="text-align:center"><span class="${ec}">${fmt(i.exp)}</span></td>
+      <td style="text-align:center">${i.extExp?`<span class="bext">${fmt(i.extExp)}</span>`:'<span style="color:var(--txt-4)">—</span>'}</td>
+      <td style="text-align:center;white-space:nowrap">
+        <button class="btn btn-edit btn-sm" onclick="openEdit('${i.rowIdx}')"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>แก้ไข</button>
+        <button class="btn btn-del btn-sm" onclick="confirmDel('${i.rowIdx}','${safeBatch}')"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
       </td>
     </tr>`;
-  }).join('');
+  }).join(''):'<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--txt-4)">ไม่พบข้อมูล</td></tr>';
 }
 
-function toggleExt(){
-    document.getElementById('extendField').style.display = document.getElementById('toggleExtend').checked ? 'block' : 'none';
+// ── BOM Tab ──
+function filterBOM(){
+  const f=document.getElementById('bomFilter').value.toLowerCase();
+  let data=[..._master].filter(i=>!f||(i.productName||'').toLowerCase().includes(f)||(i.name||'').toLowerCase().includes(f));
+  document.getElementById('bomCount').textContent=data.length+' รายการ';
+  document.getElementById('bomBody').innerHTML=data.length?data.map(i=>`<tr>
+    <td class="text-left" style="font-weight:700;color:var(--txt)">${i.productName||'—'}</td>
+    <td><span class="bcode">${i.code||'—'}</span></td>
+    <td class="text-left">${i.name||'—'}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono';font-weight:700;color:var(--brand)">${i.unitPerPack||'—'}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono';font-weight:700">${i.packSize||'—'}</td>
+    <td style="text-align:center"><span class="badge badge-brand" style="font-family:'JetBrains Mono'">${i.unit||'UN'}</span></td>
+    <td class="text-left" style="color:var(--txt-3);font-size:12px">${i.category||'—'}</td>
+  </tr>`).join(''):'<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--txt-4)">ไม่พบข้อมูล</td></tr>';
 }
 
+// ── Requisitions Tab ──
+function filterReq(){
+  const st=document.getElementById('reqStatus').value;
+  const s=document.getElementById('reqSearch').value.toLowerCase();
+  let data=[..._reqs].filter(r=>{
+    const ms=!s||Object.values(r).some(v=>String(v).toLowerCase().includes(s));
+    const mst=!st||r.status===st;
+    return ms&&mst;
+  });
+  document.getElementById('reqCount').textContent=data.length+' รายการ';
+  const stMap={Pending:'badge-amber',Issued:'badge-blue',Completed:'badge-green',Cancelled:'badge-red'};
+  document.getElementById('reqBody').innerHTML=data.length?data.map(r=>`<tr>
+    <td><span class="bcode">${r.reqNo}</span></td>
+    <td style="font-size:12px;color:var(--txt-3)">${r.timestamp?new Date(r.timestamp).toLocaleString('th-TH',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</td>
+    <td class="text-left" style="font-weight:600">${r.productTarget||'—'}</td>
+    <td style="text-align:center;font-family:'JetBrains Mono';font-weight:700;color:var(--brand)">${r.targetQty||'—'}</td>
+    <td style="color:var(--txt-3);font-size:12px">${r.reqBy||'—'}</td>
+    <td style="color:var(--txt-3);font-size:12px">${r.issueBy||'—'}</td>
+    <td style="color:var(--txt-3);font-size:12px">${r.receiveBy||'—'}</td>
+    <td style="text-align:center"><span class="badge ${stMap[r.status]||'badge-blue'}">${r.status}</span></td>
+  </tr>`).join(''):'<tr><td colspan="8" style="padding:40px;text-align:center;color:var(--txt-4)">ไม่พบข้อมูล</td></tr>';
+}
+
+// ── Transactions Tab ──
+function filterTx(){
+  const tp=document.getElementById('txType').value;
+  const s=document.getElementById('txSearch').value.toLowerCase();
+  let data=[..._allTx].filter(t=>{
+    const ms=!s||Object.values(t).some(v=>String(v).toLowerCase().includes(s));
+    const mt=!tp||t.type===tp||(t.transactionType||t.transaction_type||'')=== tp;
+    return ms&&mt;
+  });
+  document.getElementById('txCount').textContent=data.length+' รายการ';
+  document.getElementById('txBody').innerHTML=data.length?data.map(t=>{
+    const tp2=t.type||t.transactionType||t.transaction_type||'';
+    const isIn=tp2==='IN';
+    return`<tr>
+      <td style="text-align:center"><span class="badge ${isIn?'badge-green':'badge-red'}">${tp2||'—'}</span></td>
+      <td><span class="bcode" style="font-size:10px">${t.docNo||t.doc_no||'—'}</span></td>
+      <td><span class="bcode">${t.code||t.mat_code||'—'}</span></td>
+      <td class="text-left" style="font-size:12px">${t.name||t.mat_name||'—'}</td>
+      <td style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:var(--green)">${t.batch||t.batch_no||'—'}</td>
+      <td style="text-align:center;font-family:'JetBrains Mono';font-weight:700;${isIn?'color:var(--green)':'color:var(--red)'}">${isIn?'+':'−'}${parseFloat(t.quantity||0).toLocaleString()}</td>
+      <td style="text-align:center;font-size:11px;color:var(--txt-4)">${t.unit||'—'}</td>
+      <td class="text-left" style="font-size:12px;color:var(--txt-3)">${t.targetProduct||t.target_product||'—'}</td>
+      <td style="font-size:12px;color:var(--txt-3)">${t.operator||'—'}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--txt-4)">ไม่พบข้อมูล</td></tr>';
+}
+
+// ── Edit / Delete ──
 function openEdit(ri){
-  const it = rawData.find(i => i.rowIdx === ri);
-  if (!it) return;
-  editIdx = ri;
-  
-  document.getElementById('modalBatchTitle').textContent = it.batch;
-  document.getElementById('modalRMName').textContent = it.name || '—';
-  document.getElementById('modalSupplier').textContent = it.supplier || '—';
-  
-  document.getElementById('editBatch').value = it.batch;
-  document.getElementById('editQty').value = it.qty;
-  document.getElementById('editMfg').value = mfFmtInput(it.mfg);
-  document.getElementById('editExp').value = mfFmtInput(it.exp);
-  
-  const hasExt = !!it.extExp;
-  document.getElementById('toggleExtend').checked = hasExt;
-  document.getElementById('editExtExp').value = hasExt ? mfFmtInput(it.extExp) : '';
-  document.getElementById('extendField').style.display = hasExt ? 'block' : 'none';
-  
+  const it=_mon.find(i=>i.rowIdx===ri||String(i.rowIdx)===String(ri));
+  if(!it)return;
+  _editId=ri;
+  document.getElementById('mTitle').textContent=it.batch||'—';
+  document.getElementById('mRMName').textContent=it.name||'—';
+  document.getElementById('mSupplier').textContent=it.supplier||'—';
+  document.getElementById('eQty').value=it.qty;
+  document.getElementById('eUnit').textContent=it.unit||'UN';
+  document.getElementById('eMfg').value=fmtI(it.mfg);
+  document.getElementById('eExp').value=fmtI(it.exp);
+  document.getElementById('eBatch').value=it.batch||'';
+  const hasExt=!!it.extExp;
+  document.getElementById('cbExt').checked=hasExt;
+  document.getElementById('eExtExp').value=hasExt?fmtI(it.extExp):'';
+  document.getElementById('extWrap').style.display=hasExt?'block':'none';
   editMdl.show();
 }
 
 async function saveEdit(){
-  const qty = parseFloat(document.getElementById('editQty').value);
-  const batch = document.getElementById('editBatch').value.trim();
-  const mfg = document.getElementById('editMfg').value;
-  const exp = document.getElementById('editExp').value;
-  
-  if(isNaN(qty)||qty<0) return alert('จำนวน (Qty) ต้องเป็นตัวเลข >= 0');
-  if(!batch) return alert('กรุณาระบุเลข Batch');
-  if(!mfg||!exp) return alert('กรุณาระบุวันผลิตและวันหมดอายุ');
-  if(new Date(mfg) > new Date(exp)) return alert('วันผลิต ต้องไม่มากกว่าวันหมดอายุ');
-  
-  const isExt = document.getElementById('toggleExtend').checked;
-  const it = rawData.find(i => i.rowIdx === editIdx);
-  
-  const updated = {...it, batch, qty, mfg, exp, extExp: isExt ? document.getElementById('editExtExp').value : ''};
-  
-  editMdl.hide(); 
-  mfShow('กำลังบันทึกข้อมูล...');
-  try {
-    const j = await MF.updateMonitor(updated); 
-    if(j.status === 'success'){
-        rawData[rawData.findIndex(i => i.rowIdx === editIdx)] = updated;
-        applyFilters();
-    } else {
-        alert('เกิดข้อผิดพลาด: ' + (j.message || ''));
-    }
-  } catch(e) { alert('บันทึกล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ'); }
+  const qty=parseFloat(document.getElementById('eQty').value);
+  const batch=document.getElementById('eBatch').value.trim();
+  const mfg=document.getElementById('eMfg').value;
+  const exp=document.getElementById('eExp').value;
+  if(isNaN(qty)||qty<0)return toast('Qty ต้องเป็นตัวเลข ≥ 0',true);
+  if(!batch)return toast('กรุณาระบุ Batch',true);
+  if(!mfg||!exp)return toast('กรุณาระบุวันผลิตและวันหมดอายุ',true);
+  if(new Date(mfg)>new Date(exp))return toast('วันผลิตต้องน้อยกว่าวันหมดอายุ',true);
+  const isExt=document.getElementById('cbExt').checked;
+  const it=_mon.find(i=>String(i.rowIdx)===String(_editId));
+  const updated={...it,batch,qty,mfg,exp,extExp:isExt?document.getElementById('eExtExp').value:''};
+  editMdl.hide();mfShow('กำลังบันทึก...');
+  try{
+    const j=await MF.updateMonitor(updated);
+    if(j.status==='success'){_mon[_mon.findIndex(i=>String(i.rowIdx)===String(_editId))]=updated;buildSummary();filterStock();toast('บันทึกสำเร็จ');}
+    else toast('บันทึกล้มเหลว: '+(j.message||''),true);
+  }catch(e){toast('เกิดข้อผิดพลาด',true);}
   mfHide();
 }
 
-function confirmDel(ri, batch){
-    if(confirm(`ยืนยันการลบ Batch [${batch}] ออกจากระบบอย่างถาวร?`)) doDelete(ri);
+function confirmDel(ri,batch){
+  if(confirm(`ยืนยันลบ Batch [${batch}] อย่างถาวร?`))doDel(ri);
 }
-
-async function doDelete(ri){
-  mfShow('กำลังลบข้อมูล...');
-  try {
-    const j = await MF.deleteMonitor(ri); 
-    if(j.status === 'success'){
-      rawData = rawData.filter(i => i.rowIdx !== ri);
-      applyFilters();
-    } else {
-        alert('ลบไม่สำเร็จ: ' + (j.message || ''));
-    }
-  } catch(e) { alert('ลบล้มเหลว กรุณาตรวจสอบการเชื่อมต่อ'); }
+async function doDel(ri){
+  mfShow('กำลังลบ...');
+  try{
+    const j=await MF.deleteMonitor(ri);
+    if(j.status==='success'){_mon=_mon.filter(i=>String(i.rowIdx)!==String(ri));buildSummary();filterStock();toast('ลบสำเร็จ');}
+    else toast('ลบล้มเหลว',true);
+  }catch(e){toast('เกิดข้อผิดพลาด',true);}
   mfHide();
 }
 </script>
